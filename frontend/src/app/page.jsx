@@ -1,411 +1,447 @@
-"use client";
+// app/admin/links/page.jsx
+'use client';
 
-import { useState } from "react";
-import { Upload, LogIn, LogOut, Home, User } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { 
+  ExternalLink, 
+  Copy, 
+  Calendar, 
+  RefreshCw, 
+  Loader2,
+  Link as LinkIcon,
+  User,
+  File,
+  Download,
+  Clock
+} from 'lucide-react';
 
-export default function HomePage() {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [showLogin, setShowLogin] = useState(false);
-  const [showUpload, setShowUpload] = useState(false);
-  const [file1, setFile1] = useState(null);
-  const [file2, setFile2] = useState(null);
+export default function AdminLinksPage() {
+  const [links, setLinks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [copiedLink, setCopiedLink] = useState('');
+  const [selectedUser, setSelectedUser] = useState('all');
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    // Simple mock login
-    if (username === "admin" && password === "1234") {
-      setLoggedIn(true);
-      setShowLogin(false);
-      setUsername("");
-      setPassword("");
-    } else {
-      alert("Invalid credentials. Use admin/1234 for demo.");
+  // API base URL
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+  // Fetch links from FastAPI backend
+  const fetchLinks = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_URL}/drive-links/`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch links');
+      }
+      const data = await response.json();
+      
+      // Add simulated user data for demo purposes
+      // In real app, this would come from your API
+      const linksWithUsers = data.map((item, index) => ({
+        ...item,
+        user: `User ${index + 1}`,
+        userEmail: `user${index + 1}@example.com`,
+        filesCount: Math.floor(Math.random() * 5) + 1 // Random number of files
+      }));
+      
+      setLinks(linksWithUsers);
+      setError('');
+    } catch (err) {
+      setError('Error loading links. Please try again.');
+      console.error('Error fetching links:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleLogout = () => {
-    setLoggedIn(false);
-    setShowUpload(false);
+  // Initial fetch
+  useEffect(() => {
+    fetchLinks();
+  }, []);
+
+  // Copy link to clipboard
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedLink(text);
+      setTimeout(() => setCopiedLink(''), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
   };
 
-  const handleUpload = (file, driveNumber) => {
-    if (!file) {
-      alert(`Please select a file for Google Drive ${driveNumber}`);
-      return;
-    }
-    alert(`Uploading "${file.name}" to Google Drive ${driveNumber}...`);
-    // Here you can integrate Google Drive API
-    // Reset file after upload
-    if (driveNumber === 1) setFile1(null);
-    else setFile2(null);
+  // Format date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
+
+  // Get unique users
+  const uniqueUsers = ['all', ...new Set(links.map(link => link.user))];
+
+  // Filter links by selected user
+  const filteredLinks = selectedUser === 'all' 
+    ? links 
+    : links.filter(link => link.user === selectedUser);
+
+  // Calculate statistics
+  const totalLinks = links.length;
+  const totalUsers = new Set(links.map(link => link.user)).size;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 font-sans">
-      {/* Navigation Bar */}
-      <nav className="w-full bg-white shadow-md px-6 py-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          {/* Logo/Brand */}
-          <div className="flex items-center space-x-3">
-            <div className="bg-gradient-to-r from-blue-600 to-teal-500 p-2 rounded-lg">
-              <Home className="h-6 w-6 text-white" />
+    <div className="min-h-screen bg-gray-100">
+      {/* Header */}
+      <header className="bg-white shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center">
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                  <File className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Drive Links Admin</h1>
+                  <p className="text-gray-600 text-sm">Google Drive Upload Management System</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-800">ThermalSolar Drone</h1>
-              <p className="text-xs text-gray-500">Advanced Panel Inspection</p>
+            
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={fetchLinks}
+                disabled={loading}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium flex items-center transition-colors disabled:opacity-50"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                )}
+                Refresh
+              </button>
             </div>
           </div>
+        </div>
+      </header>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-gray-700 hover:text-blue-600 font-medium">
-              Features
-            </a>
-            <a href="#how-it-works" className="text-gray-700 hover:text-blue-600 font-medium">
-              How It Works
-            </a>
-            <a href="#benefits" className="text-gray-700 hover:text-blue-600 font-medium">
-              Benefits
-            </a>
-            <a href="#contact" className="text-gray-700 hover:text-blue-600 font-medium">
-              Contact
-            </a>
+      {/* Dashboard Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <LinkIcon className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-semibold text-gray-900">{totalLinks}</h3>
+                <p className="text-gray-600">Total Drive Links</p>
+              </div>
+            </div>
           </div>
+          
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <User className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-semibold text-gray-900">{totalUsers}</h3>
+                <p className="text-gray-600">Active Users</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <Clock className="w-6 h-6 text-purple-600" />
+                </div>
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {links.length > 0 ? formatDate(links[0].created_at) : 'No data'}
+                </h3>
+                <p className="text-gray-600">Latest Upload</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          {/* Right side - Auth & Upload */}
-          <div className="flex items-center space-x-4">
-            {loggedIn ? (
-              <>
-                <button
-                  onClick={() => setShowUpload(true)}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-teal-500 text-white px-4 py-2 rounded-lg hover:opacity-90 transition"
-                >
-                  <Upload className="h-4 w-4" />
-                  <span>Upload</span>
-                </button>
-                <div className="flex items-center space-x-3">
-                  <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <User className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">Welcome, Admin</p>
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center space-x-1 text-xs text-gray-500 hover:text-red-600"
+        {/* Main Content */}
+        <div className="bg-white rounded-lg shadow">
+          {/* Table Header */}
+          <div className="px-6 py-4 border-b border-gray-200">
+            <div className="flex flex-col md:flex-row md:items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Uploaded Drive Links</h2>
+                <p className="text-gray-600 text-sm mt-1">All Google Drive links uploaded by users</p>
+              </div>
+              
+              <div className="mt-4 md:mt-0">
+                <div className="flex items-center space-x-4">
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <select
+                      value={selectedUser}
+                      onChange={(e) => setSelectedUser(e.target.value)}
+                      className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
                     >
-                      <LogOut className="h-3 w-3" />
-                      <span>Logout</span>
-                    </button>
+                      {uniqueUsers.map(user => (
+                        <option key={user} value={user}>
+                          {user === 'all' ? 'All Users' : user}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
-              </>
-            ) : (
-              <button
-                onClick={() => setShowLogin(true)}
-                className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-teal-500 text-white px-4 py-2 rounded-lg hover:opacity-90 transition"
-              >
-                <LogIn className="h-4 w-4" />
-                <span>Login</span>
-              </button>
-            )}
+              </div>
+            </div>
           </div>
-        </div>
-      </nav>
 
-      {/* Login Modal */}
-      {showLogin && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">Login to Your Account</h2>
+          {/* Loading State */}
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
+              <span className="ml-3 text-gray-600">Loading drive links...</span>
+            </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <div className="text-red-600 mb-4">{error}</div>
               <button
-                onClick={() => setShowLogin(false)}
-                className="text-gray-500 hover:text-gray-700"
+                onClick={fetchLinks}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
-                ✕
+                Try Again
               </button>
             </div>
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                  placeholder="Enter username"
-                  required
-                />
+          ) : filteredLinks.length === 0 ? (
+            <div className="text-center py-20">
+              <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <LinkIcon className="w-8 h-8 text-gray-400" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                  placeholder="Enter password"
-                  required
-                />
-              </div>
-              <div className="text-sm text-gray-600">
-                <p>Demo credentials: admin / 1234</p>
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-teal-500 text-white py-3 rounded-lg font-medium hover:opacity-90 transition"
-              >
-                Sign In
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Upload Modal */}
-      {showUpload && loggedIn && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-8">
-            <div className="flex justify-between items-center mb-8">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800">Upload Thermal Images</h2>
-                <p className="text-gray-600 mt-1">Select files to upload to Google Drive</p>
-              </div>
-              <button
-                onClick={() => setShowUpload(false)}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
-              >
-                ✕
-              </button>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No drive links found</h3>
+              <p className="text-gray-600">
+                {selectedUser === 'all' 
+                  ? 'No links have been uploaded yet' 
+                  : `No links found for ${selectedUser}`}
+              </p>
             </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      User
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Drive Links
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Upload Date
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredLinks.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50">
+                      {/* User Column */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0">
+                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                              <User className="w-4 h-4 text-blue-600" />
+                            </div>
+                          </div>
+                          <div className="ml-3">
+                            <div className="text-sm font-medium text-gray-900">{item.user}</div>
+                            <div className="text-xs text-gray-500">{item.userEmail}</div>
+                          </div>
+                        </div>
+                      </td>
+                      
+                      {/* Links Column */}
+                      <td className="px-6 py-4">
+                        <div className="space-y-3">
+                          {/* Drive Link 1 */}
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs font-medium text-gray-500">Link 1</span>
+                              <span className="text-xs text-gray-400">{item.filesCount} files</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <div className="flex-1 bg-gray-50 rounded border border-gray-200 px-3 py-2">
+                                <a
+                                  href={item.drive_link_1}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:text-blue-800 text-sm truncate block"
+                                  title={item.drive_link_1}
+                                >
+                                  {item.drive_link_1}
+                                </a>
+                              </div>
+                              <div className="flex space-x-1">
+                                <button
+                                  onClick={() => copyToClipboard(item.drive_link_1)}
+                                  className={`p-1 rounded ${copiedLink === item.drive_link_1 ? 'bg-green-100 text-green-600' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
+                                  title="Copy link"
+                                >
+                                  <Copy className="w-4 h-4" />
+                                </button>
+                                <a
+                                  href={item.drive_link_1}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                  title="Open link"
+                                >
+                                  <ExternalLink className="w-4 h-4" />
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Drive Link 2 */}
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs font-medium text-gray-500">Link 2</span>
+                              <span className="text-xs text-gray-400">{item.filesCount} files</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <div className="flex-1 bg-gray-50 rounded border border-gray-200 px-3 py-2">
+                                <a
+                                  href={item.drive_link_2}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:text-blue-800 text-sm truncate block"
+                                  title={item.drive_link_2}
+                                >
+                                  {item.drive_link_2}
+                                </a>
+                              </div>
+                              <div className="flex space-x-1">
+                                <button
+                                  onClick={() => copyToClipboard(item.drive_link_2)}
+                                  className={`p-1 rounded ${copiedLink === item.drive_link_2 ? 'bg-green-100 text-green-600' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
+                                  title="Copy link"
+                                >
+                                  <Copy className="w-4 h-4" />
+                                </button>
+                                <a
+                                  href={item.drive_link_2}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                  title="Open link"
+                                >
+                                  <ExternalLink className="w-4 h-4" />
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      
+                      {/* Date Column */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center text-sm text-gray-900">
+                          <Calendar className="w-4 h-4 mr-2 text-gray-400" />
+                          {formatDate(item.created_at)}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          ID: {item.id.slice(-8)}
+                        </div>
+                      </td>
+                      
+                      {/* Actions Column */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          <a
+                            href={item.drive_link_1}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center px-3 py-1 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 text-sm"
+                          >
+                            <ExternalLink className="w-3 h-3 mr-1" />
+                            Open
+                          </a>
+                          <button
+                            onClick={() => {
+                              const combinedLinks = `${item.drive_link_1}\n${item.drive_link_2}`;
+                              copyToClipboard(combinedLinks);
+                            }}
+                            className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 text-sm"
+                          >
+                            <Copy className="w-3 h-3 mr-1" />
+                            Copy All
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
 
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
-              {/* Google Drive 1 */}
-              <div className="border-2 border-dashed border-blue-200 rounded-xl p-6 hover:border-blue-400 transition bg-blue-50">
-                <div className="text-center mb-4">
-                  <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Upload className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-1 text-gray-800">Google Drive 1</h3>
-                  <p className="text-sm text-gray-600">Primary storage</p>
+        {/* Footer Stats */}
+        {!loading && filteredLinks.length > 0 && (
+          <div className="mt-6 bg-white rounded-lg shadow p-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between text-sm text-gray-600">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center">
+                  <LinkIcon className="w-4 h-4 mr-2" />
+                  <span>{filteredLinks.length} drive link sets</span>
                 </div>
-                <input
-                  type="file"
-                  accept="image/*,.pdf,.csv"
-                  onChange={(e) => setFile1(e.target.files ? e.target.files[0] : null)}
-                  className="w-full mb-4 text-sm"
-                />
-                <button
-                  onClick={() => handleUpload(file1, 1)}
-                  disabled={!file1}
-                  className={`w-full py-3 rounded-lg font-medium transition ${
-                    file1
-                      ? "bg-gradient-to-r from-blue-600 to-teal-500 text-white hover:opacity-90"
-                      : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  }`}
-                >
-                  {file1 ? `Upload ${file1.name}` : "Select File First"}
-                </button>
-                {file1 && (
-                  <p className="mt-3 text-sm text-gray-600 truncate">
-                    Selected: <span className="font-medium">{file1.name}</span>
-                  </p>
-                )}
-              </div>
-
-              {/* Google Drive 2 */}
-              <div className="border-2 border-dashed border-teal-200 rounded-xl p-6 hover:border-teal-400 transition bg-teal-50">
-                <div className="text-center mb-4">
-                  <div className="h-12 w-12 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Upload className="h-6 w-6 text-teal-600" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-1 text-gray-800">Google Drive 2</h3>
-                  <p className="text-sm text-gray-600">Backup storage</p>
+                <div className="flex items-center">
+                  <User className="w-4 h-4 mr-2" />
+                  <span>
+                    {selectedUser === 'all' 
+                      ? `${totalUsers} users` 
+                      : `Filtered by: ${selectedUser}`}
+                  </span>
                 </div>
-                <input
-                  type="file"
-                  accept="image/*,.pdf,.csv"
-                  onChange={(e) => setFile2(e.target.files ? e.target.files[0] : null)}
-                  className="w-full mb-4 text-sm"
-                />
-                <button
-                  onClick={() => handleUpload(file2, 2)}
-                  disabled={!file2}
-                  className={`w-full py-3 rounded-lg font-medium transition ${
-                    file2
-                      ? "bg-gradient-to-r from-teal-600 to-blue-500 text-white hover:opacity-90"
-                      : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  }`}
-                >
-                  {file2 ? `Upload ${file2.name}` : "Select File First"}
-                </button>
-                {file2 && (
-                  <p className="mt-3 text-sm text-gray-600 truncate">
-                    Selected: <span className="font-medium">{file2.name}</span>
-                  </p>
-                )}
               </div>
-            </div>
-
-            <div className="text-center">
-              <button
-                onClick={() => {
-                  if (file1) handleUpload(file1, 1);
-                  if (file2) handleUpload(file2, 2);
-                  if (!file1 && !file2) alert("Please select files first");
-                }}
-                className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-8 py-3 rounded-lg font-medium hover:opacity-90 transition"
-              >
-                Upload Both Files
-              </button>
+              <div className="mt-2 md:mt-0">
+                <span className="text-xs text-gray-500">
+                  Last updated: {new Date().toLocaleTimeString()}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Hero Section */}
-      <section className="py-16 px-6 max-w-7xl mx-auto">
-        <div className="text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-            Advanced Thermal Imaging for
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-500">
-              Solar Panel Inspection
-            </span>
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-10">
-            Drone-based thermal inspection technology that detects hotspots, defects, 
-            and efficiency issues in solar panels with unprecedented accuracy and speed.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => loggedIn ? setShowUpload(true) : setShowLogin(true)}
-              className="bg-gradient-to-r from-blue-600 to-teal-500 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:opacity-90 transition shadow-lg"
-            >
-              {loggedIn ? "Upload Inspection Data" : "Start Free Trial"}
-            </button>
-            <button className="bg-white text-blue-600 border-2 border-blue-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-50 transition shadow-lg">
-              Learn More
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section id="how-it-works" className="py-16 bg-white px-6">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
-            How Thermal Solar Inspection Works
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="h-20 w-20 bg-gradient-to-r from-blue-100 to-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-blue-600">1</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Drone Flight & Data Capture</h3>
-              <p className="text-gray-600">
-                Autonomous drones equipped with thermal cameras fly over solar farms,
-                capturing high-resolution thermal images of every panel.
-              </p>
-            </div>
-            <div className="text-center p-6">
-              <div className="h-20 w-20 bg-gradient-to-r from-teal-100 to-teal-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-teal-600">2</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Hotspot Detection</h3>
-              <p className="text-gray-600">
-                AI-powered analysis identifies hotspots, micro-cracks, and defects that
-                indicate panel degradation or malfunction.
-              </p>
-            </div>
-            <div className="text-center p-6">
-              <div className="h-20 w-20 bg-gradient-to-r from-purple-100 to-purple-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-purple-600">3</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Report Generation</h3>
-              <p className="text-gray-600">
-                Detailed reports with actionable insights are generated, helping maintenance
-                teams prioritize repairs and optimize performance.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features/Benefits Section */}
-      <section id="benefits" className="py-16 px-6 bg-gradient-to-b from-gray-50 to-white">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
-            Key Benefits of Thermal Drone Inspection
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { title: "90% Faster", desc: "Reduce inspection time compared to manual methods" },
-              { title: "Cost Efficient", desc: "Lower operational costs and manpower requirements" },
-              { title: "High Accuracy", desc: "Detect issues invisible to the naked eye" },
-              { title: "Safe Operation", desc: "No need for scaffolding or risky manual inspection" },
-              { title: "Data Analytics", desc: "Comprehensive performance tracking over time" },
-              { title: "Early Detection", desc: "Identify problems before they cause system failure" },
-              { title: "Scalable Solution", desc: "Works for small installations to large solar farms" },
-              { title: "24/7 Monitoring", desc: "Regular automated inspections ensure continuous operation" },
-            ].map((benefit, index) => (
-              <div
-                key={index}
-                className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-gray-100"
-              >
-                <h3 className="font-bold text-xl mb-2 text-blue-700">{benefit.title}</h3>
-                <p className="text-gray-600">{benefit.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+        )}
+      </div>
 
       {/* Footer */}
-      <footer id="contact" className="bg-gray-900 text-white py-12 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-xl font-bold mb-4">ThermalSolar Drone</h3>
-              <p className="text-gray-400">
-                Revolutionizing solar panel maintenance through advanced thermal imaging technology.
-              </p>
+      <footer className="mt-8 border-t border-gray-200 bg-white">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="text-center text-gray-600 text-sm">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+              <div className="mb-2 md:mb-0">
+                <p className="font-medium">Drive Links Management System</p>
+                <p className="text-gray-500">Admin Panel v1.0</p>
+              </div>
+              <div>
+                <p>© {new Date().getFullYear()} • {totalLinks} links • {totalUsers} users</p>
+              </div>
             </div>
-            <div>
-              <h4 className="font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#features" className="hover:text-white transition">Features</a></li>
-                <li><a href="#how-it-works" className="hover:text-white transition">How It Works</a></li>
-                <li><a href="#benefits" className="hover:text-white transition">Benefits</a></li>
-                <li><a href="#contact" className="hover:text-white transition">Contact</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Contact Us</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li>info@thermalsolardrone.com</li>
-                <li>+1 (555) 123-4567</li>
-                <li>San Francisco, CA</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Get Started</h4>
-              <button
-                onClick={() => loggedIn ? setShowUpload(true) : setShowLogin(true)}
-                className="bg-gradient-to-r from-blue-600 to-teal-500 text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition"
-              >
-                {loggedIn ? "Upload Data" : "Login Now"}
-              </button>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500">
-            <p>&copy; 2024 ThermalSolar Drone Inspection. All rights reserved.</p>
-            <p className="text-sm mt-2">Advanced thermal imaging for sustainable energy solutions</p>
           </div>
         </div>
       </footer>
