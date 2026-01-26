@@ -9,10 +9,10 @@ export default function HomePage() {
   const [password, setPassword] = useState("");
   const [showLogin, setShowLogin] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
-  const [file1, setFile1] = useState<File | null>(null);
-  const [file2, setFile2] = useState<File | null>(null);
+  const [file1, setFile1] = useState(null);
+  const [file2, setFile2] = useState(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     // Simple mock login
     if (username === "admin" && password === "1234") {
@@ -30,7 +30,7 @@ export default function HomePage() {
     setShowUpload(false);
   };
 
-  const handleUpload = (file: File | null, driveNumber: number) => {
+  const handleUpload = (file, driveNumber) => {
     if (!file) {
       alert(`Please select a file for Google Drive ${driveNumber}`);
       return;
