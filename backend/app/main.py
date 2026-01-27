@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes.drive_links import router as drive_links_router
 
 app = FastAPI()
 
 origins = [
     "http://localhost:3000",
+    "http://localhost:3001",
 ]
 
 app.add_middleware(
@@ -16,8 +16,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(drive_links_router)
+
+try:
+    from app.routes.auth import router as auth_router
+    app.include_router(auth_router)
+    print("✅ Auth router loaded successfully")
+except ImportError as e:
+    print(f"⚠️  Auth router not loaded: {e}")
+
+try:
+    from app.routes.drive_links import router as drive_links_router
+    app.include_router(drive_links_router)
+    print("✅ Drive links router loaded successfully")
+except ImportError as e:
+    print(f"⚠️  Drive links router not loaded: {e}")
 
 @app.get("/")
 def root():
     return {"message": "FastAPI + MongoDB backend is running"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "service": "solar-panel-api"}
