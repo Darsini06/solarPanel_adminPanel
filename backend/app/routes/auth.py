@@ -1,13 +1,12 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from datetime import timedelta
-from app.models import UserRegister, UserLogin, Token, UserResponse
+from app.models.auth import UserRegister, UserLogin, Token, UserResponse  # Updated import
 from app.auth import (
     create_user, 
     authenticate_user, 
     create_access_token,
     get_user_by_id,
-     create_access_token,
     create_refresh_token,
     format_user_response,
     SECRET_KEY,

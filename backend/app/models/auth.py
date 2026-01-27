@@ -17,7 +17,7 @@ class UserRegister(BaseModel):
     def validate_last_name(cls, v):
         v = v.strip()
         if len(v) < 1:
-            raise ValueError('Last name must be at least one characters')
+            raise ValueError('Last name must be at least one character')
         return v
 
     @validator('password')
