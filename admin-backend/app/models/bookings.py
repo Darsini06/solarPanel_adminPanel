@@ -34,8 +34,8 @@ class BookingUpdate(BaseModel):
 class BookingResponse(BaseModel):
     id: str
     user_id: str
-    user_email: str
-    user_name: str
+    user_email: Optional[str] = None
+    user_name: Optional[str] = None
     service_type: str
     date: str
     time: str

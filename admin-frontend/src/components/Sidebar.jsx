@@ -19,10 +19,15 @@ const Sidebar = () => {
     const pathname = usePathname();
 
     const menuItems = [
+         {
+            title: 'Dashboard',
+            icon: <LayoutDashboard size={20} />,
+            path: '/dashboard',
+        },
         {
             title: 'Drive Links',
             icon: <LayoutDashboard size={20} />,
-            path: '/',
+            path: '/drivelinks',
         },
         {
             title: 'Bookings',
@@ -37,7 +42,7 @@ const Sidebar = () => {
         {
             title: 'User Management',
             icon: <Users size={20} />,
-            path: '/users', // Placeholder path
+            path: '/users', 
         },
     ];
 

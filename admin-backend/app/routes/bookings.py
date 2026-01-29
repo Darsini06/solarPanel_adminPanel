@@ -68,7 +68,16 @@ def get_all_bookings():
 @router.get("/my-bookings", response_model=List[BookingResponse])
 def get_my_bookings(current_user = Depends(get_current_user)):
     user_id = str(current_user["_id"])
-    data = list(collection.find({"user_id": user_id}).sort("created_at", -1))
+    user_email = current_user["email"]
+    
+    # Find bookings by user_id OR by email (to catch guest bookings made with same email)
+    # Using regex for case-insensitive email matching
+    data = list(collection.find({
+        "$or": [
+            {"user_id": user_id},
+            {"user_email": {"$regex": f"^{user_email}$", "$options": "i"}}
+        ]
+    }).sort("created_at", -1))
     
     return [
         BookingResponse(
