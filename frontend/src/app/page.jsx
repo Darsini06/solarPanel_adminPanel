@@ -1,0 +1,678 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import {
+  ArrowRight, Zap, Shield, Globe, Sun, FileUp, Database,
+  HardDrive, CheckCircle, User, Mail, Phone, MapPin,
+  Settings, MessageSquare, Send, CloudUpload, Activity
+} from "lucide-react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { authAPI } from "@/lib/api";
+
+export default function HomePage() {
+  const [user, setUser] = useState(null);
+  const [driveLink1, setDriveLink1] = useState("");
+  const [driveLink2, setDriveLink2] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState({ type: "", message: "" });
+  const [pdfs, setPdfs] = useState([]);
+  const [loadingPdfs, setLoadingPdfs] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    location: "",
+    systemSize: "",
+    type: "",
+    message: ""
+  });
+
+  useEffect(() => {
+    const name = localStorage.getItem("user_name");
+    const token = localStorage.getItem("auth_token");
+    if (token && name) {
+      setUser({ name, token });
+    }
+  }, []);
+  const fetchPDFsForLink = async (linkId) => {
+    try {
+      setLoadingPdfs(true);
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`${API_URL}/drive-links/${linkId}/pdfs`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch PDFs');
+      }
+
+      const data = await response.json();
+      setPdfs(data);
+    } catch (err) {
+      console.error('Error fetching PDFs:', err);
+    } finally {
+      setLoadingPdfs(false);
+    }
+  };
+
+  // Add this function to download PDF
+  const downloadPDF = async (pdfId, filename) => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`${API_URL}/drive-links/pdf/${pdfId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to download PDF');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename || 'document.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error downloading PDF:', err);
+      alert('Failed to download PDF');
+    }
+  };
+  const handleDriveLinkSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!driveLink1.trim()) {
+      setUploadStatus({ type: "error", message: "Please provide the primary Google Drive link." });
+      return;
+    }
+
+    const isValidLink = (link) => link.includes("drive.google.com") || link.includes("docs.google.com");
+
+    if (!isValidLink(driveLink1)) {
+      setUploadStatus({ type: "error", message: "Please enter a valid Google Drive link for Link 1." });
+      return;
+    }
+
+    if (driveLink2.trim() && !isValidLink(driveLink2)) {
+      setUploadStatus({ type: "error", message: "Please enter a valid Google Drive link for Link 2." });
+      return;
+    }
+
+    setUploading(true);
+    setUploadStatus({ type: "info", message: "Saving your drive links..." });
+
+    try {
+      const response = await authAPI.saveLinks({
+        drive_link_1: driveLink1,
+        drive_link_2: driveLink2
+      });
+
+      setUploadStatus({
+        type: "success",
+        message: `Drive links successfully saved! Link ID: ${response.data.id}`
+      });
+
+      setDriveLink1("");
+      setDriveLink2("");
+
+    } catch (err) {
+      console.error("Save error:", err);
+      setUploadStatus({
+        type: "error",
+        message: err.response?.data?.detail || "Failed to save links. Please try again."
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    console.log("Form submitted:", formData);
+    alert("Thank you! Your inspection request has been received.");
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      {/* Hero Section */}
+      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full -z-10 bg-gradient-to-tr from-orange-50 to-blue-50"></div>
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-orange-200/30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/2 -left-24 w-72 h-72 bg-blue-200/20 rounded-full blur-3xl"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="inline-flex items-center space-x-2 bg-orange-100 text-orange-700 px-4 py-1.5 rounded-full font-medium text-sm mb-6 animate-bounce">
+              <Sun size={16} />
+              <span>Next-Gen Solar Technology</span>
+            </div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8"
+            >
+              Expert <span className="text-orange-600">Solar Inspection</span> Services
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-xl text-slate-600 mb-10 leading-relaxed"
+            >
+              Ensure your solar infrastructure is operating at peak performance with our professional drone-based and thermographic inspection solutions.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4"
+            >
+              <>
+                <Link
+                  href="#inspection-form"
+                  className="w-full sm:w-auto px-8 py-4 bg-orange-600 text-white rounded-xl font-semibold shadow-lg shadow-orange-200 hover:bg-orange-700 hover:-translate-y-1 transition-all flex items-center justify-center uppercase tracking-wider"
+                >
+                  Book Inspection <ArrowRight className="ml-2" size={20} />
+                </Link>
+                <Link
+                  href="/about"
+                  className="w-full sm:w-auto px-8 py-4 bg-white text-slate-900 border border-slate-200 rounded-xl font-semibold hover:bg-slate-50 transition-all flex items-center justify-center shadow-sm uppercase tracking-wider"
+                >
+                  Learn More
+                </Link>
+              </>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Cloud Asset Sync Section */}
+      {user && (
+        <section id="drive-section" className="py-24 bg-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-50/50 rounded-full blur-[120px] -mr-64 -mt-64" />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-50/30 rounded-full blur-[120px] -ml-64 -mb-64" />
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="lg:col-span-5"
+              >
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 text-orange-600 text-xs font-bold uppercase tracking-widest mb-6 border border-orange-200">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-600"></span>
+                  </span>
+                  Cloud Diagnostics Active
+                </div>
+                <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 leading-tight">
+                  Synchronize Your <br />
+                  <span className="bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent italic">Site Assets</span>
+                </h2>
+                <p className="text-lg text-slate-600 mb-8 leading-relaxed max-w-lg">
+                  Connect your Google Drive or cloud storage containing site photographs and installation plans. Our AI will automatically index and prepare them for inspection.
+                </p>
+
+                <div className="space-y-4">
+                  {[
+                    { icon: Globe, label: "Real-time synchronization" },
+                    { icon: Shield, label: "End-to-end encrypted transfer" },
+                    { icon: Database, label: "Automatic asset classification" },
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-3 text-slate-700 font-semibold group">
+                      <div className="p-2 bg-slate-50 border border-slate-100 rounded-lg group-hover:bg-orange-50 group-hover:border-orange-100 transition-colors">
+                        <item.icon size={18} className="text-orange-600" />
+                      </div>
+                      <span>{item.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="lg:col-span-7"
+              >
+                <div className="bg-slate-900 rounded-[3rem] p-1 md:p-1.5 shadow-2xl shadow-slate-200">
+                  <div className="bg-white rounded-[2.8rem] p-8 md:p-12 border border-slate-100">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl">
+                          <HardDrive size={30} />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-slate-900 text-xl tracking-tight italic">Secure Linkage</h3>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Status Message */}
+                    {uploadStatus.message && (
+                      <div className={`mb-6 p-4 rounded-2xl flex items-center space-x-3 ${uploadStatus.type === "success" ? "bg-emerald-50 text-emerald-700 border border-emerald-100/50" :
+                        uploadStatus.type === "error" ? "bg-red-50 text-red-700 border border-red-100/50" :
+                          "bg-orange-50 text-orange-700 border border-orange-100/50"
+                        }`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${uploadStatus.type === "success" ? "bg-emerald-100" :
+                          uploadStatus.type === "error" ? "bg-red-100" : "bg-orange-100"
+                          }`}>
+                          {uploadStatus.type === "success" ? <CheckCircle size={18} /> :
+                            uploadStatus.type === "error" ? "✕" :
+                              uploading ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent"></div> : "!"}
+                        </div>
+                        <span className="font-bold text-sm">{uploadStatus.message}</span>
+                      </div>
+                    )}
+
+                    <form onSubmit={handleDriveLinkSubmit}>
+                      <div className="space-y-8">
+                        {/* Drive Link 1 */}
+                        <div className="relative group">
+                          <div className="flex items-center justify-between mb-3 pl-1">
+                            <label className="text-sm font-semibold text-slate-700">Drive Link</label>
+                          </div>
+                          <div className="relative">
+                            <input
+                              type="text"
+                              placeholder="Paste Google Drive link ..."
+                              className="w-full pl-6 pr-32 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 focus:bg-white transition-all text-sm font-semibold text-slate-700 placeholder:text-slate-300"
+                              value={driveLink1}
+                              onChange={(e) => setDriveLink1(e.target.value)}
+                              required
+                            />
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                              <button
+                                type="submit"
+                                disabled={uploading}
+                                className="bg-orange-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-orange-700 active:scale-95 transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2 disabled:opacity-70"
+                              >
+                                {uploading ? (
+                                  <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                    Saving...
+                                  </>
+                                ) : (
+                                  <>
+                                    <CloudUpload size={16} />
+                                    Import
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Drive Link 2 */}
+                        <div className="relative group pt-4 border-t border-slate-50">
+                          <div className="flex items-center justify-between mb-3 pl-1">
+                            <label className="text-sm font-semibold text-slate-700">Drive Link 2</label>
+                          </div>
+                          <div className="relative">
+                            <input
+                              type="text"
+                              placeholder="Paste Google Drive link ..."
+                              className="w-full pl-6 pr-32 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm font-semibold text-slate-700 placeholder:text-slate-300"
+                              value={driveLink2}
+                              onChange={(e) => setDriveLink2(e.target.value)}
+                            />
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                              <button
+                                type="submit"
+                                disabled={uploading}
+                                className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-800 active:scale-95 transition-all shadow-lg flex items-center gap-2 disabled:opacity-70"
+                              >
+                                {uploading ? (
+                                  <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                    Saving...
+                                  </>
+                                ) : (
+                                  <>
+                                    <CloudUpload size={16} />
+                                    Import
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+                    <div className="mt-8 pt-6 border-t border-slate-100">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm text-slate-500">
+                          <span className="font-semibold text-slate-700">Note:</span> Ensure your drive link in public.
+                        </div>
+                        <div className="flex items-center space-x-3">
+
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-10 pt-6 border-t border-slate-100">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm text-slate-500">
+
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+      )}
+      {/* Display Uploaded PDFs Section */}
+      {pdfs.length > 0 && (
+        <section className="py-12 bg-slate-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-white rounded-2xl shadow-lg p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-slate-900">Uploaded Documents</h3>
+                <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-semibold">
+                  {pdfs.length} PDF(s)
+                </span>
+              </div>
+
+              {loadingPdfs ? (
+                <div className="flex justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {pdfs.map((pdf) => (
+                    <div key={pdf.pdf_id} className="border border-slate-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <FileText className="w-6 h-6 text-red-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-slate-900 truncate">{pdf.filename}</p>
+                          <div className="flex items-center space-x-2 text-sm text-slate-500 mt-1">
+                            <Calendar className="w-4 h-4" />
+                            <span>{new Date(pdf.uploaded_at).toLocaleDateString()}</span>
+                          </div>
+                          <div className="text-xs text-slate-500 mt-2">
+                            Size: {(pdf.file_size / 1024 / 1024).toFixed(2)} MB
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-4 flex space-x-2">
+                        <button
+                          onClick={() => downloadPDF(pdf.pdf_id, pdf.filename)}
+                          className="flex-1 px-3 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
+                        >
+                          Download
+                        </button>
+                        <button
+                          onClick={() => window.open(`${API_URL}/drive-links/pdf/${pdf.pdf_id}`, '_blank')}
+                          className="px-3 py-2 border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors"
+                        >
+                          View
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {pdfs.length === 0 && !loadingPdfs && (
+                <div className="text-center py-8">
+                  <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <p className="text-slate-500">No PDFs uploaded yet</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Features Section */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Our Inspection Excellence</h2>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto italic font-medium">
+              Precision auditing to maximize your solar asset's lifespan and output.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: <Zap className="text-orange-500" />,
+                title: "Thermographic Analysis",
+                desc: "Identify micro-cracks and hot spots within cells that are invisible to the naked eye using high-res thermal imaging.",
+              },
+              {
+                icon: <Shield className="text-blue-500" />,
+                title: "Drone-Based Surveys",
+                desc: "Rapid, safe, and cost-effective aerial inspections for large-scale solar farms and hard-to-reach rooftop installations.",
+              },
+              {
+                icon: <Globe className="text-emerald-500" />,
+                title: "Performance Audits",
+                desc: "Comprehensive diagnostic reports that provide actionable insights to improve overall system efficiency.",
+              },
+            ].map((feature, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="p-8 rounded-3xl border border-slate-100 bg-slate-50 hover:bg-white hover:shadow-2xl hover:shadow-orange-100 hover:-translate-y-2 transition-all duration-300"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-white shadow-md flex items-center justify-center mb-6">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-4">{feature.title}</h3>
+                <p className="text-slate-600 leading-relaxed italic">{feature.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Inspection Form Section */}
+      <section id="inspection-form" className="py-24 bg-slate-50 relative overflow-hidden">
+        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-orange-200/20 rounded-full blur-[100px]" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <span className="text-orange-600 font-bold tracking-widest uppercase text-sm mb-4 block">Request Service</span>
+              <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-8 leading-tight">
+                Get Your Solar Panels <br />
+                <span className="text-orange-600 italic">Inspected Today.</span>
+              </h2>
+              <p className="text-slate-600 text-lg mb-8 leading-relaxed">
+                Fill out the form to schedule a professional thermographic inspection. Our team will get back to you within 24 hours with a customized quote and deployment plan.
+              </p>
+
+              <div className="space-y-6">
+                {[
+                  { icon: CheckCircle, text: "High-Resolution Thermal Imaging" },
+                  { icon: CheckCircle, text: "AI-Powered Fault Analysis" },
+                  { icon: CheckCircle, text: "Detailed ROI Impact Reports" }
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center space-x-3 text-slate-700 font-medium">
+                    <item.icon className="text-orange-500 w-5 h-5" />
+                    <span>{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-white p-8 md:p-10 rounded-[3rem] shadow-2xl shadow-orange-100 border border-slate-100"
+            >
+              <form onSubmit={handleFormSubmit} className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      name="name"
+                      placeholder="Full Name"
+                      required
+                      onChange={handleChange}
+                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none"
+                    />
+                  </div>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder="Email Address"
+                      required
+                      onChange={handleChange}
+                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                    <input
+                      type="tel"
+                      name="phone"
+                      placeholder="Phone Number"
+                      required
+                      onChange={handleChange}
+                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none"
+                    />
+                  </div>
+                  <div className="relative">
+                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      name="location"
+                      placeholder="Site Location / Address"
+                      required
+                      onChange={handleChange}
+                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="relative">
+                    <Settings className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                    <select
+                      name="type"
+                      onChange={handleChange}
+                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none appearance-none"
+                    >
+                      <option>Residential</option>
+                      <option>Commercial</option>
+                      <option>Industrial solar farm</option>
+                    </select>
+                  </div>
+                  <div className="relative">
+                    <Zap className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      name="systemSize"
+                      placeholder="System Size (e.g. 10kW)"
+                      onChange={handleChange}
+                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="relative">
+                  <MessageSquare className="absolute left-4 top-4 text-slate-400 w-5 h-5" />
+                  <textarea
+                    name="message"
+                    rows="4"
+                    placeholder="Tell us about your requirements..."
+                    onChange={handleChange}
+                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none resize-none"
+                  ></textarea>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-5 bg-orange-600 text-white rounded-2xl font-bold text-lg shadow-xl shadow-orange-200 hover:bg-orange-700 hover:-translate-y-1 transition-all flex items-center justify-center group uppercase tracking-widest"
+                >
+                  Submit Inspection Request <Send className="ml-3 w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Statistics Section */}
+      <section className="py-20 bg-slate-900 text-white overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
+          <Sun className="absolute -top-20 -right-20 w-80 h-80 text-orange-400" />
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+            {[
+              { label: "Installations", value: "2,500+" },
+              { label: "CO2 Saved", value: "15k Tons" },
+              { label: "Customer Rating", value: "4.9/5" },
+              { label: "Maintenance", value: "24/7" },
+            ].map((stat, i) => (
+              <div key={i}>
+                <div className="text-4xl md:text-5xl font-extrabold text-orange-500 mb-2">{stat.value}</div>
+                <div className="text-slate-400 font-medium uppercase tracking-wider text-sm">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      {!user && (
+        <section className="py-24 bg-orange-600 relative overflow-hidden">
+          <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
+            <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-8 uppercase tracking-tight">
+              Ready to switch to cleaner, cheaper energy?
+            </h2>
+            <p className="text-orange-100 text-xl mb-10 font-medium italic">
+              Join thousands of satisfied homeowners who have already made the switch.
+            </p>
+            <Link
+              href="/register"
+              className="inline-flex items-center px-10 py-5 bg-white text-orange-600 rounded-2xl font-bold text-lg shadow-xl hover:scale-105 active:scale-95 transition-all uppercase tracking-widest"
+            >
+              Start Your Journey <ArrowRight className="ml-2" />
+            </Link>
+          </div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full -translate-x-1/2 translate-y-1/3"></div>
+        </section>
+      )}
+    </div>
+  );
+}
