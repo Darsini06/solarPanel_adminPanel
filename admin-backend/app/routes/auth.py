@@ -103,3 +103,24 @@ async def verify_token(current_user = Depends(get_current_user)):
         "user_id": str(current_user["_id"]),
         "email": current_user["email"]
     }
+
+@router.post("/refresh")
+async def refresh_token(data: dict):
+    refresh_token = data.get("refresh_token")
+
+    try:
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=401)
+    except JWTError:
+        raise HTTPException(status_code=401)
+
+    user = get_user_by_id(user_id)
+
+    access_token = create_access_token(
+        data={"sub": str(user["_id"])},
+        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+
+    return {"access_token": access_token}

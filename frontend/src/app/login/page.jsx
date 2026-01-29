@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Sun, Mail, Lock, ArrowRight, Github, Loader2, CheckCircle2 } from "lucide-react";
-import axios from "axios";
+import api from "@/lib/axios";
+
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -21,39 +22,30 @@ export default function LoginPage() {
         setError("");
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError("");
+   const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-        try {
-            const response = await axios.post(
-                "http://localhost:8000/api/login",
-                formData,
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+  try {
+    const response = await api.post("/login", formData);
 
-            if (response.data.access_token) {
-                localStorage.setItem("auth_token", response.data.access_token);
-                localStorage.setItem("refresh_token", response.data.refresh_token);
-                localStorage.setItem("user_name", response.data.user.first_name);
-                localStorage.setItem("user_email", formData.email);
-                setLoggedIn(true);
-                setTimeout(() => {
-                    router.push("/profile");
-                }, 1500);
-            }
-        } catch (err) {
-            console.error("Login error:", err);
-            setError(err.response?.data?.detail || "Invalid email or password");
-        } finally {
-            setLoading(false);
-        }
-    };
+    if (response.data.access_token) {
+      localStorage.setItem("auth_token", response.data.access_token);
+      localStorage.setItem("refresh_token", response.data.refresh_token);
+      localStorage.setItem("user_name", response.data.user.first_name);
+      localStorage.setItem("user_email", formData.email);
+
+      setLoggedIn(true);
+      setTimeout(() => router.push("/profile"), 1500);
+    }
+  } catch (err) {
+    setError(err.response?.data?.detail || "Invalid email or password");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
     return (
         <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 pt-20 md:pt-0">

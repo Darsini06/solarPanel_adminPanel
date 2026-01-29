@@ -24,7 +24,7 @@ export default function LoginPage() {
     e.preventDefault();
     
     const ADMIN_USERNAME = 'admin';
-    const ADMIN_PASSWORD = 'admin123';
+    const ADMIN_PASSWORD = 'solarpanel';
     
     if (!username.trim() || !password.trim()) {
       setError('Please enter both username and password');

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Sun, Mail, Lock, User, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
 import axios from "axios";
+import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
@@ -23,41 +24,60 @@ export default function RegisterPage() {
         setError("");
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError("");
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     setLoading(true);
+    //     setError("");
 
-        try {
-            const response = await axios.post(
-                "http://localhost:8000/api/register",
-                formData,
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+    //     try {
+    //        const response = await api.post("/register", formData);
 
-            if (response.data.access_token) {
-                localStorage.setItem("auth_token", response.data.access_token);
-                localStorage.setItem("refresh_token", response.data.refresh_token);
-                localStorage.setItem("user_name", response.data.user.first_name);
-                localStorage.setItem("user_email", formData.email);
-                setSuccess(true);
-                setTimeout(() => {
-                    router.push("/profile");
-                }, 1500);
-            }
-        } catch (err) {
-            console.error("Registration error:", err);
-            setError(err.response?.data?.detail ||
-                err.response?.data?.error ||
-                "Something went wrong. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
+
+    //         if (response.data.access_token) {
+    //             localStorage.setItem("auth_token", response.data.access_token);
+    //             localStorage.setItem("refresh_token", response.data.refresh_token);
+    //             localStorage.setItem("user_name", response.data.user.first_name);
+    //             localStorage.setItem("user_email", formData.email);
+    //             setSuccess(true);
+    //             setTimeout(() => {
+    //                 router.push("/profile");
+    //             }, 1500);
+    //         }
+    //     } catch (err) {
+    //         console.error("Registration error:", err);
+    //         setError(err.response?.data?.detail ||
+    //             err.response?.data?.error ||
+    //             "Something went wrong. Please try again.");
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError("");
+
+  try {
+    const response = await api.post("/register", formData);
+
+    if (response.data.access_token) {
+      localStorage.setItem("auth_token", response.data.access_token);
+      localStorage.setItem("refresh_token", response.data.refresh_token);
+      localStorage.setItem("user_name", response.data.user.first_name);
+      localStorage.setItem("user_email", formData.email);
+
+      setSuccess(true);
+      setTimeout(() => router.push("/profile"), 1500);
+    }
+  } catch (err) {
+    setError(
+      err.response?.data?.detail ||
+      "Something went wrong. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
     return (
         <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 pt-20 md:pt-0">
