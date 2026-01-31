@@ -2,18 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  FileText, 
-  Download, 
-  BarChart3, 
-  Users, 
-  Calendar, 
+import {
+  FileText,
+  Download,
+  BarChart3,
+  Users,
+  Calendar,
   AlertCircle,
   TrendingUp,
   ExternalLink,
   PlusCircle,
   Shield,
-  Loader2
+  Loader2,
+  Link as LinkIcon
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -21,157 +22,159 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [adminName, setAdminName] = useState('');
   const [driveLinks, setDriveLinks] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [contacts, setContacts] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [stats, setStats] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
 
-  // Check authentication and load data
-  useEffect(() => {
-    const checkAuth = () => {
-      const isAdmin = localStorage.getItem('is_admin');
-      const name = localStorage.getItem('admin_name');
-      
-      if (isAdmin !== 'true') {
-        router.push('/login');
-      } else {
-        setAdminName(name || 'Administrator');
-        loadDashboardData();
-      }
-    };
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-    checkAuth();
-  }, [router]);
+  const formatRelativeTime = (date) => {
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
 
-  // Simulate loading dashboard data
-  const loadDashboardData = () => {
-    setTimeout(() => {
-      // Mock data for drive links
-      const mockLinks = [
-        {
-          id: 1,
-          title: 'Project Proposals',
-          type: 'Folder',
-          icon: '📁',
-          url: 'https://drive.google.com',
-          date: '2024-01-15',
-          size: '45 MB',
-          color: 'blue'
-        },
-        {
-          id: 2,
-          title: 'Financial Reports',
-          type: 'Spreadsheet',
-          icon: '📊',
-          url: 'https://drive.google.com',
-          date: '2024-01-14',
-          size: '12 MB',
-          color: 'green'
-        },
-        {
-          id: 3,
-          title: 'Client Contracts',
-          type: 'PDF',
-          icon: '📄',
-          url: 'https://drive.google.com',
-          date: '2024-01-13',
-          size: '8 MB',
-          color: 'orange'
-        },
-        {
-          id: 4,
-          title: 'Design Assets',
-          type: 'Folder',
-          icon: '🎨',
-          url: 'https://drive.google.com',
-          date: '2024-01-12',
-          size: '156 MB',
-          color: 'purple'
-        },
-        {
-          id: 5,
-          title: 'Meeting Recordings',
-          type: 'Video',
-          icon: '🎥',
-          url: 'https://drive.google.com',
-          date: '2024-01-11',
-          size: '2.3 GB',
-          color: 'red'
-        },
-        {
-          id: 6,
-          title: 'Team Documents',
-          type: 'Folder',
-          icon: '👥',
-          url: 'https://drive.google.com',
-          date: '2024-01-10',
-          size: '89 MB',
-          color: 'teal'
-        }
-      ];
-      setDriveLinks(mockLinks);
-      setLoading(false);
-    }, 800);
+    if (diffInSeconds < 60) return 'just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    return date.toLocaleDateString();
   };
 
-  const stats = [
-    {
-      title: 'Total Drive Links',
-      value: '156',
-      icon: <FileText className="w-5 h-5" />,
-      change: '+12%',
-      color: 'bg-blue-500',
-      textColor: 'text-blue-500'
-    },
-    {
-      title: 'Active Bookings',
-      value: '24',
-      icon: <Calendar className="w-5 h-5" />,
-      change: '+3 this week',
-      color: 'bg-green-500',
-      textColor: 'text-green-500'
-    },
-    {
-      title: 'Total Contacts',
-      value: '342',
-      icon: <Users className="w-5 h-5" />,
-      change: '+8%',
-      color: 'bg-purple-500',
-      textColor: 'text-purple-500'
-    },
-    {
-      title: 'Storage Used',
-      value: '4.2 GB',
-      icon: <BarChart3 className="w-5 h-5" />,
-      change: '65% of limit',
-      color: 'bg-orange-500',
-      textColor: 'text-orange-500'
-    }
-  ];
+  // Load data immediately since authentication is now optional/auto-handled
+  useEffect(() => {
+    const name = localStorage.getItem('admin_name');
+    setAdminName(name || 'Admin User');
+    loadDashboardData();
+  }, []);
 
-  const recentActivity = [
-    { id: 1, action: 'New drive link added', user: 'You', time: '10 min ago', icon: '➕' },
-    { id: 2, action: 'Booking confirmed', user: 'John Doe', time: '1 hour ago', icon: '✅' },
-    { id: 3, action: 'Contact updated', user: 'Sarah Smith', time: '2 hours ago', icon: '✏️' },
-    { id: 4, action: 'File uploaded', user: 'You', time: '5 hours ago', icon: '📤' },
-  ];
+  // Fetch real dashboard data
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const headers = {
+        'Authorization': `Bearer ${token}`
+      };
+
+      // Fetch all required data in parallel
+      const [linksRes, bookingsRes, contactsRes, usersRes] = await Promise.all([
+        fetch(`${API_URL}/drive-links/`, { headers }),
+        fetch(`${API_URL}/bookings/`, { headers }),
+        fetch(`${API_URL}/contacts/`, { headers }),
+        fetch(`${API_URL}/api/users/all`, { headers })
+      ]);
+
+      const [linksData, bookingsData, contactsData, usersData] = await Promise.all([
+        linksRes.ok ? linksRes.json() : [],
+        bookingsRes.ok ? bookingsRes.json() : [],
+        contactsRes.ok ? contactsRes.json() : [],
+        usersRes.ok ? usersRes.json() : []
+      ]);
+
+      setDriveLinks(linksData);
+      setBookings(bookingsData);
+      setContacts(contactsData);
+      setUsers(usersData);
+
+      // Calculate stats
+      const activeBookings = bookingsData.filter(b => b.status === 'confirmed' || b.status === 'pending').length;
+
+      setStats([
+        {
+          title: 'Total Drive Links',
+          value: linksData.length.toString(),
+          icon: <FileText className="w-5 h-5" />,
+          change: 'Live data',
+          color: 'bg-blue-500',
+          textColor: 'text-blue-500'
+        },
+        {
+          title: 'Active Bookings',
+          value: activeBookings.toString(),
+          icon: <Calendar className="w-5 h-5" />,
+          change: 'Confirmed & Pending',
+          color: 'bg-green-500',
+          textColor: 'text-green-500'
+        },
+        {
+          title: 'Total Contacts',
+          value: contactsData.length.toString(),
+          icon: <Users className="w-5 h-5" />,
+          change: 'User inquiries',
+          color: 'bg-purple-500',
+          textColor: 'text-purple-500'
+        },
+        {
+          title: 'Total Users',
+          value: usersData.length.toString(),
+          icon: <Shield className="w-5 h-5" />,
+          change: 'Registered accounts',
+          color: 'bg-orange-500',
+          textColor: 'text-orange-500'
+        }
+      ]);
+
+      // Generate recent activity from real data
+      const activity = [];
+
+      setRecentActivity(
+        [
+          // Add latest links
+          ...linksData.slice(0, 3).map(link => ({
+            id: `link-${link.id}`,
+            action: 'Portfolio Item Linked',
+            user: link.user_name || 'Admin',
+            time: new Date(link.created_at),
+            icon: '🔗',
+            type: 'link'
+          })),
+
+          // Add latest bookings
+          ...bookingsData.slice(0, 3).map(booking => ({
+            id: `booking-${booking.id}`,
+            action: `${booking.service_type}`,
+            user: booking.user_name || 'Guest',
+            time: new Date(booking.created_at),
+            icon: '📅',
+            type: 'booking'
+          })),
+
+          // Add latest contacts
+          ...contactsData.slice(0, 3).map(contact => ({
+            id: `contact-${contact.id}`,
+            action: 'New Inquiry Received',
+            user: `${contact.first_name} ${contact.last_name}`,
+            time: new Date(contact.created_at),
+            icon: '💬',
+            type: 'contact'
+          }))
+        ]
+          .sort((a, b) => b.time - a.time)
+          .slice(0, 6)
+          .map(item => ({
+            ...item,
+            time: formatRelativeTime(item.time)
+          }))
+      );
+
+    } catch (err) {
+      console.error('Error loading dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddLink = () => {
-    const newLink = {
-      id: driveLinks.length + 1,
-      title: `New Drive Link ${driveLinks.length + 1}`,
-      type: 'Link',
-      icon: '🔗',
-      url: 'https://drive.google.com',
-      date: new Date().toISOString().split('T')[0],
-      size: '--',
-      color: 'gray'
-    };
-    setDriveLinks([newLink, ...driveLinks]);
+    router.push('/drivelinks');
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+          <Loader2 className="w-8 h-8 animate-spin text-orange-600 mx-auto" />
+          <p className="mt-4 text-gray-600 font-medium">Fetching correct data...</p>
         </div>
       </div>
     );
@@ -192,7 +195,7 @@ export default function Dashboard() {
             <Shield className="w-5 h-5 text-blue-600" />
             <span className="text-sm font-medium text-blue-700">Admin Mode</span>
           </div>
-          <button 
+          <button
             onClick={handleAddLink}
             className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
@@ -218,9 +221,9 @@ export default function Dashboard() {
             </div>
             <div className="mt-4">
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
+                <div
                   className={`h-2 rounded-full ${stat.textColor.replace('text-', 'bg-')}`}
-                  style={{ width: stat.title === 'Storage Used' ? '65%' : '80%' }}
+                  style={{ width: '85%' }}
                 ></div>
               </div>
             </div>
@@ -237,20 +240,23 @@ export default function Dashboard() {
                 <h2 className="text-xl font-bold text-gray-900">Drive Links</h2>
                 <p className="text-gray-600 text-sm mt-1">Recently added and shared links</p>
               </div>
-              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+              <button
+                onClick={() => router.push('/drivelinks')}
+                className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1"
+              >
                 <ExternalLink className="w-4 h-4" />
                 View All
               </button>
             </div>
-            
+
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                    <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drive Links</th>
                     <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Size</th>
+                    <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
@@ -259,32 +265,53 @@ export default function Dashboard() {
                     <tr key={link.id} className="hover:bg-gray-50 transition-colors">
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl">{link.icon}</span>
+                          <div className="p-2 bg-blue-50 rounded-lg">
+                            <LinkIcon className="w-5 h-5 text-blue-600" />
+                          </div>
                           <div>
-                            <p className="font-medium text-gray-900">{link.title}</p>
-                            <p className="text-xs text-gray-500 truncate max-w-[200px]">{link.url}</p>
+                            <p className="font-medium text-gray-900">{link.user_name || 'Anonymous'}</p>
+                            <p className="text-xs text-gray-500 truncate max-w-[200px]">{link.user_email}</p>
                           </div>
                         </div>
                       </td>
                       <td className="py-4 px-6">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium bg-${link.color}-100 text-${link.color}-600`}>
-                          {link.type}
+                        <div className="flex flex-col gap-1">
+                          <a href={link.drive_link_1} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline truncate max-w-[150px]">
+                            {link.drive_link_1}
+                          </a>
+                          {link.drive_link_2 && (
+                            <a href={link.drive_link_2} target="_blank" rel="noopener noreferrer" className="text-xs text-green-600 hover:underline truncate max-w-[150px]">
+                              {link.drive_link_2}
+                            </a>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 text-gray-600 text-sm">
+                        {new Date(link.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${link.has_pdf ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                          {link.has_pdf ? 'PDF Attached' : 'No PDF'}
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-gray-600">{link.date}</td>
-                      <td className="py-4 px-6 text-gray-600">{link.size}</td>
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-2">
-                          <button 
-                            onClick={() => window.open(link.url, '_blank')}
+                          <button
+                            onClick={() => window.open(link.drive_link_1, '_blank')}
                             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
-                            title="Open Link"
+                            title="Open Link 1"
                           >
                             <ExternalLink className="w-4 h-4" />
                           </button>
-                          <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg" title="Download">
-                            <Download className="w-4 h-4" />
-                          </button>
+                          {link.has_pdf && (
+                            <button
+                              onClick={() => router.push('/drivelinks')}
+                              className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
+                              title="View PDF"
+                            >
+                              <FileText className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -294,7 +321,7 @@ export default function Dashboard() {
             </div>
 
             <div className="p-4 border-t border-gray-200 bg-gray-50">
-              <button 
+              <button
                 onClick={handleAddLink}
                 className="w-full py-3 text-center text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center gap-2"
               >
@@ -374,7 +401,7 @@ export default function Dashboard() {
               <div>
                 <h4 className="font-bold text-gray-900 mb-2">Quick Tip</h4>
                 <p className="text-sm text-gray-600">
-                  Use the "Add Drive Link" button to quickly share important documents with your team. 
+                  Use the "Add Drive Link" button to quickly share important documents with your team.
                   All links are securely stored and accessible.
                 </p>
               </div>

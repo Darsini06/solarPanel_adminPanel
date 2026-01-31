@@ -64,18 +64,18 @@
 //   const fetchLinks = async () => {
 //     try {
 //       setLoading(true);
-      
+
 //       // No Authorization header needed - backend should allow public access for GET
 //       const response = await fetch(`${API_URL}/drive-links/`);
-      
+
 //       if (!response.ok) {
 //         throw new Error('Failed to fetch links');
 //       }
-      
+
 //       const data = await response.json();
 //       setLinks(data);
 //       setError('');
-      
+
 //     } catch (err) {
 //       setError('Error loading links. Please try again.');
 //       console.error('Error fetching links:', err);
@@ -213,7 +213,7 @@
 
 //       // Show success message
 //       setError('');
-      
+
 //       // Update the UI locally
 //       setLinks(prevLinks =>
 //         prevLinks.map(link =>
@@ -813,12 +813,12 @@ export default function HomePage() {
   const [uploadingPdf, setUploadingPdf] = useState(false);
   const [selectedItemForUpload, setSelectedItemForUpload] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-  
+
   // Delete states
   const [deletingLink, setDeletingLink] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [linkToDelete, setLinkToDelete] = useState(null);
-  
+
   // Loading PDFs state
   const [loadingPDFs, setLoadingPDFs] = useState({});
 
@@ -831,32 +831,26 @@ export default function HomePage() {
   }, []);
 
   const checkAdminAuth = () => {
-    const isAdminLoggedIn = localStorage.getItem('is_admin') === 'true';
-    if (isAdminLoggedIn) {
-      setIsAdmin(true);
-      setAdminInfo({
-        name: localStorage.getItem('admin_name') || 'Admin',
-        loginTime: localStorage.getItem('admin_login_time')
-      });
-    } else {
-      setIsAdmin(false);
-      setAdminInfo(null);
-    }
+    setIsAdmin(true);
+    setAdminInfo({
+      name: localStorage.getItem('admin_name') || 'Admin User',
+      loginTime: localStorage.getItem('admin_login_time') || Date.now()
+    });
   };
 
   const fetchLinks = async () => {
     try {
       setLoading(true);
       const response = await fetch(`${API_URL}/drive-links/`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch links');
       }
-      
+
       const data = await response.json();
       setLinks(data);
       setError('');
-      
+
     } catch (err) {
       setError('Error loading links. Please try again.');
       console.error('Error fetching links:', err);
@@ -870,9 +864,9 @@ export default function HomePage() {
     try {
       setDeletingLink(linkId);
       setError('');
-      
+
       const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-      
+
       const response = await fetch(`${API_URL}/drive-links/${linkId}`, {
         method: 'DELETE',
         headers: {
@@ -880,24 +874,20 @@ export default function HomePage() {
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          setError('Authentication required. Please login as admin to delete links.');
-          return;
-        }
         const errorText = await response.text();
         throw new Error(errorText || 'Failed to delete link');
       }
-      
+
       const result = await response.json();
-      
+
       // Remove the deleted link from state
       setLinks(prevLinks => prevLinks.filter(link => link.id !== linkId));
-      
+
       // Show success message
       alert(`✅ ${result.message || 'Link deleted successfully!'}`);
-      
+
     } catch (err) {
       console.error('Error deleting link:', err);
       setError(`Failed to delete link: ${err.message}`);
@@ -913,16 +903,16 @@ export default function HomePage() {
     try {
       setLoadingPDFs(prev => ({ ...prev, [linkId]: true }));
       setError('');
-      
+
       const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-      
+
       const response = await fetch(`${API_URL}/drive-links/${linkId}/pdfs`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
           setError('Authentication required to view PDFs.');
@@ -930,10 +920,10 @@ export default function HomePage() {
         }
         throw new Error('Failed to fetch PDFs');
       }
-      
+
       const data = await response.json();
       setLinkPDFs(prev => ({ ...prev, [linkId]: data }));
-      
+
     } catch (err) {
       console.error('Error fetching PDFs:', err);
       setError(`Failed to load PDFs: ${err.message}`);
@@ -946,7 +936,7 @@ export default function HomePage() {
   const toggleRow = async (linkId) => {
     const isExpanded = expandedRows[linkId];
     setExpandedRows(prev => ({ ...prev, [linkId]: !isExpanded }));
-    
+
     // If expanding and haven't loaded PDFs yet, fetch them
     if (!isExpanded && !linkPDFs[linkId]) {
       await fetchLinkPDFs(linkId);
@@ -958,7 +948,7 @@ export default function HomePage() {
       setError('Admin login required to delete links');
       return;
     }
-    
+
     setLinkToDelete(link);
     setShowDeleteConfirm(true);
   };
@@ -1033,11 +1023,8 @@ export default function HomePage() {
     }
 
     if (!isAdmin) {
-      setError('Please login as admin to upload PDF files');
-      if (confirm('Admin login required. Go to login page?')) {
-        router.push('/login');
-      }
-      return;
+      // In bypass mode this shouldn't happen, but good to keep the check
+      setIsAdmin(true);
     }
 
     try {
@@ -1082,7 +1069,7 @@ export default function HomePage() {
 
       const data = await response.json();
       setError('');
-      
+
       // Update the link
       setLinks(prevLinks =>
         prevLinks.map(link =>
@@ -1123,28 +1110,24 @@ export default function HomePage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('is_admin');
-    localStorage.removeItem('admin_name');
-    localStorage.removeItem('admin_login_time');
-    setIsAdmin(false);
-    setAdminInfo(null);
-    router.push('/login');
+    localStorage.clear();
+    router.push('/');
   };
 
   const downloadPDF = async (pdfId, filename) => {
     try {
       const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-      
+
       const response = await fetch(`${API_URL}/drive-links/pdf/download/${pdfId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to download PDF');
       }
-      
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -1154,7 +1137,7 @@ export default function HomePage() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      
+
     } catch (err) {
       console.error('Error downloading PDF:', err);
       setError('Failed to download PDF');
@@ -1179,28 +1162,12 @@ export default function HomePage() {
             </div>
 
             <div className="flex items-center space-x-4">
-              {isAdmin ? (
-                <div className="flex items-center space-x-3">
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900">{adminInfo?.name || 'Admin'}</div>
-                    <div className="text-xs text-gray-500">Administrator</div>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="px-3 py-1.5 text-sm bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
-                  >
-                    Logout
-                  </button>
+              <div className="flex items-center space-x-3">
+                <div className="text-right">
+                  <div className="text-sm font-medium text-gray-900">{adminInfo?.name || 'Admin'}</div>
+                  <div className="text-xs text-gray-500">Administrator</div>
                 </div>
-              ) : (
-                <button
-                  onClick={() => router.push('/login')}
-                  className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-md text-sm font-medium flex items-center transition-all duration-200 shadow-sm"
-                >
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Admin Login
-                </button>
-              )}
+              </div>
 
               <button
                 onClick={fetchLinks}
@@ -1252,7 +1219,7 @@ export default function HomePage() {
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              
+
               <p className="text-gray-600 mb-6">
                 Are you sure you want to delete this drive link?
                 <br />
@@ -1262,7 +1229,7 @@ export default function HomePage() {
                   ⚠️ This will also delete all associated PDF files!
                 </span>
               </p>
-              
+
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => {
@@ -1437,8 +1404,8 @@ export default function HomePage() {
                 <tbody className="bg-white divide-y divide-gray-100">
                   {filteredLinks.map((item) => (
                     <>
-                      <tr 
-                        key={item.id} 
+                      <tr
+                        key={item.id}
                         className="hover:bg-gray-50/50 transition-colors duration-150 cursor-pointer"
                         onClick={() => toggleRow(item.id)}
                       >
@@ -1446,8 +1413,8 @@ export default function HomePage() {
                           <div className="flex items-center">
                             <div className="flex-shrink-0">
                               <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-sm ${item.user_name && item.user_name !== 'Anonymous User'
-                                  ? 'bg-gradient-to-br from-blue-500 to-blue-600'
-                                  : 'bg-gradient-to-br from-gray-400 to-gray-500'
+                                ? 'bg-gradient-to-br from-blue-500 to-blue-600'
+                                : 'bg-gradient-to-br from-gray-400 to-gray-500'
                                 }`}>
                                 <span className="text-white font-semibold text-sm">
                                   {getUserInitials(item.user_name)}
@@ -1499,8 +1466,8 @@ export default function HomePage() {
                                   <button
                                     onClick={() => copyToClipboard(item.drive_link_1)}
                                     className={`p-2 rounded-lg transition-all duration-200 ${copiedLink === item.drive_link_1
-                                        ? 'bg-gradient-to-br from-green-100 to-green-50 text-green-600 shadow-sm'
-                                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                                      ? 'bg-gradient-to-br from-green-100 to-green-50 text-green-600 shadow-sm'
+                                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                                       }`}
                                     title="Copy link"
                                   >
@@ -1546,8 +1513,8 @@ export default function HomePage() {
                                   <button
                                     onClick={() => copyToClipboard(item.drive_link_2)}
                                     className={`p-2 rounded-lg transition-all duration-200 ${copiedLink === item.drive_link_2
-                                        ? 'bg-gradient-to-br from-green-100 to-green-50 text-green-600 shadow-sm'
-                                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                                      ? 'bg-gradient-to-br from-green-100 to-green-50 text-green-600 shadow-sm'
+                                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                                       }`}
                                     title="Copy link"
                                   >
@@ -1603,12 +1570,12 @@ export default function HomePage() {
                                 <label
                                   htmlFor={`pdf-upload-${item.id}`}
                                   className={`inline-flex items-center justify-center px-4 py-2 border rounded-lg text-sm font-medium transition-all duration-200 shadow-sm cursor-pointer ${uploadingPdf && selectedItemForUpload?.id === item.id
-                                      ? 'border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed'
-                                      : isAdmin && item.has_pdf
-                                        ? 'border-green-600 text-green-700 bg-gradient-to-r from-green-50 to-green-25 hover:from-green-100 hover:to-green-50'
-                                        : isAdmin
-                                          ? 'border-blue-600 text-blue-700 bg-gradient-to-r from-blue-50 to-blue-25 hover:from-blue-100 hover:to-blue-50 hover:border-blue-700'
-                                          : 'border-gray-400 text-gray-500 bg-gradient-to-r from-gray-50 to-gray-25 cursor-not-allowed'
+                                    ? 'border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed'
+                                    : isAdmin && item.has_pdf
+                                      ? 'border-green-600 text-green-700 bg-gradient-to-r from-green-50 to-green-25 hover:from-green-100 hover:to-green-50'
+                                      : isAdmin
+                                        ? 'border-blue-600 text-blue-700 bg-gradient-to-r from-blue-50 to-blue-25 hover:from-blue-100 hover:to-blue-50 hover:border-blue-700'
+                                        : 'border-gray-400 text-gray-500 bg-gradient-to-r from-gray-50 to-gray-25 cursor-not-allowed'
                                     }`}
                                   title={isAdmin
                                     ? item.has_pdf ? "Add another PDF" : "Upload PDF file"
@@ -1652,7 +1619,7 @@ export default function HomePage() {
                                 )}
                               </button>
                             </div>
-                            
+
                             <button
                               onClick={() => toggleRow(item.id)}
                               className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors"
@@ -1672,7 +1639,7 @@ export default function HomePage() {
                           </div>
                         </td>
                       </tr>
-                      
+
                       {/* Expanded Row - PDFs List */}
                       {expandedRows[item.id] && (
                         <tr className="bg-blue-50">
@@ -1682,7 +1649,7 @@ export default function HomePage() {
                                 <FileText className="w-5 h-5 mr-2 text-blue-600" />
                                 Uploaded PDFs for this Link
                               </h4>
-                              
+
                               {loadingPDFs[item.id] ? (
                                 <div className="flex justify-center py-8">
                                   <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />

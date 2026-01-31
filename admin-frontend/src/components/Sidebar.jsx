@@ -12,21 +12,22 @@ import {
     LogOut,
     ChevronRight,
     Shield,
-    Sun
+    Sun,
+    Link as LinkIcon
 } from 'lucide-react';
 
 const Sidebar = () => {
     const pathname = usePathname();
 
     const menuItems = [
-         {
+        {
             title: 'Dashboard',
             icon: <LayoutDashboard size={20} />,
             path: '/dashboard',
         },
         {
             title: 'Drive Links',
-            icon: <LayoutDashboard size={20} />,
+            icon: <LinkIcon size={20} />,
             path: '/drivelinks',
         },
         {
@@ -42,7 +43,7 @@ const Sidebar = () => {
         {
             title: 'User Management',
             icon: <Users size={20} />,
-            path: '/users', 
+            path: '/users',
         },
     ];
 
@@ -78,8 +79,8 @@ const Sidebar = () => {
                             key={item.path}
                             href={item.path}
                             className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 group ${isActive
-                                    ? 'bg-orange-600/10 text-orange-500 shadow-sm border border-orange-500/20'
-                                    : 'hover:bg-slate-800 hover:text-white'
+                                ? 'bg-orange-600/10 text-orange-500 shadow-sm border border-orange-500/20'
+                                : 'hover:bg-slate-800 hover:text-white'
                                 }`}
                         >
                             <div className="flex items-center gap-4">
@@ -120,13 +121,13 @@ const Sidebar = () => {
 
                 <button
                     onClick={() => {
-                        localStorage.removeItem('token');
-                        window.location.reload();
+                        localStorage.clear();
+                        window.location.href = '/';
                     }}
                     className="w-full mt-4 flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-rose-500/10 hover:text-rose-500 transition-all duration-300 group text-slate-400 font-bold text-xs uppercase tracking-widest"
                 >
                     <LogOut size={18} className="group-hover:translate-x-1 transition-transform" />
-                    Logout System
+                    Exit System
                 </button>
             </div>
         </aside>

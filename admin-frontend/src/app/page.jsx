@@ -2,190 +2,145 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogIn, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
+import { Shield, Mail, Lock, Loader2, Sun, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
 
-  // Check if already logged in
+  // Clear any old data on mount
   useEffect(() => {
-    const isAdmin = localStorage.getItem('is_admin');
-    if (isAdmin === 'true') {
-      router.push('/dashboard'); // Redirect to dashboard if already logged in
-    }
-  }, [router]);
+    localStorage.clear();
+  }, []);
 
   const handleLogin = (e) => {
     e.preventDefault();
-    
-    const ADMIN_USERNAME = 'admin';
-    const ADMIN_PASSWORD = 'solarpanel';
-    
-    if (!username.trim() || !password.trim()) {
-      setError('Please enter both username and password');
+    if (!email || !password) {
+      setError('Please enter all credentials');
       return;
     }
 
     setLoading(true);
     setError('');
 
+    // Simulate authentication
     setTimeout(() => {
-      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      if (email === 'admin@gmail.com' && password === 'admin1234') {
+        localStorage.setItem('token', 'demo_session_token_99');
+        localStorage.setItem('admin_name', 'System Admin');
         localStorage.setItem('is_admin', 'true');
-        localStorage.setItem('admin_name', 'Administrator');
-        localStorage.setItem('admin_login_time', Date.now().toString());
-        
-        router.push('/dashboard'); // Redirect to dashboard after login
+        setIsSuccess(true);
+        setTimeout(() => router.push('/dashboard'), 800);
       } else {
-        setError('Invalid username or password');
+        setError('Invalid credentials. Use admin@gmail.com / admin1234');
+        setLoading(false);
       }
-      setLoading(false);
-    }, 500);
+    }, 1200);
   };
 
-  const handleQuickLogin = (type) => {
-    if (type === 'admin') {
-      setUsername('admin');
-      setPassword('admin123');
-    }
+  const handleDemoLogin = () => {
+    setEmail('admin@gmail.com');
+    setPassword('admin1234');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
-            <LogIn className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4 relative overflow-hidden font-sans">
+      {/* Background Glow */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-orange-600/20 rounded-full blur-[120px] animate-pulse"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] animate-pulse"></div>
+
+      <div className="max-w-md w-full relative z-10">
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-10 shadow-2xl">
+          {/* Logo */}
+          <div className="flex flex-col items-center mb-10">
+            <div className="w-16 h-16 bg-orange-600 rounded-2xl flex items-center justify-center mb-4 shadow-xl shadow-orange-900/40 transform -rotate-6">
+              <Sun className="text-white fill-white" size={32} />
+            </div>
+            <h1 className="text-3xl font-black text-white tracking-tighter uppercase">
+              Solar<span className="text-orange-500 italic">Admin</span>
+            </h1>
+            <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.3em] mt-2">
+              System Authentication
+            </p>
           </div>
-        </div>
-        <h2 className="mt-4 text-center text-3xl font-bold text-gray-900">
-          Admin Access
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Enter admin credentials to continue
-        </p>
-      </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-xl rounded-xl sm:px-10 border border-gray-200">
-          {error && (
-            <div className="rounded-lg bg-red-50 p-4 border border-red-200 mb-6">
-              <div className="flex items-center">
-                <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
-                <span className="text-sm text-red-700">{error}</span>
-              </div>
-            </div>
-          )}
-
-          <form className="space-y-6" onSubmit={handleLogin}>
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                value={username}
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                  setError('');
-                }}
-                className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Enter admin username"
-                disabled={loading}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <div className="relative">
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-4">
+              <div className="relative group">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-orange-500 transition-colors" size={18} />
                 <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setError('');
-                  }}
-                  className="block w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Enter admin password"
-                  disabled={loading}
+                  type="email"
+                  placeholder="Admin Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-slate-500 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all font-medium"
                 />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                  disabled={loading}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
+              </div>
+
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-orange-500 transition-colors" size={18} />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-slate-500 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all font-medium"
+                />
               </div>
             </div>
 
-            <div className="flex justify-center">
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('admin')}
-                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                disabled={loading}
-              >
-                Use default admin credentials
-              </button>
-            </div>
+            {error && (
+              <div className="bg-rose-500/10 border border-rose-500/20 p-4 rounded-xl flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></div>
+                <p className="text-rose-500 text-xs font-bold uppercase tracking-wider">{error}</p>
+              </div>
+            )}
 
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  <>
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Login as Admin
-                  </>
-                )}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={loading || isSuccess}
+              className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all duration-500 flex items-center justify-center gap-2 ${isSuccess
+                  ? 'bg-green-500 text-white translate-y-[-4px]'
+                  : 'bg-orange-600 hover:bg-orange-700 text-white shadow-xl shadow-orange-900/30 hover:shadow-orange-900/50 translate-y-0 active:translate-y-2'
+                }`}
+            >
+              {loading ? (
+                <Loader2 className="animate-spin" size={20} />
+              ) : isSuccess ? (
+                <>
+                  <CheckCircle2 size={20} />
+                  Access Granted
+                </>
+              ) : (
+                <>
+                  Launch Dashboard
+                  <ArrowRight size={18} />
+                </>
+              )}
+            </button>
           </form>
 
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="text-sm text-blue-800">
-              <p className="font-medium">Default Credentials:</p>
-              <p className="mt-1">Username: <span className="font-mono">admin</span></p>
-              <p>Password: <span className="font-mono">admin123</span></p>
-              <p className="mt-2 text-xs text-blue-600">
-                Change these in the code for production use.
-              </p>
+          <div className="mt-10 pt-8 border-t border-white/5 flex flex-col items-center gap-4">
+            <button
+              onClick={handleDemoLogin}
+              className="text-slate-500 hover:text-orange-500 text-[10px] font-bold uppercase tracking-widest transition-colors"
+            >
+              Auto-fill Demo Credentials
+            </button>
+            <div className="flex items-center gap-2 text-slate-600">
+              <Shield size={14} />
+              <span className="text-[10px] font-medium tracking-widest uppercase">Secured by End-to-End Encryption</span>
             </div>
           </div>
         </div>
 
-        <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500">
-            Simple admin panel • No database required
-          </p>
-        </div>
+        <p className="text-center text-slate-600 text-[10px] font-bold mt-8 uppercase tracking-[0.4em]">
+          &copy; 2026 Solaris Industrial Solutions
+        </p>
       </div>
     </div>
   );

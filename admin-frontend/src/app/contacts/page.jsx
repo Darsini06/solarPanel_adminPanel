@@ -19,15 +19,14 @@ import {
     User
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ContactsAdminPage() {
     const [contacts, setContacts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
-    const [isAuthenticated, setIsAuthenticated] = useState(true);
-    const [loginData, setLoginData] = useState({ email: '', password: '' });
-    const [authLoading, setAuthLoading] = useState(false);
+    const router = useRouter();
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
@@ -37,11 +36,6 @@ export default function ContactsAdminPage() {
 
     const fetchContacts = async () => {
         const token = localStorage.getItem('token');
-        if (!token) {
-            setIsAuthenticated(false);
-            setLoading(false);
-            return;
-        }
 
         try {
             setLoading(true);
@@ -51,48 +45,15 @@ export default function ContactsAdminPage() {
                 }
             });
 
-            if (response.status === 401) {
-                setIsAuthenticated(false);
-                return;
-            }
-
             if (!response.ok) throw new Error('Failed to fetch contact requests');
 
             const data = await response.json();
             setContacts(data);
-            setIsAuthenticated(true);
             setError('');
         } catch (err) {
             setError(err.message);
         } finally {
             setLoading(false);
-        }
-    };
-
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        setAuthLoading(true);
-        setError('');
-        try {
-            const response = await fetch(`${API_URL}/api/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(loginData)
-            });
-
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.detail || 'Login failed');
-            }
-
-            const data = await response.json();
-            localStorage.setItem('token', data.access_token);
-            setIsAuthenticated(true);
-            fetchContacts();
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setAuthLoading(false);
         }
     };
 
@@ -108,11 +69,6 @@ export default function ContactsAdminPage() {
                 body: JSON.stringify({ status: newStatus })
             });
 
-            if (response.status === 401) {
-                setIsAuthenticated(false);
-                return;
-            }
-
             if (!response.ok) throw new Error('Failed to update status');
             fetchContacts();
         } catch (err) {
@@ -124,18 +80,13 @@ export default function ContactsAdminPage() {
         if (!confirm('Are you sure you want to delete this contact request?')) return;
 
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token');  
             const response = await fetch(`${API_URL}/contacts/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-
-            if (response.status === 401) {
-                setIsAuthenticated(false);
-                return;
-            }
 
             if (!response.ok) throw new Error('Failed to delete contact request');
             fetchContacts();
@@ -144,103 +95,51 @@ export default function ContactsAdminPage() {
         }
     };
 
-    useEffect(() => {
-        fetchContacts();
-    }, []);
-
+    // Filtering logic
     const filteredContacts = useMemo(() => {
-        return contacts.filter(contact => {
-            const matchesSearch =
-                contact.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                contact.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                contact.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                contact.message?.toLowerCase().includes(searchTerm.toLowerCase());
-            return matchesSearch;
-        });
+        return contacts.filter(contact =>
+            contact.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            contact.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            contact.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            contact.message?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
     }, [contacts, searchTerm]);
 
+    // Pagination logic
     const totalPages = Math.ceil(filteredContacts.length / itemsPerPage);
     const paginatedContacts = useMemo(() => {
         const start = (currentPage - 1) * itemsPerPage;
         return filteredContacts.slice(start, start + itemsPerPage);
     }, [filteredContacts, currentPage, itemsPerPage]);
 
+    useEffect(() => {
+        setCurrentPage(1); // Reset to page 1 when searching
+    }, [searchTerm]);
 
-    if (!isAuthenticated) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-                <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100">
-                    <div className="text-center mb-8">
-                        <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                            <Leaf className="w-8 h-8 text-orange-600" />
-                        </div>
-                        <h2 className="text-2xl font-bold text-gray-900">Admin Login</h2>
-                        <p className="text-gray-500 text-sm mt-2">Authentication required for contact management</p>
-                    </div>
-
-                    <form onSubmit={handleLogin} className="space-y-4">
-                        {error && (
-                            <div className="p-3 bg-red-50 text-red-700 text-xs font-bold rounded-lg flex items-center">
-                                <AlertCircle className="w-4 h-4 mr-2" />
-                                {error}
-                            </div>
-                        )}
-                        <div>
-                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Email Address</label>
-                            <input
-                                type="email"
-                                required
-                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 outline-none text-sm bg-gray-50/50"
-                                value={loginData.email}
-                                onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                                placeholder="admin@example.com"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Password</label>
-                            <input
-                                type="password"
-                                required
-                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 outline-none text-sm bg-gray-50/50"
-                                value={loginData.password}
-                                onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                                placeholder="••••••••"
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            disabled={authLoading}
-                            className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-gray-800 shadow-lg transition-all flex justify-center items-center"
-                        >
-                            {authLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign In to Dashboard'}
-                        </button>
-                    </form>
-                </div>
-            </div>
-        );
-    }
+    useEffect(() => {
+        fetchContacts();
+    }, []);
 
     return (
         <div className="min-h-screen bg-[#f8fafc]">
             <header className="bg-white border-b border-gray-200 sticky top-0 z-30 transition-all duration-300">
                 <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center space-x-4">
-                            <Link href="/" className="p-2 hover:bg-gray-50 rounded-lg transition-colors group">
-                                <Home className="w-5 h-5 text-gray-400 group-hover:text-gray-900" />
-                            </Link>
-                            <div className="h-6 w-px bg-gray-200"></div>
-                            <div className="flex items-center space-x-3">
-                                <div className="p-2 bg-orange-50 rounded-lg">
-                                    <MessageSquare className="w-5 h-5 text-orange-600" />
-                                </div>
-                                <div>
-                                    <h1 className="text-sm font-semibold text-gray-900">Contact Requests</h1>
-                                    <p className="text-[11px] text-gray-400 font-medium">Managing user inquiries</p>
-                                </div>
+                        <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-orange-50 rounded-lg">
+                                <MessageSquare className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <div>
+                                <h1 className="text-sm font-semibold text-gray-900">Contact Requests</h1>
+                                <p className="text-[11px] text-gray-400 font-medium">Managing user inquiries</p>
                             </div>
                         </div>
 
+                        <div className="flex items-center space-x-4">
+                            <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                Admin View
+                            </div>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -248,15 +147,15 @@ export default function ContactsAdminPage() {
             <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Stats */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm transition-all hover:shadow-md">
                         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Inquiries</p>
                         <p className="text-2xl font-bold mt-1 text-gray-600">{contacts.length}</p>
                     </div>
-                    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm transition-all hover:shadow-md">
                         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Active Inquiries</p>
                         <p className="text-2xl font-bold mt-1 text-orange-600">{contacts.length}</p>
                     </div>
-                    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm overflow-hidden whitespace-nowrap">
+                    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm overflow-hidden whitespace-nowrap transition-all hover:shadow-md">
                         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Latest Request</p>
                         <p className="text-sm font-bold mt-2 text-gray-600 truncate">
                             {contacts.length > 0 ? `${contacts[0].first_name} ${contacts[0].last_name}` : 'No data'}
@@ -277,7 +176,6 @@ export default function ContactsAdminPage() {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-
                     </div>
 
                     <div className="flex-grow overflow-x-auto">
@@ -286,6 +184,7 @@ export default function ContactsAdminPage() {
                                 <tr className="bg-gray-50/50 border-b border-gray-100">
                                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[200px]">Sender</th>
                                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[400px]">Message Content</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[140px]">Status</th>
                                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[180px]">Received At</th>
                                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[100px]">Action</th>
                                 </tr>
@@ -293,7 +192,7 @@ export default function ContactsAdminPage() {
                             <tbody className="divide-y divide-gray-50">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-20 text-center text-gray-500 font-medium">
+                                        <td colSpan="4" className="px-6 py-20 text-center text-gray-500 font-medium">
                                             <div className="flex flex-col items-center">
                                                 <Loader2 className="w-8 h-8 text-orange-500 animate-spin mb-3" />
                                                 Loading inquiries...
@@ -302,14 +201,14 @@ export default function ContactsAdminPage() {
                                     </tr>
                                 ) : paginatedContacts.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-20 text-center flex flex-col items-center">
+                                        <td colSpan="4" className="px-6 py-20 text-center flex flex-col items-center">
                                             <MessageSquare className="w-12 h-12 text-gray-100 mb-4" />
                                             <h3 className="text-sm font-bold text-gray-900">No inquiry found</h3>
                                         </td>
                                     </tr>
                                 ) : (
                                     paginatedContacts.map((contact) => (
-                                        <tr key={contact.id} className="hover:bg-gray-50/80 transition-colors">
+                                        <tr key={contact.id} className="hover:bg-gray-50/80 transition-colors group">
                                             <td className="px-6 py-4 overflow-hidden">
                                                 <div className="flex flex-col">
                                                     <span className="text-sm font-bold text-gray-900 truncate">
@@ -325,6 +224,17 @@ export default function ContactsAdminPage() {
                                                 <p className="text-xs text-gray-600 line-clamp-3 leading-relaxed" title={contact.message}>
                                                     {contact.message}
                                                 </p>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <button
+                                                    onClick={() => handleStatusUpdate(contact.id, contact.status === 'new' ? 'read' : 'new')}
+                                                    className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${contact.status === 'new'
+                                                        ? 'bg-orange-100 text-orange-700 border-orange-200'
+                                                        : 'bg-green-100 text-green-700 border-green-200'
+                                                        }`}
+                                                >
+                                                    {contact.status || 'new'}
+                                                </button>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center text-sm text-gray-600">
@@ -354,7 +264,7 @@ export default function ContactsAdminPage() {
                     {/* Pagination */}
                     <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between mt-auto">
                         <div className="flex items-center text-xs text-gray-500 font-medium">
-                            Showing <span className="mx-1 text-gray-900">{(currentPage - 1) * itemsPerPage + 1}</span> to
+                            Showing <span className="mx-1 text-gray-900">{filteredContacts.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}</span> to
                             <span className="mx-1 text-gray-900">{Math.min(currentPage * itemsPerPage, filteredContacts.length)}</span> of
                             <span className="mx-1 text-gray-900 font-bold">{filteredContacts.length}</span> entries
                         </div>
@@ -363,7 +273,7 @@ export default function ContactsAdminPage() {
                             <button
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
-                                className="p-2 border border-gray-200 rounded-lg text-gray-500 hover:bg-white disabled:opacity-30 transition-all"
+                                className="p-2 border border-gray-200 rounded-lg text-gray-500 hover:bg-white disabled:opacity-30 transition-all font-bold"
                             >
                                 <ChevronLeft className="w-4 h-4" />
                             </button>
@@ -374,7 +284,7 @@ export default function ContactsAdminPage() {
                                         key={i}
                                         onClick={() => setCurrentPage(i + 1)}
                                         className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${currentPage === i + 1
-                                            ? 'bg-gray-900 text-white'
+                                            ? 'bg-gray-900 text-white shadow-md'
                                             : 'bg-white border border-gray-200 text-gray-500 hover:border-gray-400'
                                             }`}
                                     >
@@ -386,7 +296,7 @@ export default function ContactsAdminPage() {
                             <button
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages || totalPages === 0}
-                                className="p-2 border border-gray-200 rounded-lg text-gray-500 hover:bg-white disabled:opacity-30 transition-all"
+                                className="p-2 border border-gray-200 rounded-lg text-gray-500 hover:bg-white disabled:opacity-30 transition-all font-bold"
                             >
                                 <ChevronRight className="w-4 h-4" />
                             </button>

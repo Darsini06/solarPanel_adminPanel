@@ -24,6 +24,7 @@ import {
     MoreHorizontal
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function BookingPage() {
     const [bookings, setBookings] = useState([]);
@@ -33,9 +34,7 @@ export default function BookingPage() {
     const [submitting, setSubmitting] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
-    const [isAuthenticated, setIsAuthenticated] = useState(true); // Default to true to try fetching
-    const [loginData, setLoginData] = useState({ email: '', password: '' });
-    const [authLoading, setAuthLoading] = useState(false);
+    const router = useRouter();
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
@@ -60,11 +59,6 @@ export default function BookingPage() {
     // Fetch Bookings
     const fetchBookings = async () => {
         const token = localStorage.getItem('token');
-        if (!token) {
-            setIsAuthenticated(false);
-            setLoading(false);
-            return;
-        }
 
         try {
             setLoading(true);
@@ -75,23 +69,10 @@ export default function BookingPage() {
 
             const response = await fetch(`${API_URL}/bookings/`, { headers });
 
-            if (response.status === 401) {
-                setIsAuthenticated(false);
-                return;
-            }
-
-            if (!response.ok) {
-                const responseMy = await fetch(`${API_URL}/bookings/my-bookings`, { headers });
-                if (!responseMy.ok) throw new Error('Failed to fetch bookings');
-                const dataMy = await responseMy.json();
-                setBookings(dataMy);
-                setIsAuthenticated(true);
-                return;
-            }
+            if (!response.ok) throw new Error('Failed to fetch bookings');
 
             const data = await response.json();
             setBookings(data);
-            setIsAuthenticated(true);
             setError('');
         } catch (err) {
             setError('Error loading bookings. Please ensure you are logged in.');
@@ -100,37 +81,6 @@ export default function BookingPage() {
             setLoading(false);
         }
     };
-
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        setAuthLoading(true);
-        setError('');
-        try {
-            const response = await fetch(`${API_URL}/api/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(loginData)
-            });
-
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.detail || 'Login failed');
-            }
-
-            const data = await response.json();
-            localStorage.setItem('token', data.access_token);
-            setIsAuthenticated(true);
-            fetchBookings();
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setAuthLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchBookings();
-    }, []);
 
     // Handle Form Input
     const handleInputChange = (e) => {
@@ -146,7 +96,6 @@ export default function BookingPage() {
 
         try {
             const token = localStorage.getItem('token');
-            if (!token) throw new Error('You must be logged in to manage bookings');
 
             const headers = {
                 'Content-Type': 'application/json',
@@ -207,10 +156,6 @@ export default function BookingPage() {
     const handleStatusUpdate = async (id, newStatus) => {
         try {
             const token = localStorage.getItem('token');
-            if (!token) {
-                setIsAuthenticated(false);
-                throw new Error('Please login to update status');
-            }
 
             const response = await fetch(`${API_URL}/bookings/${id}`, {
                 method: 'PATCH',
@@ -222,8 +167,9 @@ export default function BookingPage() {
             });
 
             if (response.status === 401) {
-                setIsAuthenticated(false);
-                throw new Error('Session expired. Please login again.');
+                localStorage.removeItem('token');
+                router.push('/');
+                return;
             }
 
             if (!response.ok) throw new Error('Failed to update status');
@@ -296,59 +242,9 @@ export default function BookingPage() {
         }
     };
 
-    if (!isAuthenticated) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-                <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100">
-                    <div className="text-center mb-8">
-                        <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                            <Leaf className="w-8 h-8 text-orange-600" />
-                        </div>
-                        <h2 className="text-2xl font-bold text-gray-900">Admin Login</h2>
-                        <p className="text-gray-500 text-sm mt-2">Authentication required for booking management</p>
-                    </div>
-
-                    <form onSubmit={handleLogin} className="space-y-4">
-                        {error && (
-                            <div className="p-3 bg-red-50 text-red-700 text-xs font-bold rounded-lg flex items-center">
-                                <AlertCircle className="w-4 h-4 mr-2" />
-                                {error}
-                            </div>
-                        )}
-                        <div>
-                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Email Address</label>
-                            <input
-                                type="email"
-                                required
-                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 outline-none text-sm bg-gray-50/50"
-                                value={loginData.email}
-                                onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                                placeholder="admin@example.com"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Password</label>
-                            <input
-                                type="password"
-                                required
-                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 outline-none text-sm bg-gray-50/50"
-                                value={loginData.password}
-                                onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                                placeholder="••••••••"
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            disabled={authLoading}
-                            className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-gray-800 shadow-lg transition-all flex justify-center items-center"
-                        >
-                            {authLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign In to Dashboard'}
-                        </button>
-                    </form>
-                </div>
-            </div>
-        );
-    }
+    useEffect(() => {
+        fetchBookings();
+    }, []);
 
     return (
         <div className="min-h-screen bg-[#f8fafc]">
@@ -356,26 +252,20 @@ export default function BookingPage() {
             <header className="bg-white border-b border-gray-200 sticky top-0 z-30 transition-all duration-300">
                 <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center space-x-4">
-                            <Link href="/" className="p-2 hover:bg-gray-50 rounded-lg transition-colors group">
-                                <Home className="w-5 h-5 text-gray-400 group-hover:text-gray-900" />
-                            </Link>
-                            <div className="h-6 w-px bg-gray-200"></div>
-                            <div className="flex items-center space-x-3">
-                                <div className="p-2 bg-orange-50 rounded-lg">
-                                    <Leaf className="w-5 h-5 text-orange-600" />
-                                </div>
-                                <div>
-                                    <h1 className="text-sm font-semibold text-gray-900">Service Management</h1>
-                                    <p className="text-[11px] text-gray-400 font-medium">Monitoring all active bookings</p>
-                                </div>
+                        <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-orange-50 rounded-lg">
+                                <Leaf className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <div>
+                                <h1 className="text-sm font-semibold text-gray-900">Service Management</h1>
+                                <p className="text-[11px] text-gray-400 font-medium">Monitoring all active bookings</p>
                             </div>
                         </div>
 
                         <div className="flex items-center space-x-4">
-                            <Link href="/contacts" className="text-xs font-bold text-gray-500 hover:text-gray-900 transition-colors">
-                                CONTACTS
-                            </Link>
+                            <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                Admin View
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -580,7 +470,7 @@ export default function BookingPage() {
                             <button
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
-                                className="p-2 border border-gray-200 rounded-lg text-gray-500 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                className="p-2 border border-gray-200 rounded-lg text-gray-500 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed transition-all font-bold"
                             >
                                 <ChevronLeft className="w-4 h-4" />
                             </button>
@@ -603,7 +493,7 @@ export default function BookingPage() {
                             <button
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages || totalPages === 0}
-                                className="p-2 border border-gray-200 rounded-lg text-gray-500 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                className="p-2 border border-gray-200 rounded-lg text-gray-500 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed transition-all font-bold"
                             >
                                 <ChevronRight className="w-4 h-4" />
                             </button>

@@ -10,7 +10,7 @@ import {
     AlertTriangle, Clock, ClipboardList,
     CheckCircle2, XCircle, MapPin, Phone,
     ShieldCheck, Trash2, Lock, CreditCard,
-    X
+    X, GitCompare, ArrowUpDown, BarChart3, CheckSquare, Square
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -33,6 +33,14 @@ export default function ProfilePage() {
     const [downloadingPdf, setDownloadingPdf] = useState(null);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedPdf, setSelectedPdf] = useState(null);
+
+    // Comparison States
+    const [selectedReports, setSelectedReports] = useState([]);
+    const [showComparisonModal, setShowComparisonModal] = useState(false);
+    const [comparisonResult, setComparisonResult] = useState(null);
+    const [comparingReports, setComparingReports] = useState(false);
+    const [sortBy, setSortBy] = useState('uploaded_at');
+    const [sortOrder, setSortOrder] = useState('desc');
 
     // SIMPLEST FIX: Just use getMyPDFs
     const fetchProfileData = async () => {
@@ -152,6 +160,77 @@ export default function ProfilePage() {
             console.error("Error deleting booking:", err);
             setError(err.response?.data?.detail || err.message || "Failed to delete booking");
             setLoading(false);
+        }
+    };
+
+    // Comparison Handlers
+    const toggleReportSelection = (pdfId) => {
+        setSelectedReports(prev => {
+            if (prev.includes(pdfId)) {
+                return prev.filter(id => id !== pdfId);
+            } else {
+                return [...prev, pdfId];
+            }
+        });
+    };
+
+    const handleCompareReports = async () => {
+        if (selectedReports.length < 2) {
+            setError("Please select at least 2 reports to compare");
+            return;
+        }
+
+        try {
+            setComparingReports(true);
+            setError("");
+
+            const result = await authAPI.compareReports(selectedReports, sortBy, sortOrder);
+            setComparisonResult(result);
+            setShowComparisonModal(true);
+        } catch (err) {
+            console.error("Error comparing reports:", err);
+            setError(err.response?.data?.detail || "Failed to compare reports");
+        } finally {
+            setComparingReports(false);
+        }
+    };
+
+    const clearComparison = () => {
+        setSelectedReports([]);
+        setComparisonResult(null);
+        setShowComparisonModal(false);
+    };
+
+    const handleDownloadComparisonReport = async () => {
+        if (selectedReports.length < 2) {
+            setError("Please select at least 2 reports to download comparison");
+            return;
+        }
+
+        try {
+            setComparingReports(true);
+            setError("");
+
+            const blob = await authAPI.downloadComparisonReport(selectedReports, sortBy, sortOrder);
+
+            // Create download link
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+            a.download = `report_comparison_${selectedReports.length}_reports_${timestamp}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+
+            // Cleanup
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+        } catch (err) {
+            console.error("Error downloading comparison report:", err);
+            setError(err.response?.data?.detail || "Failed to download comparison report");
+        } finally {
+            setComparingReports(false);
         }
     };
 
@@ -430,34 +509,141 @@ export default function ProfilePage() {
                     {/* Right Column: PDF Files */}
                     <div className="lg:col-span-2">
                         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                            <div className="flex items-center justify-between mb-8">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg">
-                                        <FileText size={20} />
+                            <div className="flex flex-col gap-4 mb-8">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg">
+                                            <FileText size={20} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-bold text-slate-900">Reports</h3>
+                                            <p className="text-slate-500 text-sm">All your generated inspection reports</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="text-xl font-bold text-slate-900">Reports</h3>
-                                        <p className="text-slate-500 text-sm">All your generated inspection reports</p>
+
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm text-slate-500">
+                                            <span className="font-medium">{pdfs.length}</span> Reports
+                                        </span>
+                                        {stats.total_size > 0 && (
+                                            <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">
+                                                {stats.total_size} MB total
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-2">
-                                    <span className="text-sm text-slate-500">
-                                        <span className="font-medium">{pdfs.length}</span> Reports
-                                    </span>
-                                    {stats.total_size > 0 && (
-                                        <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">
-                                            {stats.total_size} MB total
-                                        </span>
-                                    )}
-                                </div>
+                                {/* Comparison Controls */}
+                                {pdfs.length > 1 && (
+                                    <div className="flex flex-wrap items-center gap-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                                        <div className="flex items-center gap-2">
+                                            <GitCompare className="w-5 h-5 text-blue-600" />
+                                            <span className="text-sm font-semibold text-blue-900">Compare Reports</span>
+                                        </div>
+
+                                        {selectedReports.length > 0 && (
+                                            <span className="px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full">
+                                                {selectedReports.length} Selected
+                                            </span>
+                                        )}
+
+                                        <div className="flex items-center gap-2 ml-auto">
+                                            <select
+                                                value={sortBy}
+                                                onChange={(e) => setSortBy(e.target.value)}
+                                                className="text-xs px-3 py-1.5 border border-blue-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                <option value="uploaded_at">Sort by Date</option>
+                                                <option value="filename">Sort by Name</option>
+                                                <option value="file_size">Sort by Size</option>
+                                            </select>
+
+                                            <button
+                                                onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+                                                className="p-1.5 border border-blue-200 rounded-lg bg-white hover:bg-blue-50 transition-colors"
+                                                title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+                                            >
+                                                <ArrowUpDown className="w-4 h-4 text-blue-600" />
+                                            </button>
+
+                                            {selectedReports.length > 0 && (
+                                                <button
+                                                    onClick={clearComparison}
+                                                    className="px-3 py-1.5 text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors"
+                                                >
+                                                    Clear
+                                                </button>
+                                            )}
+
+                                            <button
+                                                onClick={handleCompareReports}
+                                                disabled={selectedReports.length < 2 || comparingReports}
+                                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-2 ${selectedReports.length >= 2
+                                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md'
+                                                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                                    }`}
+                                            >
+                                                {comparingReports ? (
+                                                    <>
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                        Comparing...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <BarChart3 className="w-4 h-4" />
+                                                        Compare ({selectedReports.length >= 2 ? selectedReports.length : 'Select 2+'})
+                                                    </>
+                                                )}
+                                            </button>
+
+                                            <button
+                                                onClick={handleDownloadComparisonReport}
+                                                disabled={selectedReports.length < 2 || comparingReports}
+                                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-2 ${selectedReports.length >= 2
+                                                        ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-md'
+                                                        : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                                    }`}
+                                                title="Download merged comparison report as PDF"
+                                            >
+                                                {comparingReports ? (
+                                                    <>
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                        Generating...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Download className="w-4 h-4" />
+                                                        Download PDF
+                                                    </>
+                                                )}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {pdfs.length > 0 ? (
                                 <div className="space-y-4">
                                     {pdfs.map((pdf) => {
+                                        const isSelected = selectedReports.includes(pdf.pdf_id);
                                         return (
-                                            <div key={pdf.pdf_id} className="group flex items-center justify-between p-4 rounded-lg border border-slate-200 hover:border-orange-300 hover:bg-orange-50/20 transition-all">
+                                            <div key={pdf.pdf_id} className={`group flex items-center justify-between p-4 rounded-lg border transition-all ${isSelected
+                                                ? 'border-blue-500 bg-blue-50/50 shadow-md'
+                                                : 'border-slate-200 hover:border-orange-300 hover:bg-orange-50/20'
+                                                }`}>
+                                                {/* Selection Checkbox */}
+                                                <button
+                                                    onClick={() => toggleReportSelection(pdf.pdf_id)}
+                                                    className="flex-shrink-0 mr-3 p-1 hover:bg-slate-100 rounded transition-colors"
+                                                    title={isSelected ? "Deselect for comparison" : "Select for comparison"}
+                                                >
+                                                    {isSelected ? (
+                                                        <CheckSquare className="w-5 h-5 text-blue-600" />
+                                                    ) : (
+                                                        <Square className="w-5 h-5 text-slate-400 group-hover:text-blue-400" />
+                                                    )}
+                                                </button>
+
                                                 <div className="flex items-center gap-4 flex-1 min-w-0">
                                                     <div className="relative">
                                                         <div className="w-10 h-12 bg-red-100 rounded flex items-center justify-center">
@@ -650,6 +836,152 @@ export default function ProfilePage() {
                             <div className="flex items-center gap-1 grayscale opacity-50 text-[10px] font-bold text-slate-400">
                                 PAYPAL
                             </div>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* Comparison Modal */}
+            {showComparisonModal && comparisonResult && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"
+                        onClick={clearComparison}
+                    />
+                    <motion.div
+                        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden my-8"
+                    >
+                        {/* Header */}
+                        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 z-10">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-white/20 rounded-lg">
+                                        <GitCompare className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-2xl font-bold">Report Comparison</h2>
+                                        <p className="text-blue-100 text-sm mt-1">
+                                            {comparisonResult.algorithm_used} • {comparisonResult.total_reports} Reports Analyzed
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={clearComparison}
+                                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                                >
+                                    <X className="w-6 h-6" />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+                            {/* Summary Stats */}
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+                                    <div className="text-xs font-medium text-blue-600 mb-1">Total Reports</div>
+                                    <div className="text-2xl font-bold text-blue-700">
+                                        {comparisonResult.comparison_summary.total_reports}
+                                    </div>
+                                </div>
+                                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+                                    <div className="text-xs font-medium text-purple-600 mb-1">Total Size</div>
+                                    <div className="text-2xl font-bold text-purple-700">
+                                        {comparisonResult.comparison_summary.total_size_mb} MB
+                                    </div>
+                                </div>
+                                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+                                    <div className="text-xs font-medium text-green-600 mb-1">Average Size</div>
+                                    <div className="text-2xl font-bold text-green-700">
+                                        {formatFileSize(comparisonResult.comparison_summary.average_size_bytes)}
+                                    </div>
+                                </div>
+                                <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
+                                    <div className="text-xs font-medium text-orange-600 mb-1">Uploaders</div>
+                                    <div className="text-2xl font-bold text-orange-700">
+                                        {comparisonResult.comparison_summary.unique_uploaders}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Size Comparison */}
+                            <div className="bg-slate-50 rounded-xl p-4 mb-6 border border-slate-200">
+                                <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                                    <BarChart3 className="w-4 h-4" />
+                                    Size Analysis
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <div className="text-xs text-slate-600 mb-1">Smallest Report</div>
+                                        <div className="text-sm font-semibold text-slate-900">
+                                            {comparisonResult.comparison_summary.smallest_report.filename}
+                                        </div>
+                                        <div className="text-xs text-green-600">
+                                            {formatFileSize(comparisonResult.comparison_summary.smallest_report.size)}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-xs text-slate-600 mb-1">Largest Report</div>
+                                        <div className="text-sm font-semibold text-slate-900">
+                                            {comparisonResult.comparison_summary.largest_report.filename}
+                                        </div>
+                                        <div className="text-xs text-red-600">
+                                            {formatFileSize(comparisonResult.comparison_summary.largest_report.size)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Sorted Reports List */}
+                            <div className="mb-4">
+                                <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                                    <FileText className="w-4 h-4" />
+                                    Sorted Reports (by {comparisonResult.sorted_by})
+                                </h3>
+                                <div className="space-y-2">
+                                    {comparisonResult.reports.map((report, index) => (
+                                        <div
+                                            key={report.pdf_id}
+                                            className="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200 hover:border-blue-300 transition-colors"
+                                        >
+                                            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold">
+                                                {index + 1}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="text-sm font-semibold text-slate-900 truncate">
+                                                    {report.filename}
+                                                </div>
+                                                <div className="flex items-center gap-3 mt-1">
+                                                    <span className="text-xs text-slate-500">
+                                                        {formatFileSize(report.file_size)}
+                                                    </span>
+                                                    <span className="text-xs text-slate-400">•</span>
+                                                    <span className="text-xs text-slate-500">
+                                                        {formatDate(report.uploaded_at)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="sticky bottom-0 bg-slate-50 border-t border-slate-200 p-4 flex items-center justify-between">
+                            <div className="text-xs text-slate-600">
+                                <span className="font-semibold">Algorithm:</span> {comparisonResult.algorithm_used}
+                            </div>
+                            <button
+                                onClick={clearComparison}
+                                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-semibold transition-all shadow-md"
+                            >
+                                Close
+                            </button>
                         </div>
                     </motion.div>
                 </div>

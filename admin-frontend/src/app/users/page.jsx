@@ -1,14 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Users, Shield, Plus, Search, Filter, MoreVertical, Edit, Trash2, UserPlus } from 'lucide-react';
+import { Users, Shield, Plus, Search, Filter, MoreVertical, Edit, Trash2, UserPlus, Mail } from 'lucide-react';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 export default function UserManagementPage() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    const router = useRouter();
     const [stats, setStats] = useState({
         total: 0,
         active: 0,
@@ -23,14 +25,8 @@ export default function UserManagementPage() {
         try {
             setLoading(true);
             setError('');
-            
-            const token = localStorage.getItem('access_token');
-            
-            if (!token) {
-                setError('Please login to view users');
-                setLoading(false);
-                return;
-            }
+
+            const token = localStorage.getItem('token');
 
             const response = await axios.get(`${API_URL}/api/users/all`, {
                 headers: {
@@ -41,13 +37,13 @@ export default function UserManagementPage() {
 
             if (response.data && Array.isArray(response.data)) {
                 setUsers(response.data);
-                
+
                 // Calculate statistics
                 const total = response.data.length;
-                const active = response.data.filter(user => 
+                const active = response.data.filter(user =>
                     user.status === 'active' || user.status === 'Active'
                 ).length;
-                
+
                 setStats({
                     total,
                     active,
@@ -60,7 +56,8 @@ export default function UserManagementPage() {
         } catch (err) {
             console.error('Error fetching users:', err);
             if (err.response?.status === 401) {
-                setError('Session expired. Please login again.');
+                localStorage.removeItem('token');
+                router.push('/');
             } else if (err.response?.status === 403) {
                 setError('You do not have permission to view users');
             } else {
@@ -79,8 +76,8 @@ export default function UserManagementPage() {
         }
 
         try {
-            const token = localStorage.getItem('access_token');
-            
+            const token = localStorage.getItem('token');
+
             await axios.delete(`${API_URL}/api/users/${userId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -89,13 +86,13 @@ export default function UserManagementPage() {
 
             // Remove user from local state
             setUsers(users.filter(user => user._id !== userId));
-            
+
             // Update stats
             setStats(prev => ({
                 ...prev,
                 total: prev.total - 1
             }));
-            
+
             alert('User deleted successfully');
         } catch (err) {
             console.error('Error deleting user:', err);
@@ -106,7 +103,7 @@ export default function UserManagementPage() {
     // Filter users based on search term
     const filteredUsers = users.filter(user => {
         if (!searchTerm) return true;
-        
+
         const searchLower = searchTerm.toLowerCase();
         return (
             (user.first_name && user.first_name.toLowerCase().includes(searchLower)) ||
@@ -145,7 +142,7 @@ export default function UserManagementPage() {
     }, []);
 
     return (
-        <div className="p-8">
+        <div className="p-8 pb-20">
             {/* Page Header */}
             <div className="flex justify-between items-end mb-8">
                 <div>
@@ -153,37 +150,33 @@ export default function UserManagementPage() {
                     <p className="text-gray-500 mt-1 font-medium">Manage all registered users in the system</p>
                 </div>
                 <div className="flex gap-3">
-                    <button 
+                    <button
                         onClick={fetchUsers}
                         className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-bold text-sm hover:bg-gray-200 transition-all"
                     >
                         <Filter size={18} />
                         Refresh
                     </button>
-                    <button className="flex items-center gap-2 px-5 py-2.5 bg-orange-600 text-white rounded-xl font-bold text-sm hover:bg-orange-700 transition-all shadow-lg shadow-orange-200">
-                        <UserPlus size={18} />
-                        Add New User
-                    </button>
                 </div>
             </div>
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm transition-all hover:shadow-md">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Users</p>
                     <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-bold text-gray-900">{stats.total}</span>
                         <span className="text-xs font-bold text-gray-500">registered</span>
                     </div>
                 </div>
-                <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm transition-all hover:shadow-md">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Active Users</p>
                     <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-bold text-gray-900">{stats.active}</span>
                         <span className="text-xs font-bold text-green-500">currently active</span>
                     </div>
                 </div>
-                <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm transition-all hover:shadow-md">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">System Status</p>
                     <div className="flex items-center gap-2 text-green-600 mt-1">
                         <Shield size={16} />
@@ -201,8 +194,8 @@ export default function UserManagementPage() {
 
             {/* Users Table */}
             <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl shadow-slate-200/50 overflow-hidden">
-                <div className="p-6 border-b border-gray-50 flex justify-between items-center">
-                    <div className="relative w-96">
+                <div className="p-6 border-b border-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div className="relative w-full md:w-96">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                         <input
                             type="text"
@@ -213,7 +206,7 @@ export default function UserManagementPage() {
                         />
                     </div>
                     <div className="flex gap-3">
-                        <button 
+                        <button
                             onClick={fetchUsers}
                             className="px-4 py-2.5 text-sm font-medium bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 transition-colors"
                         >
@@ -249,7 +242,7 @@ export default function UserManagementPage() {
                                     <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Role</th>
                                     <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Joined Date</th>
                                     <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Status</th>
-                                    <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Actions</th>
+                                    <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest w-[120px]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -275,11 +268,10 @@ export default function UserManagementPage() {
                                             </div>
                                         </td>
                                         <td className="px-8 py-5">
-                                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                                                user.role === 'admin' || user.role === 'Admin' 
-                                                    ? 'bg-red-50 text-red-600 border-red-100' 
-                                                    : 'bg-blue-50 text-blue-600 border-blue-100'
-                                            }`}>
+                                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${user.role === 'admin' || user.role === 'Admin'
+                                                ? 'bg-red-50 text-red-600 border-red-100'
+                                                : 'bg-blue-50 text-blue-600 border-blue-100'
+                                                }`}>
                                                 {user.role || 'User'}
                                             </span>
                                         </td>
@@ -290,11 +282,10 @@ export default function UserManagementPage() {
                                         </td>
                                         <td className="px-8 py-5">
                                             <div className="flex items-center gap-2">
-                                                <div className={`w-2 h-2 rounded-full ${
-                                                    user.status === 'active' || user.status === 'Active' 
-                                                        ? 'bg-green-500' 
-                                                        : 'bg-gray-300'
-                                                }`} />
+                                                <div className={`w-2 h-2 rounded-full ${user.status === 'active' || user.status === 'Active'
+                                                    ? 'bg-green-500'
+                                                    : 'bg-gray-300'
+                                                    }`} />
                                                 <span className="text-sm font-medium text-gray-600">
                                                     {user.status === 'active' || user.status === 'Active' ? 'Active' : 'Inactive'}
                                                 </span>
@@ -302,15 +293,9 @@ export default function UserManagementPage() {
                                         </td>
                                         <td className="px-8 py-5">
                                             <div className="flex gap-2">
-                                                <button 
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Edit User"
-                                                >
-                                                    <Edit size={16} />
-                                                </button>
-                                                <button 
+                                                <button
                                                     onClick={() => handleDeleteUser(user._id || user.id)}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100"
                                                     title="Delete User"
                                                 >
                                                     <Trash2 size={16} />
@@ -327,10 +312,8 @@ export default function UserManagementPage() {
 
             {/* Help Text */}
             <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                <p className="text-sm text-gray-600">
-                    <span className="font-bold">Note:</span> This page displays all registered users from the database. 
-                    Make sure your backend API is running at <code className="bg-gray-100 px-2 py-1 rounded">{API_URL}</code> 
-                    and you are authenticated.
+                <p className="text-sm text-gray-600 font-medium">
+                    <span className="font-bold text-gray-900">System Information:</span> Managing all registered administrative and user accounts.
                 </p>
             </div>
         </div>
