@@ -153,34 +153,34 @@ export default function AboutPage() {
     return (
         <div className="min-h-screen bg-white">
             {/* Hero Section */}
-            <section className="relative pt-24 pb-16 overflow-hidden">
-                {/* Animated Background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-amber-50/30 to-white -z-10" />
-                <div className="absolute top-20 left-10 w-72 h-72 bg-orange-400/10 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+            <section className="relative pt-24 pb-20 overflow-hidden border-b border-slate-100">
+                {/* Background */}
+                <div className="absolute inset-0 bg-slate-50 -z-10" />
+                <div className="absolute top-20 left-10 w-72 h-72 bg-orange-400/5 rounded-full blur-3xl" />
+                <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/5 rounded-full blur-3xl" />
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial="initial"
                         animate="animate"
                         variants={stagger}
-                        className="text-center max-w-5xl mx-auto mb-12"
+                        className="text-center max-w-5xl mx-auto mb-16"
                     >
                         {/* Main Heading */}
                         <motion.h1
                             variants={fadeIn}
-                            className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight"
+                            className="text-5xl md:text-7xl lg:text-8xl font-bold text-slate-900 mb-8 tracking-tight leading-tight"
                         >
-                            Advanced Drone-Based
-                            <span className="block mt-2 bg-clip-text text-transparent bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500">
-                                Solar Panel Inspection
+                            The Next Generation of
+                            <span className="block mt-2 text-orange-600">
+                                Solar Intelligence
                             </span>
                         </motion.h1>
 
                         {/* Subheading */}
                         <motion.p
                             variants={fadeIn}
-                            className="text-lg md:text-xl text-slate-600 leading-relaxed mb-8 max-w-3xl mx-auto"
+                            className="text-xl md:text-2xl text-slate-600 leading-relaxed mb-10 max-w-3xl mx-auto font-medium"
                         >
                             Maximize your solar farm's efficiency with cutting-edge thermal imaging technology.
                             We detect faults, prevent failures, and optimize energy production with 99.9% accuracy.
@@ -189,7 +189,7 @@ export default function AboutPage() {
                         {/* Key Features Pills */}
                         <motion.div
                             variants={fadeIn}
-                            className="flex flex-wrap items-center justify-center gap-3 mb-10"
+                            className="flex flex-wrap items-center justify-center gap-4"
                         >
                             {[
                                 { icon: Camera, text: "Thermal Imaging" },
@@ -197,9 +197,9 @@ export default function AboutPage() {
                                 { icon: Clock, text: "Fast Results" },
                                 { icon: ShieldCheck, text: "99.9% Accurate" }
                             ].map((item, i) => (
-                                <div key={i} className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-md border border-slate-200 hover:border-orange-300 hover:shadow-lg transition-all">
-                                    <item.icon className="w-4 h-4 text-orange-600" />
-                                    <span className="text-sm font-semibold text-slate-700">{item.text}</span>
+                                <div key={i} className="flex items-center gap-3 px-6 py-3 bg-white rounded-xl shadow-sm border border-slate-100 transition-all">
+                                    <item.icon className="w-5 h-5 text-orange-600" />
+                                    <span className="text-sm font-bold text-slate-800 tracking-tight">{item.text}</span>
                                 </div>
                             ))}
                         </motion.div>
@@ -211,20 +211,18 @@ export default function AboutPage() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8, delay: 0.2 }}
-                        className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 md:p-10 bg-gradient-to-br from-white to-slate-50 rounded-3xl shadow-2xl shadow-slate-200/50 border border-slate-100"
+                        className="grid grid-cols-2 md:grid-cols-4 gap-8 p-10 md:p-12 bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/40 border border-slate-100"
                     >
                         {stats.map((stat, i) => (
                             <motion.div
                                 key={i}
-                                className="text-center group cursor-pointer"
-                                whileHover={{ scale: 1.05 }}
-                                transition={{ type: "spring", stiffness: 300 }}
+                                className="text-center group"
                             >
-                                <div className="inline-flex items-center justify-center w-14 h-14 mb-3 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/30 group-hover:shadow-xl group-hover:shadow-orange-500/40 transition-all duration-300">
-                                    <stat.icon className="w-7 h-7" />
+                                <div className="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-xl bg-orange-50 text-orange-600 transition-all duration-300">
+                                    <stat.icon className="w-8 h-8" />
                                 </div>
-                                <div className="text-3xl md:text-4xl font-bold text-slate-900 mb-1 group-hover:text-orange-600 transition-colors">{stat.value}</div>
-                                <div className="text-xs md:text-sm font-medium text-slate-500 uppercase tracking-wide">{stat.label}</div>
+                                <div className="text-4xl md:text-5xl font-bold text-slate-900 mb-2 tracking-tight">{stat.value}</div>
+                                <div className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-widest">{stat.label}</div>
                             </motion.div>
                         ))}
                     </motion.div>
@@ -232,26 +230,26 @@ export default function AboutPage() {
             </section>
 
             {/* Inspection Process Section */}
-            <section className="py-20 bg-gradient-to-b from-white to-slate-50">
+            <section className="py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-center mb-16"
+                        className="text-center mb-20"
                     >
-                        <span className="inline-block px-4 py-1.5 mb-4 text-sm font-semibold tracking-wider text-orange-600 uppercase bg-orange-100 rounded-full">
+                        <span className="inline-block px-4 py-1.5 mb-6 text-xs font-bold tracking-widest text-orange-600 uppercase bg-orange-50 rounded-lg border border-orange-100">
                             How It Works
                         </span>
-                        <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+                        <h2 className="text-4xl md:text-6xl font-bold text-slate-900 mb-6 tracking-tight">
                             Our Inspection <span className="text-orange-600">Process</span>
                         </h2>
-                        <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                        <p className="text-xl text-slate-600 max-w-2xl mx-auto font-medium">
                             A proven 4-step methodology combining cutting-edge technology with expert analysis
                         </p>
                     </motion.div>
 
-                    <div className="grid md:grid-cols-2 gap-8">
+                    <div className="grid md:grid-cols-2 gap-10">
                         {inspectionProcess.map((process, i) => (
                             <motion.div
                                 key={i}
@@ -261,27 +259,27 @@ export default function AboutPage() {
                                 transition={{ delay: i * 0.1 }}
                                 className="relative group"
                             >
-                                <div className="absolute inset-0 bg-gradient-to-br from-white to-slate-50 rounded-3xl shadow-lg group-hover:shadow-2xl transition-all duration-300" />
-                                <div className="relative p-8">
+                                <div className="absolute inset-0 bg-slate-50 rounded-[2.5rem] border border-slate-100 transition-all duration-300 group-hover:bg-white group-hover:shadow-2xl group-hover:shadow-slate-200/50" />
+                                <div className="relative p-10">
                                     {/* Step Number */}
-                                    <div className="absolute -top-4 -right-4 w-16 h-16 bg-gradient-to-br from-slate-900 to-slate-700 rounded-2xl flex items-center justify-center shadow-xl">
+                                    <div className="absolute -top-4 -right-4 w-16 h-16 bg-slate-900 rounded-xl flex items-center justify-center shadow-xl">
                                         <span className="text-2xl font-bold text-orange-500">{process.step}</span>
                                     </div>
 
                                     {/* Icon */}
-                                    <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br ${process.color} text-white mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
-                                        <process.icon className="w-7 h-7" />
+                                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br ${process.color} text-white mb-8 shadow-lg transition-transform`}>
+                                        <process.icon className="w-8 h-8" />
                                     </div>
 
                                     {/* Content */}
-                                    <h3 className="text-2xl font-bold text-slate-900 mb-3">{process.title}</h3>
-                                    <p className="text-slate-600 mb-6 leading-relaxed">{process.description}</p>
+                                    <h3 className="text-3xl font-bold text-slate-900 mb-4 tracking-tight">{process.title}</h3>
+                                    <p className="text-slate-600 mb-8 leading-relaxed font-medium text-lg">{process.description}</p>
 
                                     {/* Details List */}
-                                    <ul className="space-y-2">
+                                    <ul className="space-y-3">
                                         {process.details.map((detail, idx) => (
-                                            <li key={idx} className="flex items-center gap-2 text-sm text-slate-700">
-                                                <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                            <li key={idx} className="flex items-center gap-3 text-slate-800 font-bold">
+                                                <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
                                                 <span>{detail}</span>
                                             </li>
                                         ))}
@@ -294,23 +292,23 @@ export default function AboutPage() {
             </section>
 
             {/* Benefits Section */}
-            <section className="py-20 bg-slate-50">
+            <section className="py-24 bg-slate-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-center mb-12"
+                        className="text-center mb-16"
                     >
-                        <h2 className="text-4xl font-bold text-slate-900 mb-4">
+                        <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
                             Why Choose <span className="text-orange-600">Thermal Inspection?</span>
                         </h2>
-                        <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                        <p className="text-xl text-slate-600 max-w-2xl mx-auto font-medium">
                             Drone-based thermal imaging delivers unmatched advantages over traditional methods
                         </p>
                     </motion.div>
 
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {benefits.map((benefit, i) => (
                             <motion.div
                                 key={i}
@@ -318,17 +316,16 @@ export default function AboutPage() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.1 }}
-                                whileHover={{ y: -8 }}
-                                className="bg-white rounded-2xl p-6 border border-slate-200 hover:border-orange-300 hover:shadow-xl transition-all duration-300"
+                                className="bg-white rounded-[2rem] p-8 border border-slate-100 hover:shadow-2xl transition-all duration-300"
                             >
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg">
-                                        <benefit.icon className="w-6 h-6 text-white" />
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="w-14 h-14 rounded-xl bg-orange-600 flex items-center justify-center shadow-lg">
+                                        <benefit.icon className="w-7 h-7 text-white" />
                                     </div>
-                                    <span className="text-2xl font-bold text-orange-600">{benefit.stat}</span>
+                                    <span className="text-2xl font-bold text-orange-600 tracking-tight">{benefit.stat}</span>
                                 </div>
-                                <h3 className="text-lg font-bold text-slate-900 mb-2">{benefit.title}</h3>
-                                <p className="text-sm text-slate-600">{benefit.description}</p>
+                                <h3 className="text-xl font-bold text-slate-900 mb-3 tracking-tight">{benefit.title}</h3>
+                                <p className="text-slate-600 font-medium leading-relaxed">{benefit.description}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -336,43 +333,43 @@ export default function AboutPage() {
             </section>
 
             {/* Fault Detection Section */}
-            <section className="py-20 bg-white">
+            <section className="py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-center mb-12"
+                        className="text-center mb-16"
                     >
-                        <span className="inline-block px-4 py-1.5 mb-4 text-sm font-semibold tracking-wider text-orange-600 uppercase bg-orange-100 rounded-full">
+                        <span className="inline-block px-4 py-1.5 mb-6 text-xs font-bold tracking-widest text-orange-600 uppercase bg-orange-50 rounded-lg">
                             Detection Capabilities
                         </span>
-                        <h2 className="text-4xl font-bold text-slate-900 mb-4">
+                        <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
                             What We <span className="text-orange-600">Detect</span>
                         </h2>
-                        <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                        <p className="text-xl text-slate-600 max-w-2xl mx-auto font-medium">
                             Our AI-powered thermal analysis identifies critical faults before they become costly failures
                         </p>
                     </motion.div>
 
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {faultTypes.map((fault, i) => (
                             <motion.div
                                 key={i}
-                                initial={{ opacity: 0, scale: 0.9 }}
+                                initial={{ opacity: 0, scale: 0.95 }}
                                 whileInView={{ opacity: 1, scale: 1 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.1 }}
-                                className={`rounded-2xl p-6 border-2 ${fault.color} hover:shadow-lg transition-all duration-300`}
+                                className={`rounded-3xl p-8 border-2 ${fault.color} hover:shadow-2xl transition-all duration-300`}
                             >
-                                <div className="flex items-start justify-between mb-4">
-                                    <fault.icon className="w-8 h-8" />
-                                    <span className="px-3 py-1 bg-white/80 rounded-full text-xs font-bold uppercase tracking-wide">
+                                <div className="flex items-start justify-between mb-6">
+                                    <fault.icon className="w-10 h-10" />
+                                    <span className="px-3 py-1 bg-white/50 backdrop-blur-sm rounded-lg text-[10px] font-bold uppercase tracking-widest">
                                         {fault.severity}
                                     </span>
                                 </div>
-                                <h3 className="text-lg font-bold mb-2">{fault.name}</h3>
-                                <p className="text-sm opacity-90">{fault.description}</p>
+                                <h3 className="text-2xl font-bold mb-3 tracking-tight">{fault.name}</h3>
+                                <p className="text-lg font-medium opacity-90 leading-relaxed">{fault.description}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -382,21 +379,21 @@ export default function AboutPage() {
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="mt-16 bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-10 text-white relative overflow-hidden"
+                        className="mt-20 bg-slate-900 rounded-[3rem] p-12 md:p-16 text-white relative overflow-hidden shadow-2xl"
                     >
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/20 rounded-full blur-3xl" />
-                        <div className="relative z-10 grid md:grid-cols-3 gap-8 text-center">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-orange-600/10 rounded-full blur-3xl" />
+                        <div className="relative z-10 grid md:grid-cols-3 gap-12 text-center">
                             <div>
-                                <div className="text-4xl font-bold text-orange-500 mb-2">0.5°C</div>
-                                <div className="text-slate-300">Thermal Accuracy</div>
+                                <div className="text-5xl font-bold text-orange-500 mb-3 tracking-tight">0.5°C</div>
+                                <div className="text-slate-400 font-bold uppercase tracking-widest text-sm">Thermal Accuracy</div>
                             </div>
                             <div>
-                                <div className="text-4xl font-bold text-orange-500 mb-2">640×512</div>
-                                <div className="text-slate-300">FLIR Resolution</div>
+                                <div className="text-5xl font-bold text-orange-500 mb-3 tracking-tight">640×512</div>
+                                <div className="text-slate-400 font-bold uppercase tracking-widest text-sm">FLIR Resolution</div>
                             </div>
                             <div>
-                                <div className="text-4xl font-bold text-orange-500 mb-2">99.9%</div>
-                                <div className="text-slate-300">Detection Rate</div>
+                                <div className="text-5xl font-bold text-orange-500 mb-3 tracking-tight">99.9%</div>
+                                <div className="text-slate-400 font-bold uppercase tracking-widest text-sm">Detection Rate</div>
                             </div>
                         </div>
                     </motion.div>
@@ -414,16 +411,16 @@ export default function AboutPage() {
                             transition={{ duration: 0.8 }}
                             className="relative"
                         >
-                            <div className="absolute -inset-4 bg-orange-200/30 rounded-[3rem] blur-3xl -z-10" />
-                            <div className="rounded-[2.5rem] overflow-hidden shadow-2xl group">
+                            <div className="absolute -inset-4 bg-orange-100 rounded-[3rem] blur-3xl -z-10" />
+                            <div className="rounded-[3rem] overflow-hidden shadow-2xl group border-8 border-white">
                                 <img
                                     src="https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=1000&auto=format&fit=crop"
                                     alt="Solar Farm"
-                                    className="w-full aspect-[4/5] object-cover transition-transform duration-700 group-hover:scale-110"
+                                    className="w-full aspect-[4/5] object-cover transition-transform duration-700 hover:scale-105"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
-                                <div className="absolute bottom-8 left-8 right-8 text-white">
-                                    <p className="text-lg font-medium opacity-90 italic">"Ensuring every sunbeam is converted into progress."</p>
+                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
+                                <div className="absolute bottom-10 left-10 right-10 text-white">
+                                    <p className="text-xl font-bold">"Ensuring every sunbeam is converted into progress."</p>
                                 </div>
                             </div>
                         </motion.div>
@@ -433,7 +430,7 @@ export default function AboutPage() {
                                 initial={{ opacity: 0 }}
                                 whileInView={{ opacity: 1 }}
                                 viewport={{ once: true }}
-                                className="text-orange-600 font-bold tracking-widest uppercase text-sm mb-4 block"
+                                className="text-orange-600 font-bold tracking-widest uppercase text-xs mb-6 block border-l-4 border-orange-600 pl-4"
                             >
                                 Our Mission
                             </motion.span>
@@ -441,17 +438,17 @@ export default function AboutPage() {
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                className="text-4xl font-bold text-slate-900 mb-8 leading-tight"
+                                className="text-4xl md:text-6xl font-bold text-slate-900 mb-10 leading-tight tracking-tight"
                             >
-                                Revolutionizing Solar Farm
-                                <span className="block text-orange-600 mt-2">Maintenance & Inspection</span>
+                                Revolutionizing Solar Asset
+                                <span className="block text-orange-600 mt-2">Maintenance</span>
                             </motion.h2>
                             <motion.p
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.1 }}
-                                className="text-slate-600 text-lg mb-6 leading-relaxed"
+                                className="text-slate-600 text-xl mb-8 leading-relaxed font-medium"
                             >
                                 Traditional solar panel inspections are time-consuming, expensive, and often miss critical faults. Our drone-based thermal imaging technology transforms this process.
                             </motion.p>
@@ -460,12 +457,12 @@ export default function AboutPage() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.2 }}
-                                className="text-slate-600 text-lg mb-10 leading-relaxed"
+                                className="text-slate-600 text-xl mb-12 leading-relaxed font-medium"
                             >
                                 We combine aerospace-grade thermal cameras with AI-powered analysis to detect hotspots, cell degradation, and electrical faults before they impact your energy production.
                             </motion.p>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                                 {values.map((v, i) => (
                                     <motion.div
                                         key={i}
@@ -473,13 +470,13 @@ export default function AboutPage() {
                                         whileInView={{ opacity: 1, y: 0 }}
                                         viewport={{ once: true }}
                                         transition={{ delay: 0.2 + (i * 0.1) }}
-                                        className="p-6 bg-white rounded-3xl border border-slate-100 hover:shadow-xl hover:shadow-orange-100/20 transition-all duration-300 group"
+                                        className="p-8 bg-white rounded-[2rem] border border-slate-100 hover:shadow-2xl transition-all duration-300 group"
                                     >
-                                        <div className={`w-12 h-12 rounded-2xl ${v.color} flex items-center justify-center mb-4 transition-transform group-hover:scale-110`}>
-                                            <v.icon className="w-6 h-6" />
+                                        <div className={`w-14 h-14 rounded-xl ${v.color} flex items-center justify-center mb-6 transition-transform group-hover:scale-105`}>
+                                            <v.icon className="w-7 h-7" />
                                         </div>
-                                        <h3 className="font-bold text-slate-900 mb-2">{v.title}</h3>
-                                        <p className="text-sm text-slate-500 leading-relaxed">{v.description}</p>
+                                        <h3 className="text-xl font-bold text-slate-900 mb-3 tracking-tight">{v.title}</h3>
+                                        <p className="text-sm text-slate-500 leading-relaxed font-medium">{v.description}</p>
                                     </motion.div>
                                 ))}
                             </div>
@@ -489,57 +486,57 @@ export default function AboutPage() {
             </section>
 
             {/* CTA Section */}
-            <section className="py-24 px-4">
+            <section className="py-24 px-4 bg-white">
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
+                    initial={{ opacity: 0, scale: 0.98 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    className="max-w-7xl mx-auto rounded-[4rem] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-12 md:p-20 text-center relative overflow-hidden border border-slate-700"
+                    className="max-w-7xl mx-auto rounded-[3.5rem] bg-slate-900 p-12 md:p-24 text-center relative overflow-hidden border border-slate-800 shadow-2xl"
                 >
-                    <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-orange-600/20 rounded-full blur-[100px]" />
-                    <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-blue-600/20 rounded-full blur-[100px]" />
+                    <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-orange-600/10 rounded-full blur-[100px]" />
+                    <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px]" />
 
                     <div className="relative z-10">
-                        <div className="inline-flex items-center gap-2 px-5 py-2 mb-6 bg-orange-500/20 backdrop-blur-sm rounded-full border border-orange-500/30">
-                            <Thermometer className="w-4 h-4 text-orange-400" />
-                            <span className="text-sm font-bold text-orange-300 tracking-wide">Thermal Inspection Services</span>
+                        <div className="inline-flex items-center gap-2 px-5 py-2 mb-8 bg-orange-600/10 rounded-full border border-orange-600/20">
+                            <Thermometer className="w-4 h-4 text-orange-500" />
+                            <span className="text-xs font-bold text-orange-500 tracking-widest uppercase">Thermal Intelligence Services</span>
                         </div>
 
-                        <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                            Protect Your Solar Investment
-                            <span className="block mt-3 bg-clip-text text-transparent bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500">
-                                Detect Faults Before They Cost You
+                        <h2 className="text-3xl md:text-5xl lg:text-7xl font-bold text-white mb-8 leading-tight tracking-tight">
+                            Protect your solar investment
+                            <span className="block mt-4 text-orange-500">
+                                Detect faults early
                             </span>
                         </h2>
 
-                        <p className="text-slate-300 text-lg md:text-xl max-w-3xl mx-auto mb-10 leading-relaxed">
+                        <p className="text-slate-400 text-xl max-w-3xl mx-auto mb-16 leading-relaxed font-medium">
                             Schedule a professional drone-based thermal inspection and discover hidden issues affecting your solar farm's performance. Get detailed reports with actionable insights.
                         </p>
 
                         {/* Quick Stats */}
-                        <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto mb-12">
-                            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
-                                <div className="text-2xl font-bold text-orange-500 mb-1">48hrs</div>
-                                <div className="text-xs text-slate-400 uppercase tracking-wide">Response Time</div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto mb-16">
+                            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/5">
+                                <div className="text-4xl font-bold text-orange-500 mb-2 tracking-tight">48hrs</div>
+                                <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Response Time</div>
                             </div>
-                            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
-                                <div className="text-2xl font-bold text-orange-500 mb-1">99.9%</div>
-                                <div className="text-xs text-slate-400 uppercase tracking-wide">Accuracy</div>
+                            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/5">
+                                <div className="text-4xl font-bold text-orange-500 mb-2 tracking-tight">99.9%</div>
+                                <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Detection Accuracy</div>
                             </div>
-                            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
-                                <div className="text-2xl font-bold text-orange-500 mb-1">18%</div>
-                                <div className="text-xs text-slate-400 uppercase tracking-wide">Avg. Efficiency Gain</div>
+                            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/5">
+                                <div className="text-4xl font-bold text-orange-500 mb-2 tracking-tight">18%</div>
+                                <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Avg. Yield Gain</div>
                             </div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <button className="group px-10 py-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-full font-bold text-lg transition-all hover:scale-105 shadow-2xl shadow-orange-500/30 uppercase tracking-wide flex items-center gap-2">
-                                <Camera className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                                Book Inspection Now
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                            <button className="px-12 py-6 bg-orange-600 text-white rounded-xl font-bold text-xl transition-all hover:bg-orange-700 shadow-2xl shadow-orange-900/40 uppercase tracking-wide flex items-center gap-3">
+                                <Camera size={24} />
+                                Book Inspection
                             </button>
-                            <button className="px-10 py-4 border-2 border-slate-600 hover:border-orange-500 text-white rounded-full font-bold text-lg transition-all hover:bg-slate-800/50 uppercase tracking-wide flex items-center gap-2">
-                                <Users className="w-5 h-5" />
-                                Contact Our Team
+                            <button className="px-12 py-6 border-2 border-slate-700 text-white rounded-xl font-bold text-xl transition-all hover:bg-slate-800 uppercase tracking-wide flex items-center gap-3">
+                                <Users size={24} />
+                                Contact Sales
                             </button>
                         </div>
                     </div>

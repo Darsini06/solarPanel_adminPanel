@@ -64,13 +64,13 @@ export default function ContactPage() {
     };
 
     return (
-        <div className="pt-32 pb-20 bg-slate-50 min-h-screen">
+        <div className="pt-32 pb-20 bg-white min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-20">
                     <motion.h1
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-4xl md:text-6xl font-extrabold text-slate-900 mb-6"
+                        className="text-5xl md:text-7xl font-bold text-slate-900 mb-8 tracking-tight"
                     >
                         Get in <span className="text-orange-600">Touch</span>
                     </motion.h1>
@@ -78,9 +78,9 @@ export default function ContactPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="text-xl text-slate-600 max-w-2xl mx-auto italic font-medium"
+                        className="text-xl md:text-2xl text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed"
                     >
-                        Have questions about our inspection technology or need a drone survey consultation? Our team is here to help you audit your solar infrastructure.
+                        Have questions about our technology or need a drone survey consultation? Our team is here to help you audit your solar infrastructure.
                     </motion.p>
                 </div>
 
@@ -90,36 +90,36 @@ export default function ContactPage() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="lg:col-span-1 space-y-8"
+                        className="lg:col-span-1 space-y-6"
                     >
                         {[
                             {
-                                icon: <Mail className="text-orange-500" />,
+                                icon: <Mail className="text-orange-600" />,
                                 title: "Email Us",
-                                detail: "info@solarinspection.com",
+                                detail: "info@solarmark.com",
                                 sub: "Response within 24 hours"
                             },
                             {
-                                icon: <Phone className="text-orange-500" />,
+                                icon: <Phone className="text-orange-600" />,
                                 title: "Call Us",
                                 detail: "9978564578",
                                 sub: "Mon-Fri, 9am - 6pm EST"
                             },
                             {
-                                icon: <MapPin className="text-orange-500" />,
+                                icon: <MapPin className="text-orange-600" />,
                                 title: "Our Office",
                                 detail: "123 Solar Way, Energy District",
                                 sub: "Clean City, CA 90210"
                             }
                         ].map((item, i) => (
-                            <div key={i} className="flex items-start space-x-5 p-6 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
-                                <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center flex-shrink-0">
+                            <div key={i} className="flex items-start space-x-5 p-8 rounded-2xl bg-slate-50 border border-slate-100 transition-all duration-300">
+                                <div className="w-14 h-14 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0">
                                     {item.icon}
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-slate-900 mb-1">{item.title}</h3>
-                                    <p className="text-slate-800 font-medium">{item.detail}</p>
-                                    <p className="text-slate-500 text-sm">{item.sub}</p>
+                                    <h3 className="font-bold text-slate-900 text-lg mb-1 tracking-tight">{item.title}</h3>
+                                    <p className="text-slate-800 font-bold">{item.detail}</p>
+                                    <p className="text-slate-500 text-sm font-medium">{item.sub}</p>
                                 </div>
                             </div>
                         ))}
@@ -132,81 +132,81 @@ export default function ContactPage() {
                         transition={{ delay: 0.4 }}
                         className="lg:col-span-2"
                     >
-                        <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-xl shadow-slate-200/50 border border-slate-100">
-                            <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-2xl shadow-slate-200/40 border border-slate-100">
+                            <form onSubmit={handleSubmit} className="space-y-8">
                                 {status.message && (
                                     <motion.div
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        className={`p-4 rounded-xl flex items-center gap-3 ${status.type === 'success' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'
+                                        className={`p-6 rounded-xl flex items-center gap-4 ${status.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-700 border border-red-100'
                                             }`}
                                     >
-                                        {status.type === 'success' ? <CheckCircle className="w-5 h-5 flex-shrink-0" /> : <AlertCircle className="w-5 h-5 flex-shrink-0" />}
-                                        <p className="text-sm font-medium">{status.message}</p>
+                                        {status.type === 'success' ? <CheckCircle className="w-6 h-6 flex-shrink-0" /> : <AlertCircle className="w-6 h-6 flex-shrink-0" />}
+                                        <p className="font-bold text-sm tracking-tight">{status.message}</p>
                                     </motion.div>
                                 )}
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 mb-2">First Name</label>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-bold text-slate-800 ml-1">First Name</label>
                                         <input
                                             type="text"
                                             name="first_name"
                                             required
                                             value={formData.first_name}
                                             onChange={handleChange}
-                                            className="w-full px-5 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-slate-50/30"
+                                            className="w-full px-6 py-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-slate-50/50 font-medium"
                                             placeholder="Jane"
                                         />
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 mb-2">Last Name</label>
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-bold text-slate-800 ml-1">Last Name</label>
                                         <input
                                             type="text"
                                             name="last_name"
                                             required
                                             value={formData.last_name}
                                             onChange={handleChange}
-                                            className="w-full px-5 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-slate-50/30"
+                                            className="w-full px-6 py-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-slate-50/50 font-medium"
                                             placeholder="Doe"
                                         />
                                     </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-bold text-slate-800 ml-1">Email Address</label>
                                     <input
                                         type="email"
                                         name="email"
                                         required
                                         value={formData.email}
                                         onChange={handleChange}
-                                        className="w-full px-5 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-slate-50/30"
+                                        className="w-full px-6 py-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-slate-50/50 font-medium"
                                         placeholder="jane@example.com"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Message</label>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-bold text-slate-800 ml-1">Message</label>
                                     <textarea
                                         name="message"
                                         required
-                                        rows="4"
+                                        rows="5"
                                         value={formData.message}
                                         onChange={handleChange}
-                                        className="w-full px-5 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none bg-slate-50/30"
+                                        className="w-full px-6 py-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none bg-slate-50/50 font-medium"
                                         placeholder="How can we help you?"
                                     ></textarea>
                                 </div>
                                 <button
                                     type="submit"
                                     disabled={submitting}
-                                    className="w-full py-4 bg-orange-600 text-white rounded-xl font-bold text-lg shadow-lg shadow-orange-200 hover:bg-orange-700 hover:-translate-y-1 active:scale-[0.98] transition-all flex items-center justify-center space-x-2 disabled:opacity-70 disabled:hover:translate-y-0"
+                                    className="w-full py-5 bg-orange-600 text-white rounded-xl font-bold text-xl shadow-xl shadow-orange-900/20 hover:bg-orange-700 transition-all flex items-center justify-center space-x-3 disabled:opacity-70"
                                 >
                                     {submitting ? (
-                                        <Loader2 className="w-6 h-6 animate-spin" />
+                                        <Loader2 className="w-7 h-7 animate-spin" />
                                     ) : (
                                         <>
                                             <span>Send Message</span>
-                                            <Send size={20} />
+                                            <Send size={24} />
                                         </>
                                     )}
                                 </button>

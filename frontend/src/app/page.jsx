@@ -4,9 +4,11 @@ import React, { useState, useEffect } from "react";
 import {
   ArrowRight, Zap, Shield, Globe, Sun, FileUp, Database,
   HardDrive, CheckCircle, User, Mail, Phone, MapPin,
-  Settings, MessageSquare, Send, CloudUpload, Activity
+  Settings, MessageSquare, Send, CloudUpload, Activity,
+  Target, TrendingUp, BarChart3, Eye, Wrench, ClipboardCheck
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { authAPI } from "@/lib/api";
 
@@ -19,13 +21,17 @@ export default function HomePage() {
   const [pdfs, setPdfs] = useState([]);
   const [loadingPdfs, setLoadingPdfs] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
+    firstName: "",
+    lastName: "",
+    workEmail: "",
+    jobTitle: "",
     phone: "",
-    location: "",
-    systemSize: "",
-    type: "",
-    message: ""
+    country: "",
+    companyName: "",
+    companyType: "",
+    solarCapacity: "",
+    referralSource: "",
+    additionalInfo: ""
   });
 
   useEffect(() => {
@@ -35,6 +41,7 @@ export default function HomePage() {
       setUser({ name, token });
     }
   }, []);
+
   const fetchPDFsForLink = async (linkId) => {
     try {
       setLoadingPdfs(true);
@@ -58,7 +65,6 @@ export default function HomePage() {
     }
   };
 
-  // Add this function to download PDF
   const downloadPDF = async (pdfId, filename) => {
     try {
       const token = localStorage.getItem('auth_token');
@@ -86,6 +92,7 @@ export default function HomePage() {
       alert('Failed to download PDF');
     }
   };
+
   const handleDriveLinkSubmit = async (e) => {
     e.preventDefault();
 
@@ -141,93 +148,144 @@ export default function HomePage() {
   const handleFormSubmit = (e) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
-    alert("Thank you! Your inspection request has been received.");
+    alert("Thank you! Your inspection request has been received. Someone from our team will be in touch with you shortly.");
+    // Reset form
+    setFormData({
+      firstName: "",
+      lastName: "",
+      workEmail: "",
+      jobTitle: "",
+      phone: "",
+      country: "",
+      companyName: "",
+      companyType: "",
+      solarCapacity: "",
+      referralSource: "",
+      additionalInfo: ""
+    });
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full -z-10 bg-gradient-to-tr from-orange-50 to-blue-50"></div>
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-orange-200/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-1/2 -left-24 w-72 h-72 bg-blue-200/20 rounded-full blur-3xl"></div>
-
+    <div className="flex flex-col min-h-screen bg-white">
+      {/* Hero Section - Sitemark Style */}
+      <section className="relative pt-24 pb-32 bg-slate-50 border-b border-slate-100 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center space-x-2 bg-orange-100 text-orange-700 px-4 py-1.5 rounded-full font-medium text-sm mb-6 animate-bounce">
-              <Sun size={16} />
-              <span>Next-Gen Solar Technology</span>
-            </div>
+          <div className="text-center max-w-4xl mx-auto pt-16">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 border border-orange-100 rounded-full text-sm font-semibold text-orange-700 mb-8"
+            >
+              <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+              Solar Performance Management
+            </motion.div>
 
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8"
+              transition={{ delay: 0.1 }}
+              className="text-5xl md:text-7xl lg:text-8xl font-bold text-slate-900 mb-8 leading-tight tracking-tight"
             >
-              Expert <span className="text-orange-600">Solar Inspection</span> Services
+              Maximize performance <br />across the <span className="text-orange-600">solar lifecycle</span>
             </motion.h1>
+
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-xl text-slate-600 mb-10 leading-relaxed"
+              transition={{ delay: 0.2 }}
+              className="text-xl text-slate-600 mb-12 leading-relaxed max-w-3xl mx-auto font-medium"
             >
-              Ensure your solar infrastructure is operating at peak performance with our professional drone-based and thermographic inspection solutions.
+              Ensure peak performance and financial returns across your solar portfolio — overseeing planning, construction, and operations from one centralized platform.
             </motion.p>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4"
+              transition={{ delay: 0.3 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-              <>
-                <Link
-                  href="#inspection-form"
-                  className="w-full sm:w-auto px-8 py-4 bg-orange-600 text-white rounded-xl font-semibold shadow-lg shadow-orange-200 hover:bg-orange-700 hover:-translate-y-1 transition-all flex items-center justify-center uppercase tracking-wider"
-                >
-                  Book Inspection <ArrowRight className="ml-2" size={20} />
-                </Link>
-                <Link
-                  href="/about"
-                  className="w-full sm:w-auto px-8 py-4 bg-white text-slate-900 border border-slate-200 rounded-xl font-semibold hover:bg-slate-50 transition-all flex items-center justify-center shadow-sm uppercase tracking-wider"
-                >
-                  Learn More
-                </Link>
-              </>
+              <Link
+                href="#inspection-form"
+                className="px-10 py-5 bg-orange-600 text-white rounded-xl font-bold text-lg hover:bg-orange-700 transition-all shadow-xl shadow-orange-100 inline-flex items-center gap-2"
+              >
+                Book a Demo
+                <ArrowRight size={22} />
+              </Link>
+              <Link
+                href="/about"
+                className="px-10 py-5 bg-white text-slate-900 border border-slate-200 rounded-xl font-bold text-lg hover:bg-slate-50 transition-all inline-flex items-center gap-2"
+              >
+                Learn More
+              </Link>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Cloud Asset Sync Section */}
+      {/* Value Propositions - Sitemark Style */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {[
+              {
+                image: "https://images.pexels.com/photos/433308/pexels-photo-433308.jpeg?auto=compress&cs=tinysrgb&w=800",
+                title: "Prevent Revenue Loss",
+                description: "Proactively identify and prioritize issues before they escalate, minimizing losses and maximizing energy yield."
+              },
+              {
+                image: "https://images.pexels.com/photos/9875415/pexels-photo-9875415.jpeg?auto=compress&cs=tinysrgb&w=800",
+                title: "Ensure Lasting Quality",
+                description: "Maintain high standards during construction to prevent costly rework and ensure long-term asset health and reliability."
+              },
+              {
+                image: "https://images.pexels.com/photos/159888/pexels-photo-159888.jpeg?auto=compress&cs=tinysrgb&w=800",
+                title: "Centralized Oversight",
+                description: "Consolidate all data into a single platform for streamlined reporting, benchmarking, and decision-making across your portfolio."
+              }
+            ].map((item, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                className="group"
+              >
+                <div className="mb-8 rounded-2xl overflow-hidden border border-slate-100 aspect-video shadow-sm">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    width={800}
+                    height={450}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">{item.title}</h3>
+                <p className="text-slate-600 leading-relaxed font-medium">{item.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Cloud Asset Sync Section - Only for logged-in users */}
       {user && (
-        <section id="drive-section" className="py-24 bg-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-50/50 rounded-full blur-[120px] -mr-64 -mt-64" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-50/30 rounded-full blur-[120px] -ml-64 -mb-64" />
-
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-
+        <section id="drive-section" className="py-24 bg-slate-50 border-y border-slate-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <motion.div
                 initial={{ opacity: 0, x: -30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                className="lg:col-span-5"
               >
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 text-orange-600 text-xs font-bold uppercase tracking-widest mb-6 border border-orange-200">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-600"></span>
-                  </span>
-                  Cloud Diagnostics Active
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-100 text-orange-700 text-xs font-bold uppercase tracking-wider mb-6 border border-orange-200">
+                  Cloud Integration
                 </div>
-                <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 leading-tight">
-                  Synchronize Your <br />
-                  <span className="bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent italic">Site Assets</span>
+                <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-8 leading-tight tracking-tight">
+                  Connect your asset data
                 </h2>
-                <p className="text-lg text-slate-600 mb-8 leading-relaxed max-w-lg">
-                  Connect your Google Drive or cloud storage containing site photographs and installation plans. Our AI will automatically index and prepare them for inspection.
+                <p className="text-xl text-slate-600 mb-10 leading-relaxed font-medium">
+                  Integrate your Google Drive or cloud storage containing site photographs and installation documentation. Our AI will automatically index and prepare them for analysis.
                 </p>
 
                 <div className="space-y-4">
@@ -236,11 +294,11 @@ export default function HomePage() {
                     { icon: Shield, label: "End-to-end encrypted transfer" },
                     { icon: Database, label: "Automatic asset classification" },
                   ].map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-3 text-slate-700 font-semibold group">
-                      <div className="p-2 bg-slate-50 border border-slate-100 rounded-lg group-hover:bg-orange-50 group-hover:border-orange-100 transition-colors">
-                        <item.icon size={18} className="text-orange-600" />
+                    <div key={idx} className="flex items-center gap-4 text-slate-700 p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
+                      <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
+                        <item.icon size={20} className="text-orange-600" />
                       </div>
-                      <span>{item.label}</span>
+                      <span className="font-bold text-lg">{item.label}</span>
                     </div>
                   ))}
                 </div>
@@ -250,277 +308,244 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="lg:col-span-7"
+                className="bg-white rounded-3xl p-10 border border-slate-200 shadow-2xl"
               >
-                <div className="bg-slate-900 rounded-[3rem] p-1 md:p-1.5 shadow-2xl shadow-slate-200">
-                  <div className="bg-white rounded-[2.8rem] p-8 md:p-12 border border-slate-100">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
-                      <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl">
-                          <HardDrive size={30} />
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-slate-900 text-xl tracking-tight italic">Secure Linkage</h3>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Status Message */}
-                    {uploadStatus.message && (
-                      <div className={`mb-6 p-4 rounded-2xl flex items-center space-x-3 ${uploadStatus.type === "success" ? "bg-emerald-50 text-emerald-700 border border-emerald-100/50" :
-                        uploadStatus.type === "error" ? "bg-red-50 text-red-700 border border-red-100/50" :
-                          "bg-orange-50 text-orange-700 border border-orange-100/50"
-                        }`}>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${uploadStatus.type === "success" ? "bg-emerald-100" :
-                          uploadStatus.type === "error" ? "bg-red-100" : "bg-orange-100"
-                          }`}>
-                          {uploadStatus.type === "success" ? <CheckCircle size={18} /> :
-                            uploadStatus.type === "error" ? "✕" :
-                              uploading ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent"></div> : "!"}
-                        </div>
-                        <span className="font-bold text-sm">{uploadStatus.message}</span>
-                      </div>
-                    )}
-
-                    <form onSubmit={handleDriveLinkSubmit}>
-                      <div className="space-y-8">
-                        {/* Drive Link 1 */}
-                        <div className="relative group">
-                          <div className="flex items-center justify-between mb-3 pl-1">
-                            <label className="text-sm font-semibold text-slate-700">Drive Link</label>
-                          </div>
-                          <div className="relative">
-                            <input
-                              type="text"
-                              placeholder="Paste Google Drive link ..."
-                              className="w-full pl-6 pr-32 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 focus:bg-white transition-all text-sm font-semibold text-slate-700 placeholder:text-slate-300"
-                              value={driveLink1}
-                              onChange={(e) => setDriveLink1(e.target.value)}
-                              required
-                            />
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                              <button
-                                type="submit"
-                                disabled={uploading}
-                                className="bg-orange-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-orange-700 active:scale-95 transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2 disabled:opacity-70"
-                              >
-                                {uploading ? (
-                                  <>
-                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                                    Saving...
-                                  </>
-                                ) : (
-                                  <>
-                                    <CloudUpload size={16} />
-                                    Import
-                                  </>
-                                )}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Drive Link 2 */}
-                        <div className="relative group pt-4 border-t border-slate-50">
-                          <div className="flex items-center justify-between mb-3 pl-1">
-                            <label className="text-sm font-semibold text-slate-700">Drive Link 2</label>
-                          </div>
-                          <div className="relative">
-                            <input
-                              type="text"
-                              placeholder="Paste Google Drive link ..."
-                              className="w-full pl-6 pr-32 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-sm font-semibold text-slate-700 placeholder:text-slate-300"
-                              value={driveLink2}
-                              onChange={(e) => setDriveLink2(e.target.value)}
-                            />
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                              <button
-                                type="submit"
-                                disabled={uploading}
-                                className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-800 active:scale-95 transition-all shadow-lg flex items-center gap-2 disabled:opacity-70"
-                              >
-                                {uploading ? (
-                                  <>
-                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                                    Saving...
-                                  </>
-                                ) : (
-                                  <>
-                                    <CloudUpload size={16} />
-                                    Import
-                                  </>
-                                )}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </form>
-                    <div className="mt-8 pt-6 border-t border-slate-100">
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm text-slate-500">
-                          <span className="font-semibold text-slate-700">Note:</span> Ensure your drive link in public.
-                        </div>
-                        <div className="flex items-center space-x-3">
-
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-10 pt-6 border-t border-slate-100">
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm text-slate-500">
-
-                        </div>
-
-                      </div>
-                    </div>
+                <div className="flex items-center gap-5 mb-10">
+                  <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-white">
+                    <HardDrive size={28} />
                   </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-xl tracking-tight">Cloud Storage Link</h3>
+                    <p className="text-slate-500 font-medium">Connect your Google Drive</p>
+                  </div>
+                </div>
+
+                {uploadStatus.message && (
+                  <div className={`mb-8 p-5 rounded-xl flex items-center gap-4 ${uploadStatus.type === "success" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" :
+                    uploadStatus.type === "error" ? "bg-red-50 text-red-700 border border-red-100" :
+                      "bg-orange-50 text-orange-700 border border-orange-100"
+                    }`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${uploadStatus.type === "success" ? "bg-emerald-100" :
+                      uploadStatus.type === "error" ? "bg-red-100" : "bg-orange-100"
+                      }`}>
+                      {uploadStatus.type === "success" ? <CheckCircle size={20} /> :
+                        uploadStatus.type === "error" ? "✕" :
+                          uploading ? <div className="animate-spin rounded-full h-5 w-5 border-2 border-current border-t-transparent"></div> : "!"}
+                    </div>
+                    <span className="font-bold text-sm">{uploadStatus.message}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleDriveLinkSubmit} className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-800 mb-3">Primary Drive Link</label>
+                    <input
+                      type="text"
+                      placeholder="https://drive.google.com/..."
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm font-medium"
+                      value={driveLink1}
+                      onChange={(e) => setDriveLink1(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-800 mb-3">Secondary Drive Link (Optional)</label>
+                    <input
+                      type="text"
+                      placeholder="https://drive.google.com/..."
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm font-medium"
+                      value={driveLink2}
+                      onChange={(e) => setDriveLink2(e.target.value)}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={uploading}
+                    className="w-full bg-orange-600 text-white px-8 py-5 rounded-xl font-bold text-lg hover:bg-orange-700 transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-xl shadow-orange-100"
+                  >
+                    {uploading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                        Connecting...
+                      </>
+                    ) : (
+                      <>
+                        <CloudUpload size={22} />
+                        Connect Storage
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                <div className="mt-8 pt-8 border-t border-slate-100">
+                  <p className="text-xs text-slate-400 text-center leading-relaxed">
+                    <span className="font-bold text-slate-500">Note:</span> Ensure your drive link is set to public or <br />has proper sharing permissions.
+                  </p>
                 </div>
               </motion.div>
             </div>
           </div>
         </section>
       )}
-      {/* Display Uploaded PDFs Section */}
-      {pdfs.length > 0 && (
-        <section className="py-12 bg-slate-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-white rounded-2xl shadow-lg p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-slate-900">Uploaded Documents</h3>
-                <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-semibold">
-                  {pdfs.length} PDF(s)
-                </span>
-              </div>
 
-              {loadingPdfs ? (
-                <div className="flex justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {pdfs.map((pdf) => (
-                    <div key={pdf.pdf_id} className="border border-slate-200 rounded-xl p-4 hover:shadow-md transition-shadow">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <FileText className="w-6 h-6 text-red-600" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-slate-900 truncate">{pdf.filename}</p>
-                          <div className="flex items-center space-x-2 text-sm text-slate-500 mt-1">
-                            <Calendar className="w-4 h-4" />
-                            <span>{new Date(pdf.uploaded_at).toLocaleDateString()}</span>
-                          </div>
-                          <div className="text-xs text-slate-500 mt-2">
-                            Size: {(pdf.file_size / 1024 / 1024).toFixed(2)} MB
-                          </div>
-                        </div>
-                      </div>
-                      <div className="mt-4 flex space-x-2">
-                        <button
-                          onClick={() => downloadPDF(pdf.pdf_id, pdf.filename)}
-                          className="flex-1 px-3 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
-                        >
-                          Download
-                        </button>
-                        <button
-                          onClick={() => window.open(`${API_URL}/drive-links/pdf/${pdf.pdf_id}`, '_blank')}
-                          className="px-3 py-2 border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors"
-                        >
-                          View
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {pdfs.length === 0 && !loadingPdfs && (
-                <div className="text-center py-8">
-                  <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                  <p className="text-slate-500">No PDFs uploaded yet</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Features Section */}
+      {/* Solutions Across Lifecycle - Sitemark Style */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Our Inspection Excellence</h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto italic font-medium">
-              Precision auditing to maximize your solar asset's lifespan and output.
-            </p>
+          <div className="text-center mb-20 text-balance">
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 tracking-tight">
+              Solutions across the entire solar lifecycle
+            </h2>
+            <p className="text-xl text-slate-600 font-medium">From initial topography to 25th-year O&M audits.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
               {
-                icon: <Zap className="text-orange-500" />,
-                title: "Thermographic Analysis",
-                desc: "Identify micro-cracks and hot spots within cells that are invisible to the naked eye using high-res thermal imaging.",
+                phase: "Planning",
+                title: "Speed up design and maximize yield potential",
+                image: "https://images.pexels.com/photos/8853502/pexels-photo-8853502.jpeg?auto=compress&cs=tinysrgb&w=800"
               },
               {
-                icon: <Shield className="text-blue-500" />,
-                title: "Drone-Based Surveys",
-                desc: "Rapid, safe, and cost-effective aerial inspections for large-scale solar farms and hard-to-reach rooftop installations.",
+                phase: "Construction",
+                title: "Stay on schedule and avoid costly mistakes",
+                image: "https://images.pexels.com/photos/2850347/pexels-photo-2850347.jpeg?auto=compress&cs=tinysrgb&w=800"
               },
               {
-                icon: <Globe className="text-emerald-500" />,
-                title: "Performance Audits",
-                desc: "Comprehensive diagnostic reports that provide actionable insights to improve overall system efficiency.",
-              },
-            ].map((feature, i) => (
+                phase: "Operation",
+                title: "Maximize production and profitability",
+                image: "https://images.pexels.com/photos/356036/pexels-photo-356036.jpeg?auto=compress&cs=tinysrgb&w=800"
+              }
+            ].map((solution, idx) => (
               <motion.div
-                key={i}
+                key={idx}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="p-8 rounded-3xl border border-slate-100 bg-slate-50 hover:bg-white hover:shadow-2xl hover:shadow-orange-100 hover:-translate-y-2 transition-all duration-300"
+                transition={{ delay: idx * 0.1 }}
+                className="bg-slate-50 rounded-3xl overflow-hidden border border-slate-100 hover:shadow-2xl transition-all cursor-pointer group"
               >
-                <div className="w-14 h-14 rounded-2xl bg-white shadow-md flex items-center justify-center mb-6">
-                  {feature.icon}
+                <div className="aspect-[4/3] w-full overflow-hidden">
+                  <Image
+                    src={solution.image}
+                    alt={solution.phase}
+                    width={800}
+                    height={450}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-4">{feature.title}</h3>
-                <p className="text-slate-600 leading-relaxed italic">{feature.desc}</p>
+                <div className="p-10">
+                  <h3 className="text-3xl font-bold text-slate-900 mb-4 tracking-tight">{solution.phase}</h3>
+                  <p className="text-slate-600 mb-8 leading-relaxed font-medium">{solution.title}</p>
+                  <Link href="/about" className="inline-flex items-center text-orange-600 font-bold hover:translate-x-2 transition-all">
+                    Learn more <ArrowRight size={20} className="ml-2" />
+                  </Link>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Inspection Form Section */}
-      <section id="inspection-form" className="py-24 bg-slate-50 relative overflow-hidden">
-        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-orange-200/20 rounded-full blur-[100px]" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      {/* Platform Features */}
+      <section className="py-24 bg-slate-900 text-white rounded-t-[60px] relative z-10 -mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div>
+              <h2 className="text-4xl md:text-6xl font-bold mb-8 leading-tight tracking-tight">
+                Advanced <br />inspection tech
+              </h2>
+              <p className="text-xl text-slate-400 mb-12 leading-relaxed font-medium">
+                Leverage cutting-edge technology to identify issues before they impact your bottom line. Our comprehensive platform combines AI analytics, drone technology, and expert analysis.
+              </p>
+
+              <div className="space-y-8">
+                {[
+                  {
+                    icon: Zap,
+                    title: "Thermographic Analysis",
+                    desc: "High-resolution thermal imaging to detect micro-cracks and hot spots"
+                  },
+                  {
+                    icon: Eye,
+                    title: "Drone Inspections",
+                    desc: "Rapid aerial surveys for large-scale installations"
+                  },
+                  {
+                    icon: TrendingUp,
+                    title: "Performance Analytics",
+                    desc: "AI-powered insights and predictive maintenance recommendations"
+                  }
+                ].map((feature, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="flex gap-6 p-6 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all"
+                  >
+                    <div className="w-14 h-14 bg-orange-600 rounded-xl flex items-center justify-center text-white flex-shrink-0 shadow-lg">
+                      <feature.icon size={28} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white mb-2 tracking-tight">{feature.title}</h3>
+                      <p className="text-slate-400 font-medium leading-relaxed">{feature.desc}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="bg-white/10 backdrop-blur-3xl rounded-[40px] p-10 border border-white/10 shadow-2xl">
+                <div className="grid grid-cols-2 gap-8">
+                  {[
+                    { label: "Inspections", value: "2,500+", icon: Eye },
+                    { label: "Accuracy", value: "99.9%", icon: Target },
+                    { label: "Assets Managed", value: "15k+", icon: Database },
+                    { label: "Uptime", value: "24/7", icon: Activity }
+                  ].map((stat, idx) => (
+                    <div key={idx} className="bg-white/5 rounded-2xl p-8 border border-white/5 hover:bg-white/10 transition-all group">
+                      <stat.icon size={32} className="text-orange-500 mb-4 group-hover:scale-110 transition-transform" />
+                      <div className="text-4xl font-bold text-white mb-2 tracking-tight">{stat.value}</div>
+                      <div className="text-xs text-orange-400 font-bold uppercase tracking-widest">{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Inspection Request Form */}
+      <section id="inspection-form" className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div
               initial={{ opacity: 0, x: -40 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <span className="text-orange-600 font-bold tracking-widest uppercase text-sm mb-4 block">Request Service</span>
-              <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-8 leading-tight">
-                Get Your Solar Panels <br />
-                <span className="text-orange-600 italic">Inspected Today.</span>
+              <span className="text-orange-600 font-bold tracking-widest uppercase text-xs mb-6 block border-l-4 border-orange-600 pl-4">Get Started</span>
+              <h2 className="text-4xl md:text-6xl font-bold text-slate-900 mb-8 leading-tight tracking-tight text-balance">
+                Request a <span className="text-orange-600">Custom Inspection</span>
               </h2>
-              <p className="text-slate-600 text-lg mb-8 leading-relaxed">
-                Fill out the form to schedule a professional thermographic inspection. Our team will get back to you within 24 hours with a customized quote and deployment plan.
+              <p className="text-slate-600 text-xl mb-10 leading-relaxed font-medium">
+                Our team will review your request and provide a customized quote within 24 hours. Get expert insights into your solar asset performance.
               </p>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {[
-                  { icon: CheckCircle, text: "High-Resolution Thermal Imaging" },
-                  { icon: CheckCircle, text: "AI-Powered Fault Analysis" },
-                  { icon: CheckCircle, text: "Detailed ROI Impact Reports" }
+                  { icon: CheckCircle, text: "Professional thermal imaging" },
+                  { icon: CheckCircle, text: "Comprehensive diagnostic reports" },
+                  { icon: CheckCircle, text: "Actionable maintenance recommendations" }
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center space-x-3 text-slate-700 font-medium">
-                    <item.icon className="text-orange-500 w-5 h-5" />
-                    <span>{item.text}</span>
+                  <div key={i} className="flex items-center gap-4 text-slate-800 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <item.icon className="text-orange-600 w-6 h-6 flex-shrink-0" />
+                    <span className="font-bold text-lg">{item.text}</span>
                   </div>
                 ))}
               </div>
@@ -530,100 +555,46 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-white p-8 md:p-10 rounded-[3rem] shadow-2xl shadow-orange-100 border border-slate-100"
+              className="bg-white p-10 md:p-12 rounded-[40px] shadow-2xl border border-slate-100"
             >
-              <form onSubmit={handleFormSubmit} className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <form onSubmit={handleFormSubmit} className="space-y-8">
+                {/* First Name & Last Name */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-800 mb-3">
+                      First name*
+                    </label>
                     <input
                       type="text"
-                      name="name"
-                      placeholder="Full Name"
+                      name="firstName"
                       required
+                      value={formData.firstName}
                       onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none"
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all outline-none shadow-sm"
                     />
                   </div>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-                    <input
-                      type="email"
-                      name="email"
-                      placeholder="Email Address"
-                      required
-                      onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-                    <input
-                      type="tel"
-                      name="phone"
-                      placeholder="Phone Number"
-                      required
-                      onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none"
-                    />
-                  </div>
-                  <div className="relative">
-                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                  <div>
+                    <label className="block text-sm font-bold text-slate-800 mb-3">
+                      Last name*
+                    </label>
                     <input
                       type="text"
-                      name="location"
-                      placeholder="Site Location / Address"
+                      name="lastName"
                       required
+                      value={formData.lastName}
                       onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none"
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all outline-none shadow-sm"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="relative">
-                    <Settings className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-                    <select
-                      name="type"
-                      onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none appearance-none"
-                    >
-                      <option>Residential</option>
-                      <option>Commercial</option>
-                      <option>Industrial solar farm</option>
-                    </select>
-                  </div>
-                  <div className="relative">
-                    <Zap className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-                    <input
-                      type="text"
-                      name="systemSize"
-                      placeholder="System Size (e.g. 10kW)"
-                      onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="relative">
-                  <MessageSquare className="absolute left-4 top-4 text-slate-400 w-5 h-5" />
-                  <textarea
-                    name="message"
-                    rows="4"
-                    placeholder="Tell us about your requirements..."
-                    onChange={handleChange}
-                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none resize-none"
-                  ></textarea>
-                </div>
-
+                {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-full py-5 bg-orange-600 text-white rounded-2xl font-bold text-lg shadow-xl shadow-orange-200 hover:bg-orange-700 hover:-translate-y-1 transition-all flex items-center justify-center group uppercase tracking-widest"
+                  className="w-full py-5 bg-orange-600 text-white rounded-xl font-bold text-xl shadow-xl shadow-orange-100 hover:bg-orange-700 transition-all flex items-center justify-center gap-3 active:scale-95"
                 >
-                  Submit Inspection Request <Send className="ml-3 w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  Confirm Request
+                  <Send size={22} />
                 </button>
               </form>
             </motion.div>
@@ -631,48 +602,33 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Statistics Section */}
-      <section className="py-20 bg-slate-900 text-white overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
-          <Sun className="absolute -top-20 -right-20 w-80 h-80 text-orange-400" />
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-            {[
-              { label: "Installations", value: "2,500+" },
-              { label: "CO2 Saved", value: "15k Tons" },
-              { label: "Customer Rating", value: "4.9/5" },
-              { label: "Maintenance", value: "24/7" },
-            ].map((stat, i) => (
-              <div key={i}>
-                <div className="text-4xl md:text-5xl font-extrabold text-orange-500 mb-2">{stat.value}</div>
-                <div className="text-slate-400 font-medium uppercase tracking-wider text-sm">{stat.label}</div>
-              </div>
-            ))}
+      {/* Final CTA */}
+      <section className="py-32 bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-600/10 to-transparent"></div>
+        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
+          <h2 className="text-4xl md:text-7xl font-bold mb-8 tracking-tight">
+            Join the future <br />of solar management
+          </h2>
+          <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto font-medium leading-relaxed">
+            Our team is ready to answer your questions and show you our platform first-hand.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <Link
+              href={user ? "#drive-section" : "/register"}
+              className="inline-flex items-center px-12 py-6 bg-orange-600 text-white rounded-xl font-bold text-xl hover:bg-orange-700 transition-all shadow-2xl shadow-orange-900/40 gap-3"
+            >
+              {user ? "Connect Your Assets" : "Get Started Now"}
+              <ArrowRight size={24} />
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center px-12 py-6 bg-white/5 border border-white/10 text-white rounded-xl font-bold text-xl hover:bg-white/10 transition-all gap-3"
+            >
+              Contact Sales
+            </Link>
           </div>
         </div>
       </section>
-
-      {/* CTA Section */}
-      {!user && (
-        <section className="py-24 bg-orange-600 relative overflow-hidden">
-          <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-            <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-8 uppercase tracking-tight">
-              Ready to switch to cleaner, cheaper energy?
-            </h2>
-            <p className="text-orange-100 text-xl mb-10 font-medium italic">
-              Join thousands of satisfied homeowners who have already made the switch.
-            </p>
-            <Link
-              href="/register"
-              className="inline-flex items-center px-10 py-5 bg-white text-orange-600 rounded-2xl font-bold text-lg shadow-xl hover:scale-105 active:scale-95 transition-all uppercase tracking-widest"
-            >
-              Start Your Journey <ArrowRight className="ml-2" />
-            </Link>
-          </div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full -translate-x-1/2 translate-y-1/3"></div>
-        </section>
-      )}
     </div>
   );
 }

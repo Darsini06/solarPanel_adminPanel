@@ -22,29 +22,29 @@ export default function LoginPage() {
         setError("");
     };
 
-   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError("");
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError("");
 
-  try {
-    const response = await api.post("/login", formData);
+        try {
+            const response = await api.post("/login", formData);
 
-    if (response.data.access_token) {
-      localStorage.setItem("auth_token", response.data.access_token);
-      localStorage.setItem("refresh_token", response.data.refresh_token);
-      localStorage.setItem("user_name", response.data.user.first_name);
-      localStorage.setItem("user_email", formData.email);
+            if (response.data.access_token) {
+                localStorage.setItem("auth_token", response.data.access_token);
+                localStorage.setItem("refresh_token", response.data.refresh_token);
+                localStorage.setItem("user_name", response.data.user.first_name);
+                localStorage.setItem("user_email", formData.email);
 
-      setLoggedIn(true);
-      setTimeout(() => router.push("/profile"), 1500);
-    }
-  } catch (err) {
-    setError(err.response?.data?.detail || "Invalid email or password");
-  } finally {
-    setLoading(false);
-  }
-};
+                setLoggedIn(true);
+                setTimeout(() => router.push("/profile"), 1500);
+            }
+        } catch (err) {
+            setError(err.response?.data?.detail || "Invalid email or password");
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     return (
@@ -56,8 +56,8 @@ export default function LoginPage() {
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border-[40px] border-white rounded-full"></div>
                 </div>
                 <div className="relative z-10 text-white max-w-md">
-                    <h2 className="text-4xl font-extrabold mb-6 leading-tight">Welcome back to the future of auditing.</h2>
-                    <p className="text-orange-100 text-lg mb-8 italic">Access your dashboard to monitor your solar assets and track your inspection reports in real-time.</p>
+                    <h2 className="text-5xl font-bold mb-8 leading-tight tracking-tight">Welcome back to the future of auditing.</h2>
+                    <p className="text-orange-100 text-xl font-medium mb-8">Access your dashboard to monitor your solar assets and track your inspection reports in real-time.</p>
                 </div>
             </div>
 
@@ -66,31 +66,31 @@ export default function LoginPage() {
                 <div className="w-full max-w-md">
                     <div className="text-center mb-10">
                         <Link href="/" className="inline-flex items-center space-x-2 mb-8 group">
-                            <Sun className="h-10 w-10 text-orange-500 group-hover:rotate-45 transition-transform duration-500" />
-                            <span className="text-3xl font-bold">Solar<span className="text-orange-600"> Inspection</span></span>
+                            <Sun className="h-10 w-10 text-orange-500 transition-transform duration-500" />
+                            <span className="text-3xl font-bold tracking-tight text-slate-900">Solar<span className="text-orange-600">Mark</span></span>
                         </Link>
-                        <h1 className="text-2xl font-bold text-slate-900">Sign in to your account</h1>
-                        <p className="text-slate-500 mt-2">Professional solar management at your fingertips</p>
+                        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Sign in to your account</h1>
+                        <p className="text-slate-500 mt-2 font-medium">Professional solar management at your fingertips</p>
                     </div>
 
                     {loggedIn ? (
-                        <div className="bg-orange-50 border border-orange-200 text-orange-700 p-8 rounded-[2rem] text-center">
-                            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
-                                <CheckCircle2 className="text-orange-600" size={32} />
+                        <div className="bg-emerald-50 border border-emerald-100 text-emerald-700 p-8 rounded-3xl text-center shadow-sm">
+                            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <CheckCircle2 className="text-emerald-600" size={32} />
                             </div>
                             <h3 className="text-xl font-bold mb-2">Welcome Back!</h3>
-                            <p className="text-sm">Signing you in...</p>
+                            <p className="text-sm font-medium">Signing you in...</p>
                         </div>
                     ) : (
                         <form className="space-y-5" onSubmit={handleSubmit}>
                             {error && (
-                                <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm font-medium">
+                                <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm font-bold">
                                     {error}
                                 </div>
                             )}
 
-                            <div className="space-y-1">
-                                <label className="text-sm font-semibold text-slate-700 ml-1">Email Address</label>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-800 ml-1">Email Address</label>
                                 <div className="relative group">
                                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-orange-500 transition-colors" size={20} />
                                     <input
@@ -99,16 +99,16 @@ export default function LoginPage() {
                                         value={formData.email}
                                         onChange={handleChange}
                                         type="email"
-                                        className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm"
+                                        className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm font-medium"
                                         placeholder="name@company.com"
                                     />
                                 </div>
                             </div>
 
-                            <div className="space-y-1">
+                            <div className="space-y-2">
                                 <div className="flex justify-between items-center ml-1">
-                                    <label className="text-sm font-semibold text-slate-700">Password</label>
-                                    <Link href="#" className="text-xs font-bold text-orange-600 hover:text-orange-700">Forgot your password?</Link>
+                                    <label className="text-sm font-bold text-slate-800">Password</label>
+                                    <Link href="#" className="text-xs font-bold text-orange-600 hover:text-orange-700">Forgot password?</Link>
                                 </div>
                                 <div className="relative group">
                                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-orange-500 transition-colors" size={20} />
@@ -118,7 +118,7 @@ export default function LoginPage() {
                                         value={formData.password}
                                         onChange={handleChange}
                                         type="password"
-                                        className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm"
+                                        className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm font-medium"
                                         placeholder="••••••••"
                                         minLength="6"
                                     />
@@ -127,7 +127,7 @@ export default function LoginPage() {
 
                             <button
                                 disabled={loading}
-                                className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-lg hover:bg-slate-800 transition-all flex items-center justify-center space-x-2 mt-4 group"
+                                className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center space-x-2 mt-4 group"
                             >
                                 {loading ? <Loader2 className="animate-spin" size={20} /> : (
                                     <>
@@ -139,24 +139,24 @@ export default function LoginPage() {
 
                             <div className="relative py-4 flex items-center">
                                 <div className="flex-grow border-t border-slate-200"></div>
-                                <span className="flex-shrink mx-4 text-slate-400 text-xs font-bold uppercase tracking-widest">Or login with</span>
+                                <span className="flex-shrink mx-4 text-slate-400 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">Or login with</span>
                                 <div className="flex-grow border-t border-slate-200"></div>
                             </div>
 
                             <div className="flex space-x-4">
                                 <button type="button" className="flex-1 py-3 px-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors flex items-center justify-center space-x-2">
                                     <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
-                                    <span className="text-sm font-semibold text-slate-700">Google</span>
+                                    <span className="text-sm font-bold text-slate-700">Google</span>
                                 </button>
                                 <button type="button" className="flex-1 py-3 px-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors flex items-center justify-center space-x-2">
                                     <Github size={18} className="text-slate-900" />
-                                    <span className="text-sm font-semibold text-slate-700">GitHub</span>
+                                    <span className="text-sm font-bold text-slate-700">GitHub</span>
                                 </button>
                             </div>
                         </form>
                     )}
 
-                    <p className="text-center mt-10 text-slate-600">
+                    <p className="text-center mt-12 text-slate-600 font-medium">
                         Don't have an account? <Link href="/register" className="text-orange-600 font-bold hover:underline">Sign up for free</Link>
                     </p>
                 </div>
