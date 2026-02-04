@@ -4,120 +4,129 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle, Smartphone, Camera, Calendar, Play } from "lucide-react";
+import { ArrowRight, CheckCircle, Smartphone, Camera, Calendar, Play, Globe, Target } from "lucide-react";
 
 export default function ProgressTrackingPage() {
     return (
         <div className="min-h-screen bg-white">
             {/* Hero Section */}
-            <section className="pt-32 pb-20 relative overflow-hidden">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col items-center text-center">
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                        >
-                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 text-slate-900 rounded-full text-xs font-bold uppercase tracking-wider mb-8">
-                                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                                Construction Phase / Real-Time Tracking
-                            </div>
-                            <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-8 tracking-tight">
-                                Visibility on <span className="text-orange-600">Every Inch</span> of Progress
-                            </h1>
-                            <p className="text-xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-                                Connect your field teams and data. Track construction milestones, equipment arrival, and installation speed with millimetric precision from your dashboard.
-                            </p>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-                                <Link href="/booking" className="px-10 py-5 bg-orange-600 text-white rounded-xl font-bold text-lg hover:bg-orange-700 transition-all shadow-xl shadow-orange-200">
-                                    Watch the Demo
-                                </Link>
-                            </div>
-                        </motion.div>
-                    </div>
+            <section className="pt-32 pb-20 bg-slate-950 text-white relative overflow-hidden">
+                <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/2850347/pexels-photo-2850347.jpeg?auto=compress&cs=tinysrgb&w=1200')] bg-cover bg-center opacity-30 mix-blend-overlay"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent"></div>
 
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 1, delay: 0.2 }}
-                        className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-50"
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
                     >
-                        <Image
-                            src="https://images.pexels.com/photos/2850347/pexels-photo-2850347.jpeg?auto=compress&cs=tinysrgb&w=1200"
-                            alt="Construction Progress Visualization"
-                            fill
-                            className="object-cover"
-                        />
-                        <div className="absolute inset-0 bg-slate-900/10 flex items-center justify-center">
-                            <div className="w-20 h-20 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center text-white border-2 border-white/50 cursor-pointer hover:scale-105 transition-transform">
-                                <Play fill="white" size={28} />
-                            </div>
+                        <div className="px-4 py-1.5 bg-orange-600 rounded-md text-xs font-bold mb-8 tracking-[0.2em] uppercase inline-block">
+                            Real-Time Site Lifecycle
                         </div>
-                    </motion.div>
-                </div>
-            </section>
-
-            {/* Stats Breakdown */}
-            <section className="py-24 bg-slate-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                        <div className="lg:col-span-1">
-                            <h2 className="text-4xl font-bold text-slate-900 mb-6 tracking-tight">Stay Ahead of the Schedule</h2>
-                            <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-                                Stop relying on weekly reports. Get minute-by-minute updates on installation progress across all sites.
-                            </p>
-                            <Link href="/contact" className="inline-flex items-center gap-2 text-orange-600 font-bold hover:translate-x-1 transition-all">
-                                Learn about automated reporting <ArrowRight size={20} />
+                        <h1 className="text-6xl md:text-8xl font-bold mb-8 tracking-tight leading-[1.1]">
+                            Total Site <span className="text-orange-400">Visibility</span>
+                        </h1>
+                        <p className="text-xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto">
+                            Connect your site managers and data streams. Track every construction milestone, equipment arrival, and installation speed with millimetric precision from your command center.
+                        </p>
+                        <div className="flex flex-wrap gap-5 justify-center mb-20">
+                            <Link href="/booking" className="px-12 py-6 bg-orange-600 text-white rounded-xl font-bold text-lg hover:bg-orange-700 transition-all shadow-xl shadow-orange-900/40">
+                                Launch Site Dashboard
                             </Link>
                         </div>
-                        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {[
-                                { icon: Smartphone, title: "Mobile Field App", desc: "Technicians log progress directly from the field with photo evidence." },
-                                { icon: Camera, title: "Aerial Validation", desc: "Drone imagery automatically counts panels and confirms placement." },
-                                { icon: Calendar, title: "Gantt Integration", desc: "Syncs directly with your project schedule for live slippage alerts." },
-                                { icon: CheckCircle, title: "Automated Sign-off", desc: "Workflow-based approvals for each construction milestone." }
-                            ].map((card, i) => (
-                                <div key={i} className="bg-white p-10 rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg transition-all h-full">
-                                    <card.icon className="text-orange-600 mb-6" size={32} />
-                                    <h3 className="text-xl font-bold text-slate-900 mb-4">{card.title}</h3>
-                                    <p className="text-slate-600 text-sm leading-relaxed">{card.desc}</p>
-                                </div>
-                            ))}
+                    </motion.div>
+
+                    <div className="relative max-w-6xl mx-auto">
+                        <div className="aspect-video rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 bg-slate-900">
+                            <Image
+                                src="https://images.pexels.com/photos/2850347/pexels-photo-2850347.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                                alt="Construction Dashboard"
+                                fill
+                                className="object-cover opacity-80"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <motion.button
+                                    whileHover={{ scale: 1.1 }}
+                                    className="w-24 h-24 bg-orange-600 text-white rounded-full flex items-center justify-center shadow-2xl backdrop-blur-md"
+                                >
+                                    <Play fill="white" size={32} />
+                                </motion.button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Visual Timeline Feature */}
+            {/* Core Capabilities */}
             <section className="py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="bg-slate-900 rounded-3xl p-12 lg:p-20 text-white overflow-hidden relative">
-                        <div className="absolute bottom-0 right-0 w-1/2 h-full opacity-30 select-none pointer-events-none">
-                            <Image src="https://images.pexels.com/photos/159888/pexels-photo-159888.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Detail view" fill className="object-contain" />
-                        </div>
-                        <div className="relative z-10 max-w-xl">
-                            <h2 className="text-4xl font-bold mb-8 tracking-tight">Digital Twin Synchronization</h2>
-                            <p className="text-xl text-slate-400 mb-10 leading-relaxed">
-                                We overlay your 3D design file with actual site imagery to show discrepancies in real-time. Catch errors before they are cemented into the project.
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {[
+                            { icon: Target, title: "Precision Location", desc: "GPS-tagged installation tracking for every single solar module." },
+                            { icon: Camera, title: "Aerial Validation", desc: "AI count automated checks using high-res drone photogrammetry." },
+                            { icon: Globe, title: "Remote Oversight", desc: "Access live site conditions and photos from anywhere in the world." },
+                            { icon: Calendar, title: "Milestone Sync", desc: "Digital schedule integration with automated slippage alerts." }
+                        ].map((item, i) => (
+                            <div key={i} className="p-10 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-2xl hover:shadow-slate-200/50 transition-all group">
+                                <div className="w-14 h-14 bg-orange-600 text-white rounded-xl flex items-center justify-center mb-8 shadow-lg shadow-orange-600/20 group-hover:scale-110 transition-transform">
+                                    <item.icon size={28} />
+                                </div>
+                                <h3 className="text-xl font-bold text-slate-900 mb-4 group-hover:text-orange-600 transition-colors">{item.title}</h3>
+                                <p className="text-slate-500 leading-relaxed text-sm">{item.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Feature Split */}
+            <section className="py-24 bg-slate-950 relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                        <div className="text-white">
+                            <h2 className="text-5xl font-bold mb-8 tracking-tight">The Digital <span className="text-orange-400">Twin Edge</span></h2>
+                            <p className="text-xl text-slate-400 mb-10 leading-relaxed font-medium">
+                                We overlay your 3D design files with high-fidelity site imagery to show discrepancies in real-time. Detect as-built deviations before they impact commissioning.
                             </p>
-                            <ul className="space-y-4">
-                                {["BIM / 3D Model integration", "As-built vs Design comparison", "Millimeter-level deviation detection", "Photogrammetry based site updates"].map((li, i) => (
-                                    <li key={i} className="flex items-center gap-3">
-                                        <div className="w-2 h-2 bg-orange-600 rounded-full flex-shrink-0"></div>
-                                        <span className="font-medium text-slate-200">{li}</span>
-                                    </li>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                {[
+                                    "BIM/3D Design Overlay",
+                                    "Millimeter accuracy",
+                                    "Daily progress logs",
+                                    "Anomaly auto-tagging"
+                                ].map((item, i) => (
+                                    <div key={i} className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-2xl group hover:bg-white/10 transition-all">
+                                        <div className="w-2 h-2 bg-orange-600 rounded-full group-hover:scale-150 transition-transform"></div>
+                                        <span className="font-bold text-slate-200">{item}</span>
+                                    </div>
                                 ))}
-                            </ul>
+                            </div>
+                        </div>
+                        <div className="relative">
+                            <div className="aspect-square rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-white/5 relative bg-slate-900">
+                                <Image
+                                    src="https://images.pexels.com/photos/159888/pexels-photo-159888.jpeg?auto=compress&cs=tinysrgb&w=800"
+                                    alt="Site Logistics"
+                                    fill
+                                    className="object-cover opacity-60"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* CTA Section */}
-            <section className="py-24 text-center">
-                <h2 className="text-4xl font-bold text-slate-900 mb-12 tracking-tight">Ready to see your site from anywhere?</h2>
-                <Link href="/booking" className="px-12 py-6 bg-slate-100 text-slate-900 rounded-xl font-bold text-xl hover:bg-slate-200 transition-all active:scale-95 shadow-md">
-                    Experience Live Site Tracking
-                </Link>
+            {/* Elite CTA */}
+            <section className="py-24 bg-white text-center relative">
+                <div className="max-w-4xl mx-auto px-4">
+                    <h2 className="text-5xl font-bold text-slate-900 mb-8 tracking-tight">Stop Flying Blind.</h2>
+                    <p className="text-2xl text-slate-500 mb-16 leading-relaxed">
+                        Join the infrastructure leaders who manage 50GW+ of projects with SolarMark's live tracking engine.
+                    </p>
+                    <Link href="/booking" className="px-16 py-8 bg-slate-950 text-white rounded-2xl font-bold text-xl hover:bg-slate-800 transition-all shadow-2xl active:scale-95 inline-block">
+                        Request Site Access Demo
+                    </Link>
+                </div>
             </section>
         </div>
     );

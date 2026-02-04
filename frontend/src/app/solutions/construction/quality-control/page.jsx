@@ -10,57 +10,30 @@ export default function QualityControlPage() {
     return (
         <div className="min-h-screen bg-white">
             {/* Hero Section */}
-            <section className="pt-32 pb-20 bg-slate-50 border-b border-slate-100">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                        <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.6 }}
-                        >
-                            <div className="inline-block px-4 py-1.5 bg-orange-100 text-orange-600 rounded-md text-xs font-bold mb-8 tracking-[0.2em] uppercase">
-                                Solutions / Construction / Quality Control
-                            </div>
-                            <h1 className="text-6xl md:text-7xl font-bold text-slate-900 mb-8 tracking-tight leading-tight">
-                                Automated <br /><span className="text-orange-600">Quality Control</span>
-                            </h1>
-                            <p className="text-xl text-slate-600 mb-10 leading-relaxed max-w-lg font-medium">
-                                Eliminate human error. Our AI-driven quality control system validates installation standards, torque values, and electrical connections at scale.
-                            </p>
-                            <div className="flex gap-4">
-                                <Link
-                                    href="/booking"
-                                    className="px-8 py-4 bg-orange-600 text-white rounded-xl font-bold text-lg hover:bg-orange-700 transition-all inline-flex items-center gap-2 group shadow-xl shadow-orange-100"
-                                >
-                                    Book a Demo
-                                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                                </Link>
-                                <Link
-                                    href="/contact"
-                                    className="px-8 py-4 bg-white text-slate-900 border border-slate-200 rounded-xl font-bold text-lg hover:bg-slate-50 transition-all"
-                                >
-                                    Download Standards
-                                </Link>
-                            </div>
-                        </motion.div>
+            <section className="pt-32 pb-20 bg-slate-950 text-white relative overflow-hidden">
+                <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/9875415/pexels-photo-9875415.jpeg?auto=compress&cs=tinysrgb&w=1200')] bg-cover bg-center opacity-25 mix-blend-overlay"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent"></div>
 
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
                         <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 0.2 }}
-                            className="relative"
+                            transition={{ duration: 0.8 }}
                         >
-                            <div className="aspect-square rounded-full overflow-hidden border-[12px] border-white shadow-2xl relative z-10 w-full max-w-[500px] mx-auto">
-                                <Image
-                                    src="https://images.pexels.com/photos/9875415/pexels-photo-9875415.jpeg?auto=compress&cs=tinysrgb&w=800"
-                                    alt="Solar Quality Control"
-                                    fill
-                                    className="object-cover"
-                                />
+                            <div className="px-4 py-1.5 bg-orange-600 rounded-md text-xs font-bold mb-8 tracking-[0.2em] uppercase inline-block">
+                                Quality Assurance Layer
                             </div>
-                            <div className="absolute top-10 right-10 bg-white p-6 rounded-2xl shadow-2xl z-20 border border-slate-50">
-                                <Shield size={32} className="text-green-500 mb-2" />
-                                <div className="text-sm font-bold text-slate-900 uppercase tracking-widest">100% Validated</div>
+                            <h1 className="text-6xl md:text-8xl font-bold mb-8 tracking-tight leading-[1.1]">
+                                Zero Defect <span className="text-orange-400">Construction</span>
+                            </h1>
+                            <p className="text-xl text-slate-300 mb-12 leading-relaxed max-w-2xl mx-auto">
+                                Catch errors before they are cemented. Our AI-driven quality control system validates installation standards, torque values, and electrical connections with millmetric precision.
+                            </p>
+                            <div className="flex flex-wrap gap-5 justify-center">
+                                <Link href="/booking" className="px-12 py-6 bg-orange-600 text-white rounded-xl font-bold text-lg hover:bg-orange-700 transition-all shadow-xl shadow-orange-900/40">
+                                    Optimize Your QC Process
+                                </Link>
                             </div>
                         </motion.div>
                     </div>
@@ -70,48 +43,61 @@ export default function QualityControlPage() {
             {/* Standards Grid */}
             <section className="py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-20">
-                        <h2 className="text-4xl font-bold text-slate-900 mb-6 tracking-tight">Industrial Grade Standards</h2>
-                        <p className="text-xl text-slate-600 font-medium">We inspect for 500+ specific quality points during construction.</p>
-                    </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {[
-                            { icon: Shield, title: "Torque Verification", desc: "Automated logging of every bolt torque value using digital wrenches." },
-                            { icon: Award, title: "Module Health", desc: "EL imaging to detect micro-cracks before they are installed." },
-                            { icon: ClipboardCheck, title: "Digital QC Sheets", desc: "Customized digital checklists for every construction phase." },
-                            { icon: Zap, title: "Wiring Validation", desc: "AI visual check of cable management and connector seating." },
-                            { icon: CheckCircle, title: "Safety Audits", desc: "Integrated safety documentation and site perimeter monitoring." },
-                            { icon: ArrowRight, title: "Predictive QC", desc: "Historical error mapping to predict future quality hotspots." }
+                            { icon: Shield, title: "Torque Validation", desc: "Automated logging of every bolt torque value using proprietary digital torque links." },
+                            { icon: Award, title: "Module Integrity", desc: "Digital EL imaging to detect micro-cracks before they hit the mounting structure." },
+                            { icon: ClipboardCheck, title: "Live QC Workflows", desc: "Customized digital audit sheets for every construction milestone and team." },
+                            { icon: Zap, title: "Electrical Verification", desc: "AI visual check of cable management and high-voltage connector seating." },
+                            { icon: CheckCircle, title: "Final Compliance", desc: "Integrated safety documentation and site perimeter security monitoring." },
+                            { icon: ArrowRight, title: "Historical hotspots", desc: "Compare project errors across your portfolio to predict quality risks." }
                         ].map((card, i) => (
-                            <div key={i} className="group p-12 bg-slate-50 rounded-3xl border border-slate-100 hover:bg-white hover:shadow-2xl transition-all duration-300">
-                                <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center text-orange-600 mb-8 shadow-sm">
-                                    <card.icon size={28} />
+                            <div key={i} className="group p-12 bg-slate-50 rounded-[2.5rem] border border-slate-100 hover:bg-white hover:shadow-2xl transition-all duration-500">
+                                <div className="w-16 h-16 bg-orange-600 text-white rounded-2xl flex items-center justify-center mb-8 shadow-lg shadow-orange-600/20 group-hover:scale-110 transition-transform">
+                                    <card.icon size={32} />
                                 </div>
-                                <h3 className="text-2xl font-bold text-slate-900 mb-4">{card.title}</h3>
-                                <p className="text-slate-600 leading-relaxed font-medium text-sm">{card.desc}</p>
+                                <h3 className="text-2xl font-bold text-slate-900 mb-4 group-hover:text-orange-600 transition-colors">{card.title}</h3>
+                                <p className="text-slate-500 leading-relaxed text-sm">{card.desc}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Showcase Feature */}
-            <section className="py-24 bg-slate-50 border-y border-slate-100">
+            {/* Split Section */}
+            <section className="py-24 bg-white overflow-hidden border-t border-slate-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                         <div className="relative">
-                            <Image src="https://images.pexels.com/photos/8853517/pexels-photo-8853517.jpeg?auto=compress&cs=tinysrgb&w=800" alt="QC Software Interface" width={800} height={600} className="rounded-3xl shadow-2xl border-4 border-white" />
+                            <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border border-slate-100 bg-slate-100">
+                                <Image
+                                    src="https://images.pexels.com/photos/8853517/pexels-photo-8853517.jpeg?auto=compress&cs=tinysrgb&w=800"
+                                    alt="Technical Inspection"
+                                    fill
+                                    className="object-cover"
+                                />
+                            </div>
+                            <div className="absolute -bottom-8 -right-8 bg-slate-950 p-8 rounded-3xl shadow-2xl text-white border border-white/10 hidden md:block">
+                                <div className="text-4xl font-bold text-orange-400 mb-1">99.8%</div>
+                                <div className="text-sm font-bold uppercase tracking-widest text-slate-400">Detection Accuracy</div>
+                            </div>
                         </div>
                         <div>
-                            <h2 className="text-4xl font-bold text-slate-900 mb-8 tracking-tight">AI Vision Defect Detection</h2>
-                            <p className="text-xl text-slate-600 mb-10 leading-relaxed font-medium">
-                                Our AI models are trained on millions of images to detect module defects, racking misalignment, and loose cabling with 99.8% precision.
+                            <h2 className="text-5xl font-bold text-slate-900 mb-8 tracking-tight">AI Vision <br /><span className="text-orange-600">Defect Engine</span></h2>
+                            <p className="text-xl text-slate-600 mb-10 leading-relaxed">
+                                Our computer vision models are trained on millions of high-resolution images to detect racking misalignment, and loose cabling with unparalleled precision.
                             </p>
                             <div className="space-y-4">
-                                {["Panel surface micro-cracks", "Mounting bracket misalignment", "Improper cable stringing", "Grounding wire connectivity"].map((li, i) => (
-                                    <div key={i} className="flex items-center gap-4 py-4 border-b border-slate-200">
-                                        <div className="w-10 h-1 rounded-full bg-orange-600"></div>
+                                {[
+                                    "Automated anomaly detection and classification",
+                                    "GPS-tagged thermal and visual imagery",
+                                    "Temperature delta (ΔT) analysis for every panel",
+                                    "Comparative year-over-year inspection logs"
+                                ].map((li, i) => (
+                                    <div key={i} className="flex items-center gap-4 py-4 border-b border-slate-100 last:border-0 hover:translate-x-2 transition-transform cursor-default">
+                                        <div className="bg-orange-600/10 p-1.5 rounded-full">
+                                            <CheckCircle className="text-orange-600" size={22} />
+                                        </div>
                                         <span className="font-bold text-slate-800 text-lg">{li}</span>
                                     </div>
                                 ))}
@@ -121,19 +107,17 @@ export default function QualityControlPage() {
                 </div>
             </section>
 
-            {/* CTA Section */}
-            <section className="py-24 bg-white text-center">
-                <div className="max-w-5xl mx-auto px-4">
-                    <div className="bg-slate-900 text-white p-20 md:p-24 rounded-[40px] relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-orange-600/20 shadow-[0_0_100px_40px_rgba(234,88,12,0.1)] blur-[80px] pointer-events-none"></div>
-                        <h2 className="text-4xl md:text-6xl font-bold mb-8 tracking-tight">Zero Defect Construction</h2>
-                        <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto font-medium">
-                            Join the developers world-wide who use SolarMark to ensure their solar assets are built to last 25+ years.
-                        </p>
-                        <Link href="/booking" className="px-12 py-6 bg-orange-600 text-white rounded-xl font-bold text-xl hover:bg-orange-700 transition-all shadow-2xl active:scale-95 inline-block">
-                            Optimize Your QC Process
-                        </Link>
-                    </div>
+            {/* Elite CTA */}
+            <section className="py-24 bg-slate-950 text-center relative overflow-hidden">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-orange-500/30 to-transparent"></div>
+                <div className="max-w-4xl mx-auto px-4 relative z-10 text-white">
+                    <h2 className="text-5xl font-bold mb-8 tracking-tight">Build for the Next 25 Years</h2>
+                    <p className="text-2xl text-slate-400 mb-16 leading-relaxed">
+                        Join the world's most disciplined developers who use SolarMark to ensure their solar assets are built right from day one.
+                    </p>
+                    <Link href="/booking" className="px-16 py-8 bg-orange-600 text-white rounded-xl font-bold text-xl hover:bg-orange-700 transition-all shadow-2xl shadow-orange-900/40 active:scale-95 inline-block">
+                        Download Quality Standards
+                    </Link>
                 </div>
             </section>
         </div>

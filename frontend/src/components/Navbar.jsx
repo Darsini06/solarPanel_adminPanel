@@ -2,7 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Sun, Menu, X, LogOut, User as UserIcon, ChevronDown } from "lucide-react";
+import {
+    Sun, Menu, X, LogOut, User as UserIcon, ChevronDown,
+    Thermometer, ClipboardList, Database, TrendingUp, CheckCircle,
+    Zap, Globe, Eye, Brain, FileText, Settings, Activity, Wrench, Target
+} from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 
 export default function Navbar() {
@@ -12,6 +16,9 @@ export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [openDropdown, setOpenDropdown] = useState(null);
+
+    // Some pages might not have a dark hero, we should check
+    const isDarkHeroPage = ["/", "/solutions/operation/thermography", "/solutions/operation/work-management", "/solutions/operation/asset-management", "/solutions/construction/progress-tracking", "/solutions/construction/quality-control", "/solutions/construction/commissioning", "/solutions/planning/site-assessment", "/platform/drones", "/platform/ai-analytics", "/platform/forms", "/platform/integrations"].includes(pathname);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -68,135 +75,119 @@ export default function Navbar() {
         setOpenDropdown(openDropdown === menu ? null : menu);
     };
 
+    // Style logic
+    const navBg = isScrolled
+        ? "bg-white/95 backdrop-blur-md shadow-lg shadow-slate-200/20 py-3"
+        : isDarkHeroPage ? "bg-transparent py-6" : "bg-white/80 backdrop-blur-md py-6";
+
+    const textColor = (isScrolled || !isDarkHeroPage) ? "text-slate-600" : "text-white/80";
+    const activeTextColor = (isScrolled || !isDarkHeroPage) ? "text-orange-600" : "text-white";
+    const logoTextColor = (isScrolled || !isDarkHeroPage) ? "text-slate-900" : "text-white";
+    const hoverTextColor = (isScrolled || !isDarkHeroPage) ? "hover:text-orange-600" : "hover:text-white";
+
     return (
-        <nav
-            className={`fixed w-full z-50 transition-all duration-300 ${isScrolled
-                ? "bg-white/95 backdrop-blur-md shadow-lg shadow-slate-200/20 py-3"
-                : "bg-white/80 backdrop-blur-md py-5"
-                }`}
-        >
+        <nav className={`fixed w-full z-50 transition-all duration-500 ${navBg}`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3 group">
-                        <div className="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center group-hover:bg-orange-700 transition-all duration-300 shadow-lg shadow-orange-200">
+                        <div className="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center group-hover:bg-orange-700 transition-all duration-300 shadow-xl shadow-orange-600/20">
                             <Sun className="h-6 w-6 text-white" />
                         </div>
-                        <span className="text-2xl font-bold tracking-tight text-slate-900">
+                        <span className={`text-2xl font-bold tracking-tight transition-colors ${logoTextColor}`}>
                             Solar<span className="text-orange-600">Mark</span>
                         </span>
                     </Link>
 
                     {/* Desktop Navigation */}
                     <div className="hidden lg:flex items-center gap-2">
-                        {/* Home Link */}
                         <Link
                             href="/"
-                            className={`px-4 py-2 text-sm font-bold transition-all duration-300 ${pathname === "/"
-                                ? "text-orange-600"
-                                : "text-slate-600 hover:text-orange-600"
-                                }`}
+                            className={`px-4 py-2 text-sm font-bold transition-all duration-300 ${pathname === "/" ? "text-orange-600" : `${textColor} ${hoverTextColor}`}`}
                         >
                             Home
                         </Link>
 
                         {isLoggedIn && (
                             <>
-                                {/* Solutions Dropdown */}
-                                <div className="relative group">
+                                {/* Solutions */}
+                                <div
+                                    className="relative group h-full flex items-center"
+                                    onMouseEnter={() => setOpenDropdown('solutions')}
+                                    onMouseLeave={() => setOpenDropdown(null)}
+                                >
                                     <button
-                                        onMouseEnter={() => setOpenDropdown('solutions')}
-                                        className="flex items-center gap-1 px-4 py-2 text-sm font-bold text-slate-600 hover:text-orange-600 transition-all duration-300"
+                                        className={`flex items-center gap-1.5 px-4 py-2 text-sm font-bold transition-all duration-300 ${openDropdown === 'solutions' ? 'text-orange-600' : `${textColor} ${hoverTextColor}`}`}
                                     >
                                         Solutions
-                                        <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />
+                                        <ChevronDown size={14} className={`transition-transform duration-300 ${openDropdown === 'solutions' ? 'rotate-180' : ''}`} />
                                     </button>
+
                                     <div
-                                        onMouseEnter={() => setOpenDropdown('solutions')}
-                                        onMouseLeave={() => setOpenDropdown(null)}
-                                        className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[480px] bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 transition-all duration-300 ${openDropdown === 'solutions' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-4'
-                                            }`}
+                                        className={`absolute top-full left-1/2 -translate-x-1/2 mt-0 pt-2 w-[720px] transition-all duration-500 z-50 ${openDropdown === 'solutions' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-2'}`}
                                     >
-                                        <div className="grid grid-cols-3 gap-8">
-                                            {solutionsMenu.map((phase) => (
-                                                <div key={phase.phase}>
-                                                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">
-                                                        {phase.phase}
+                                        <div className="bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-slate-100 p-10">
+                                            <div className="grid grid-cols-3 gap-12 text-left">
+                                                {solutionsMenu.map((phase) => (
+                                                    <div key={phase.phase}>
+                                                        <div className="text-base font-extrabold text-slate-900 mb-6 border-b border-slate-50 pb-2">
+                                                            {phase.phase}
+                                                        </div>
+                                                        <div className="space-y-4">
+                                                            {phase.items.map((item) => (
+                                                                <Link
+                                                                    key={item.name}
+                                                                    href={item.href}
+                                                                    className="block text-base font-medium text-slate-600 hover:text-orange-600 transition-colors"
+                                                                >
+                                                                    {item.name}
+                                                                </Link>
+                                                            ))}
+                                                        </div>
                                                     </div>
-                                                    <div className="space-y-3">
-                                                        {phase.items.map((item) => (
-                                                            <Link
-                                                                key={item.name}
-                                                                href={item.href}
-                                                                className="block text-sm font-bold text-slate-600 hover:text-orange-600 transition-colors"
-                                                            >
-                                                                {item.name}
-                                                            </Link>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ))}
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Platform Dropdown */}
-                                <div className="relative group">
+                                {/* Platform */}
+                                <div
+                                    className="relative group h-full flex items-center"
+                                    onMouseEnter={() => setOpenDropdown('platform')}
+                                    onMouseLeave={() => setOpenDropdown(null)}
+                                >
                                     <button
-                                        onMouseEnter={() => setOpenDropdown('platform')}
-                                        className="flex items-center gap-1 px-4 py-2 text-sm font-bold text-slate-600 hover:text-orange-600 transition-all duration-300"
+                                        className={`flex items-center gap-1.5 px-4 py-2 text-sm font-bold transition-all duration-300 ${openDropdown === 'platform' ? 'text-orange-600' : `${textColor} ${hoverTextColor}`}`}
                                     >
                                         Platform
-                                        <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />
+                                        <ChevronDown size={14} className={`transition-transform duration-300 ${openDropdown === 'platform' ? 'rotate-180' : ''}`} />
                                     </button>
+
                                     <div
-                                        onMouseEnter={() => setOpenDropdown('platform')}
-                                        onMouseLeave={() => setOpenDropdown(null)}
-                                        className={`absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 transition-all duration-300 ${openDropdown === 'platform' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-4'
-                                            }`}
+                                        className={`absolute top-full left-0 mt-0 pt-2 w-64 transition-all duration-500 z-50 ${openDropdown === 'platform' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-2'}`}
                                     >
-                                        {platformMenu.map((item) => (
-                                            <Link
-                                                key={item.name}
-                                                href={item.href}
-                                                className="block px-4 py-3 text-sm font-bold text-slate-600 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all duration-300"
-                                            >
-                                                {item.name}
-                                            </Link>
-                                        ))}
+                                        <div className="bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-slate-100 p-6 text-left">
+                                            <div className="space-y-4">
+                                                {platformMenu.map((item) => (
+                                                    <Link
+                                                        key={item.name}
+                                                        href={item.href}
+                                                        className="block text-base font-medium text-slate-600 hover:text-orange-600 transition-colors"
+                                                    >
+                                                        {item.name}
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </>
                         )}
 
-                        {/* Regular Links */}
-                        <Link
-                            href="/about"
-                            className={`px-4 py-2 text-sm font-bold transition-all duration-300 ${pathname === "/about"
-                                ? "text-orange-600"
-                                : "text-slate-600 hover:text-orange-600"
-                                }`}
-                        >
-                            About
-                        </Link>
-                        <Link
-                            href="/offers"
-                            className={`px-4 py-2 text-sm font-bold transition-all duration-300 ${pathname === "/offers"
-                                ? "text-orange-600"
-                                : "text-slate-600 hover:text-orange-600"
-                                }`}
-                        >
-                            Offers
-                        </Link>
-                        <Link
-                            href="/contact"
-                            className={`px-4 py-2 text-sm font-bold transition-all duration-300 ${pathname === "/contact"
-                                ? "text-orange-600"
-                                : "text-slate-600 hover:text-orange-600"
-                                }`}
-                        >
-                            Contact
-                        </Link>
+                        <Link href="/about" className={`px-4 py-2 text-sm font-bold transition-all duration-300 ${pathname === "/about" ? "text-orange-600" : `${textColor} ${hoverTextColor}`}`}>About</Link>
+                        <Link href="/offers" className={`px-4 py-2 text-sm font-bold transition-all duration-300 ${pathname === "/offers" ? "text-orange-600" : `${textColor} ${hoverTextColor}`}`}>Offers</Link>
+                        <Link href="/contact" className={`px-4 py-2 text-sm font-bold transition-all duration-300 ${pathname === "/contact" ? "text-orange-600" : `${textColor} ${hoverTextColor}`}`}>Contact</Link>
                     </div>
 
                     {/* Desktop Actions */}
@@ -205,13 +196,13 @@ export default function Navbar() {
                             <>
                                 <Link
                                     href="/profile"
-                                    className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 hover:bg-slate-200 transition-all duration-300"
+                                    className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${(isScrolled || !isDarkHeroPage) ? "bg-slate-100 text-slate-700 hover:bg-slate-200" : "bg-white/10 text-white hover:bg-white/20"}`}
                                 >
                                     <UserIcon size={20} />
                                 </Link>
                                 <button
                                     onClick={handleLogout}
-                                    className="flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-red-600 transition-colors"
+                                    className={`flex items-center gap-2 text-sm font-bold transition-colors ${(isScrolled || !isDarkHeroPage) ? "text-slate-600 hover:text-red-600" : "text-white/80 hover:text-red-400"}`}
                                 >
                                     <LogOut size={18} />
                                     <span>Logout</span>
@@ -221,15 +212,15 @@ export default function Navbar() {
                             <>
                                 <Link
                                     href="/login"
-                                    className="text-sm font-bold text-slate-600 hover:text-orange-600 transition-colors"
+                                    className={`text-sm font-bold transition-colors ${(isScrolled || !isDarkHeroPage) ? "text-slate-600 hover:text-orange-600" : "text-white hover:text-orange-400"}`}
                                 >
                                     Log In
                                 </Link>
                                 <Link
                                     href="/booking"
-                                    className="px-6 py-3 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-all duration-300 shadow-xl shadow-slate-200"
+                                    className={`px-8 py-3 text-sm font-bold rounded-xl transition-all duration-300 shadow-xl ${(isScrolled || !isDarkHeroPage) ? "bg-slate-900 text-white hover:bg-slate-800 shadow-slate-200" : "bg-orange-600 text-white hover:bg-orange-700 shadow-orange-900/20"}`}
                                 >
-                                    Book Now
+                                    Book Demo
                                 </Link>
                             </>
                         )}
@@ -238,7 +229,7 @@ export default function Navbar() {
                     {/* Mobile Menu Button */}
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="lg:hidden p-2 text-slate-700 hover:text-orange-600 transition-colors"
+                        className={`lg:hidden p-2 transition-colors ${(isScrolled || !isDarkHeroPage) ? "text-slate-700 hover:text-orange-600" : "text-white hover:text-orange-400"}`}
                     >
                         {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
                     </button>
@@ -246,144 +237,64 @@ export default function Navbar() {
 
                 {/* Mobile Menu */}
                 {isMenuOpen && (
-                    <div className="lg:hidden mt-6 pb-8 border-t border-slate-100 pt-6 space-y-2">
-                        {/* Home Mobile */}
-                        <Link
-                            href="/"
-                            className="block px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all"
-                            onClick={() => setIsMenuOpen(false)}
-                        >
-                            Home
-                        </Link>
+                    <div className="lg:hidden mt-6 pb-8 border-t border-slate-100 pt-6 space-y-2 bg-white rounded-3xl p-6 shadow-2xl absolute top-full left-4 right-4 text-slate-900">
+                        <Link href="/" className="block px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl" onClick={() => setIsMenuOpen(false)}>Home</Link>
 
                         {isLoggedIn && (
                             <>
-                                {/* Solutions Mobile */}
-                                <div className="space-y-1">
-                                    <button
-                                        onClick={() => toggleDropdown('solutions-mobile')}
-                                        className="flex items-center justify-between w-full px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all"
-                                    >
-                                        Solutions
-                                        <ChevronDown size={18} className={`transition-transform duration-300 ${openDropdown === 'solutions-mobile' ? 'rotate-180' : ''}`} />
-                                    </button>
-                                    {openDropdown === 'solutions-mobile' && (
-                                        <div className="pl-6 space-y-4 py-2 border-l-2 border-orange-100 ml-4 mt-1">
-                                            {solutionsMenu.map((phase) => (
-                                                <div key={phase.phase}>
-                                                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">
-                                                        {phase.phase}
-                                                    </div>
-                                                    <div className="space-y-3">
-                                                        {phase.items.map((item) => (
-                                                            <Link
-                                                                key={item.name}
-                                                                href={item.href}
-                                                                className="block text-sm font-bold text-slate-600 hover:text-orange-600"
-                                                                onClick={() => setIsMenuOpen(false)}
-                                                            >
-                                                                {item.name}
-                                                            </Link>
-                                                        ))}
-                                                    </div>
+                                <button
+                                    onClick={() => toggleDropdown('solutions-mobile')}
+                                    className="flex items-center justify-between w-full px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl"
+                                >
+                                    Solutions
+                                    <ChevronDown size={18} className={`transition-transform duration-300 ${openDropdown === 'solutions-mobile' ? 'rotate-180' : ''}`} />
+                                </button>
+                                {openDropdown === 'solutions-mobile' && (
+                                    <div className="pl-6 space-y-4 py-2 border-l-2 border-orange-100 ml-4 mt-1">
+                                        {solutionsMenu.map((phase) => (
+                                            <div key={phase.phase}>
+                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">{phase.phase}</div>
+                                                <div className="space-y-3">
+                                                    {phase.items.map((item) => (
+                                                        <Link key={item.name} href={item.href} className="block text-sm font-bold text-slate-600 hover:text-orange-600" onClick={() => setIsMenuOpen(false)}>{item.name}</Link>
+                                                    ))}
                                                 </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
 
-                                {/* Platform Mobile */}
-                                <div className="space-y-1">
-                                    <button
-                                        onClick={() => toggleDropdown('platform-mobile')}
-                                        className="flex items-center justify-between w-full px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all"
-                                    >
-                                        Platform
-                                        <ChevronDown size={18} className={`transition-transform duration-300 ${openDropdown === 'platform-mobile' ? 'rotate-180' : ''}`} />
-                                    </button>
-                                    {openDropdown === 'platform-mobile' && (
-                                        <div className="pl-6 py-2 border-l-2 border-orange-100 ml-4 mt-1 space-y-3">
-                                            {platformMenu.map((item) => (
-                                                <Link
-                                                    key={item.name}
-                                                    href={item.href}
-                                                    className="block text-sm font-bold text-slate-600 hover:text-orange-600"
-                                                    onClick={() => setIsMenuOpen(false)}
-                                                >
-                                                    {item.name}
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
+                                <button
+                                    onClick={() => toggleDropdown('platform-mobile')}
+                                    className="flex items-center justify-between w-full px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl"
+                                >
+                                    Platform
+                                    <ChevronDown size={18} className={`transition-transform duration-300 ${openDropdown === 'platform-mobile' ? 'rotate-180' : ''}`} />
+                                </button>
+                                {openDropdown === 'platform-mobile' && (
+                                    <div className="pl-6 py-2 border-l-2 border-orange-100 ml-4 mt-1 space-y-3">
+                                        {platformMenu.map((item) => (
+                                            <Link key={item.name} href={item.href} className="block text-sm font-bold text-slate-600 hover:text-orange-600" onClick={() => setIsMenuOpen(false)}>{item.name}</Link>
+                                        ))}
+                                    </div>
+                                )}
                             </>
                         )}
 
-                        <Link
-                            href="/about"
-                            className="block px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all"
-                            onClick={() => setIsMenuOpen(false)}
-                        >
-                            About
-                        </Link>
-                        <Link
-                            href="/offers"
-                            className="block px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all"
-                            onClick={() => setIsMenuOpen(false)}
-                        >
-                            Offers
-                        </Link>
-                        <Link
-                            href="/contact"
-                            className="block px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all"
-                            onClick={() => setIsMenuOpen(false)}
-                        >
-                            Contact
-                        </Link>
+                        <Link href="/about" className="block px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl" onClick={() => setIsMenuOpen(false)}>About</Link>
+                        <Link href="/contact" className="block px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl" onClick={() => setIsMenuOpen(false)}>Contact</Link>
 
-                        {/* Mobile Actions */}
-                        <div className="mt-8 px-4 space-y-3">
+                        <div className="mt-8 px-4 space-y-3 border-t border-slate-50 pt-6">
                             {isLoggedIn ? (
-                                <>
-                                    <Link
-                                        href="/profile"
-                                        className="block w-full py-4 text-center bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-all"
-                                        onClick={() => setIsMenuOpen(false)}
-                                    >
-                                        Profile
-                                    </Link>
-                                    <button
-                                        onClick={() => {
-                                            handleLogout();
-                                            setIsMenuOpen(false);
-                                        }}
-                                        className="block w-full py-4 text-center text-red-600 font-bold"
-                                    >
-                                        Logout
-                                    </button>
-                                </>
+                                <button onClick={() => { handleLogout(); setIsMenuOpen(false); }} className="block w-full py-4 text-center text-red-600 font-bold">Logout</button>
                             ) : (
-                                <>
-                                    <Link
-                                        href="/login"
-                                        className="block w-full py-4 text-center bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-all"
-                                        onClick={() => setIsMenuOpen(false)}
-                                    >
-                                        Log In
-                                    </Link>
-                                    <Link
-                                        href="/booking"
-                                        className="block w-full py-4 text-center bg-orange-600 text-white rounded-xl font-bold shadow-lg shadow-orange-200 hover:bg-orange-700 transition-all"
-                                        onClick={() => setIsMenuOpen(false)}
-                                    >
-                                        Book Now
-                                    </Link>
-                                </>
+                                <Link href="/login" className="block w-full py-4 text-center bg-slate-900 text-white rounded-xl font-bold transition-all" onClick={() => setIsMenuOpen(false)}>Log In</Link>
                             )}
                         </div>
                     </div>
                 )}
             </div>
-        </nav >
+        </nav>
     );
 }
+
