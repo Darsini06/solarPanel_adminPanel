@@ -100,70 +100,74 @@ export default function Navbar() {
                             Home
                         </Link>
 
-                        {/* Solutions Dropdown */}
-                        <div className="relative group">
-                            <button
-                                onMouseEnter={() => setOpenDropdown('solutions')}
-                                className="flex items-center gap-1 px-4 py-2 text-sm font-bold text-slate-600 hover:text-orange-600 transition-all duration-300"
-                            >
-                                Solutions
-                                <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />
-                            </button>
-                            <div
-                                onMouseEnter={() => setOpenDropdown('solutions')}
-                                onMouseLeave={() => setOpenDropdown(null)}
-                                className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[480px] bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 transition-all duration-300 ${openDropdown === 'solutions' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-4'
-                                    }`}
-                            >
-                                <div className="grid grid-cols-3 gap-8">
-                                    {solutionsMenu.map((phase) => (
-                                        <div key={phase.phase}>
-                                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">
-                                                {phase.phase}
-                                            </div>
-                                            <div className="space-y-3">
-                                                {phase.items.map((item) => (
-                                                    <Link
-                                                        key={item.name}
-                                                        href={item.href}
-                                                        className="block text-sm font-bold text-slate-600 hover:text-orange-600 transition-colors"
-                                                    >
-                                                        {item.name}
-                                                    </Link>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Platform Dropdown */}
-                        <div className="relative group">
-                            <button
-                                onMouseEnter={() => setOpenDropdown('platform')}
-                                className="flex items-center gap-1 px-4 py-2 text-sm font-bold text-slate-600 hover:text-orange-600 transition-all duration-300"
-                            >
-                                Platform
-                                <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />
-                            </button>
-                            <div
-                                onMouseEnter={() => setOpenDropdown('platform')}
-                                onMouseLeave={() => setOpenDropdown(null)}
-                                className={`absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 transition-all duration-300 ${openDropdown === 'platform' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-4'
-                                    }`}
-                            >
-                                {platformMenu.map((item) => (
-                                    <Link
-                                        key={item.name}
-                                        href={item.href}
-                                        className="block px-4 py-3 text-sm font-bold text-slate-600 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all duration-300"
+                        {isLoggedIn && (
+                            <>
+                                {/* Solutions Dropdown */}
+                                <div className="relative group">
+                                    <button
+                                        onMouseEnter={() => setOpenDropdown('solutions')}
+                                        className="flex items-center gap-1 px-4 py-2 text-sm font-bold text-slate-600 hover:text-orange-600 transition-all duration-300"
                                     >
-                                        {item.name}
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
+                                        Solutions
+                                        <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />
+                                    </button>
+                                    <div
+                                        onMouseEnter={() => setOpenDropdown('solutions')}
+                                        onMouseLeave={() => setOpenDropdown(null)}
+                                        className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[480px] bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 transition-all duration-300 ${openDropdown === 'solutions' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-4'
+                                            }`}
+                                    >
+                                        <div className="grid grid-cols-3 gap-8">
+                                            {solutionsMenu.map((phase) => (
+                                                <div key={phase.phase}>
+                                                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">
+                                                        {phase.phase}
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        {phase.items.map((item) => (
+                                                            <Link
+                                                                key={item.name}
+                                                                href={item.href}
+                                                                className="block text-sm font-bold text-slate-600 hover:text-orange-600 transition-colors"
+                                                            >
+                                                                {item.name}
+                                                            </Link>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Platform Dropdown */}
+                                <div className="relative group">
+                                    <button
+                                        onMouseEnter={() => setOpenDropdown('platform')}
+                                        className="flex items-center gap-1 px-4 py-2 text-sm font-bold text-slate-600 hover:text-orange-600 transition-all duration-300"
+                                    >
+                                        Platform
+                                        <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />
+                                    </button>
+                                    <div
+                                        onMouseEnter={() => setOpenDropdown('platform')}
+                                        onMouseLeave={() => setOpenDropdown(null)}
+                                        className={`absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 transition-all duration-300 ${openDropdown === 'platform' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-4'
+                                            }`}
+                                    >
+                                        {platformMenu.map((item) => (
+                                            <Link
+                                                key={item.name}
+                                                href={item.href}
+                                                className="block px-4 py-3 text-sm font-bold text-slate-600 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all duration-300"
+                                            >
+                                                {item.name}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+                            </>
+                        )}
 
                         {/* Regular Links */}
                         <Link
@@ -252,64 +256,68 @@ export default function Navbar() {
                             Home
                         </Link>
 
-                        {/* Solutions Mobile */}
-                        <div className="space-y-1">
-                            <button
-                                onClick={() => toggleDropdown('solutions-mobile')}
-                                className="flex items-center justify-between w-full px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all"
-                            >
-                                Solutions
-                                <ChevronDown size={18} className={`transition-transform duration-300 ${openDropdown === 'solutions-mobile' ? 'rotate-180' : ''}`} />
-                            </button>
-                            {openDropdown === 'solutions-mobile' && (
-                                <div className="pl-6 space-y-4 py-2 border-l-2 border-orange-100 ml-4 mt-1">
-                                    {solutionsMenu.map((phase) => (
-                                        <div key={phase.phase}>
-                                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">
-                                                {phase.phase}
-                                            </div>
-                                            <div className="space-y-3">
-                                                {phase.items.map((item) => (
-                                                    <Link
-                                                        key={item.name}
-                                                        href={item.href}
-                                                        className="block text-sm font-bold text-slate-600 hover:text-orange-600"
-                                                        onClick={() => setIsMenuOpen(false)}
-                                                    >
-                                                        {item.name}
-                                                    </Link>
-                                                ))}
-                                            </div>
+                        {isLoggedIn && (
+                            <>
+                                {/* Solutions Mobile */}
+                                <div className="space-y-1">
+                                    <button
+                                        onClick={() => toggleDropdown('solutions-mobile')}
+                                        className="flex items-center justify-between w-full px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all"
+                                    >
+                                        Solutions
+                                        <ChevronDown size={18} className={`transition-transform duration-300 ${openDropdown === 'solutions-mobile' ? 'rotate-180' : ''}`} />
+                                    </button>
+                                    {openDropdown === 'solutions-mobile' && (
+                                        <div className="pl-6 space-y-4 py-2 border-l-2 border-orange-100 ml-4 mt-1">
+                                            {solutionsMenu.map((phase) => (
+                                                <div key={phase.phase}>
+                                                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">
+                                                        {phase.phase}
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        {phase.items.map((item) => (
+                                                            <Link
+                                                                key={item.name}
+                                                                href={item.href}
+                                                                className="block text-sm font-bold text-slate-600 hover:text-orange-600"
+                                                                onClick={() => setIsMenuOpen(false)}
+                                                            >
+                                                                {item.name}
+                                                            </Link>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))}
+                                    )}
                                 </div>
-                            )}
-                        </div>
 
-                        {/* Platform Mobile */}
-                        <div className="space-y-1">
-                            <button
-                                onClick={() => toggleDropdown('platform-mobile')}
-                                className="flex items-center justify-between w-full px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all"
-                            >
-                                Platform
-                                <ChevronDown size={18} className={`transition-transform duration-300 ${openDropdown === 'platform-mobile' ? 'rotate-180' : ''}`} />
-                            </button>
-                            {openDropdown === 'platform-mobile' && (
-                                <div className="pl-6 py-2 border-l-2 border-orange-100 ml-4 mt-1 space-y-3">
-                                    {platformMenu.map((item) => (
-                                        <Link
-                                            key={item.name}
-                                            href={item.href}
-                                            className="block text-sm font-bold text-slate-600 hover:text-orange-600"
-                                            onClick={() => setIsMenuOpen(false)}
-                                        >
-                                            {item.name}
-                                        </Link>
-                                    ))}
+                                {/* Platform Mobile */}
+                                <div className="space-y-1">
+                                    <button
+                                        onClick={() => toggleDropdown('platform-mobile')}
+                                        className="flex items-center justify-between w-full px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all"
+                                    >
+                                        Platform
+                                        <ChevronDown size={18} className={`transition-transform duration-300 ${openDropdown === 'platform-mobile' ? 'rotate-180' : ''}`} />
+                                    </button>
+                                    {openDropdown === 'platform-mobile' && (
+                                        <div className="pl-6 py-2 border-l-2 border-orange-100 ml-4 mt-1 space-y-3">
+                                            {platformMenu.map((item) => (
+                                                <Link
+                                                    key={item.name}
+                                                    href={item.href}
+                                                    className="block text-sm font-bold text-slate-600 hover:text-orange-600"
+                                                    onClick={() => setIsMenuOpen(false)}
+                                                >
+                                                    {item.name}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                        </div>
+                            </>
+                        )}
 
                         <Link
                             href="/about"
