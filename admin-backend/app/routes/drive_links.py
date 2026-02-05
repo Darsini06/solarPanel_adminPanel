@@ -634,6 +634,21 @@ async def compare_multiple_reports(
                     detail=f"You don't have access to report {pdf_id}"
                 )
             
+            # --- STRICT RELEVANCE FILTERING ---
+            # 1. Ensure Site Consistency (all reports must belong to the same asset/link)
+            current_link_id = pdf_meta.get("link_id")
+            if not reports:
+                base_link_id = current_link_id
+            elif current_link_id != base_link_id:
+                # Skip reports from different sites/assets
+                continue
+
+            # 2. Basic Filename Relevance Check (Optional but helpful)
+            filename = pdf_meta.get("filename", "").lower()
+            if not any(k in filename for k in ["solar", "inspection", "report", "therm", "module"]):
+                # Skip if it doesn't look like an inspection report
+                continue
+            
             # Handle uploaded_at field
             uploaded_at = pdf_meta.get("uploaded_at")
             if isinstance(uploaded_at, datetime):
@@ -922,11 +937,11 @@ def generate_solar_stats(pdf_id: str):
         elif "Bypass" in anomaly:
             actual_v = expected_v * 0.66 # 1/3 drop
         else:
-            # Random drop based on hash (5-20% drop)
+            # Random drop based on hash (5-20% drop) 
             drop_pct = 5 + ((hash_val + i) % 15)
             actual_v = round(expected_v * (1 - drop_pct/100), 1)
             
-        stats["defects_list"].append({
+        stats["defects_list"].append({ 
             "id": f"P-{row}-{struct}", # Unique panel identifier for comparison
             "row": row,
             "structure": struct,
@@ -986,6 +1001,21 @@ async def download_comparison_report(
                     status_code=403,
                     detail=f"You don't have access to report {pdf_id}"
                 )
+
+            # --- STRICT RELEVANCE FILTERING ---
+            # 1. Ensure Site Consistency (don't mix Zone-1 from Site-A with Zone-1 from Site-B)
+            current_link_id = pdf_meta.get("link_id")
+            if not reports:
+                base_link_id = current_link_id
+            elif current_link_id != base_link_id:
+                # Discard irrelevant report from different asset
+                continue
+
+            # 2. Inspection Validation
+            filename = pdf_meta.get("filename", "").lower()
+            if not any(k in filename for k in ["solar", "inspection", "report", "punjab", "therm", "module"]):
+                # Skip non-solar/irrelevant documents
+                continue
             
             # Handle uploaded_at field
             uploaded_at = pdf_meta.get("uploaded_at")
