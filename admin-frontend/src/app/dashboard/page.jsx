@@ -43,8 +43,12 @@ export default function Dashboard() {
 
   // Load data immediately since authentication is now optional/auto-handled
   useEffect(() => {
-    const name = localStorage.getItem('admin_name');
-    setAdminName(name || 'Admin User');
+    let name = localStorage.getItem('admin_name');
+    if (!name || name === 'Admin User' || name === 'System Admin') {
+      name = 'Princilla Savier';
+      localStorage.setItem('admin_name', name);
+    }
+    setAdminName(name);
     loadDashboardData();
   }, []);
 
@@ -59,7 +63,7 @@ export default function Dashboard() {
 
       // Fetch all required data in parallel
       const [linksRes, bookingsRes, contactsRes, usersRes] = await Promise.all([
-        fetch(`${API_URL}/drive-links/`, { headers }),
+        fetch(`${API_URL}/drive-links`, { headers }),
         fetch(`${API_URL}/bookings/`, { headers }),
         fetch(`${API_URL}/contacts/`, { headers }),
         fetch(`${API_URL}/api/users/all`, { headers })
@@ -72,9 +76,9 @@ export default function Dashboard() {
         usersRes.ok ? usersRes.json() : []
       ]);
 
-      setDriveLinks(linksData);
-      setBookings(bookingsData);
-      setContacts(contactsData);
+      setDriveLinks(linksData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
+      setBookings(bookingsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
+      setContacts(contactsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
       setUsers(usersData);
 
       // Calculate stats
@@ -189,19 +193,6 @@ export default function Dashboard() {
           <p className="text-gray-600 mt-2">
             Welcome back, <span className="font-semibold text-blue-600">{adminName}</span>
           </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg">
-            <Shield className="w-5 h-5 text-blue-600" />
-            <span className="text-sm font-medium text-blue-700">Admin Mode</span>
-          </div>
-          <button
-            onClick={handleAddLink}
-            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <PlusCircle className="w-5 h-5" />
-            Add Drive Link
-          </button>
         </div>
       </div>
 
@@ -318,16 +309,6 @@ export default function Dashboard() {
                   ))}
                 </tbody>
               </table>
-            </div>
-
-            <div className="p-4 border-t border-gray-200 bg-gray-50">
-              <button
-                onClick={handleAddLink}
-                className="w-full py-3 text-center text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center gap-2"
-              >
-                <PlusCircle className="w-5 h-5" />
-                Add New Drive Link
-              </button>
             </div>
           </div>
         </div>

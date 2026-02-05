@@ -31,7 +31,7 @@ export default function LoginPage() {
     setTimeout(() => {
       if (email === 'admin@gmail.com' && password === 'admin1234') {
         localStorage.setItem('token', 'demo_session_token_99');
-        localStorage.setItem('admin_name', 'System Admin');
+        localStorage.setItem('admin_name', 'Princilla Savier');
         localStorage.setItem('is_admin', 'true');
         setIsSuccess(true);
         setTimeout(() => router.push('/dashboard'), 800);
@@ -104,8 +104,8 @@ export default function LoginPage() {
               type="submit"
               disabled={loading || isSuccess}
               className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all duration-500 flex items-center justify-center gap-2 ${isSuccess
-                  ? 'bg-green-500 text-white translate-y-[-4px]'
-                  : 'bg-orange-600 hover:bg-orange-700 text-white shadow-xl shadow-orange-900/30 hover:shadow-orange-900/50 translate-y-0 active:translate-y-2'
+                ? 'bg-green-500 text-white translate-y-[-4px]'
+                : 'bg-orange-600 hover:bg-orange-700 text-white shadow-xl shadow-orange-900/30 hover:shadow-orange-900/50 translate-y-0 active:translate-y-2'
                 }`}
             >
               {loading ? (

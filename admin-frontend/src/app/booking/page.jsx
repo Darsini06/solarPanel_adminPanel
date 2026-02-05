@@ -46,7 +46,7 @@ export default function BookingPage() {
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [itemsPerPage, setItemsPerPage] = useState(6);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -279,7 +279,7 @@ export default function BookingPage() {
                 </div>
             </header>
 
-            <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     {[
@@ -296,7 +296,7 @@ export default function BookingPage() {
                 </div>
 
                 {/* Main Table Card */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col min-h-[600px]">
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col min-h-[540px]">
                     {/* Table Toolbar */}
                     <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-white">
                         <div className="relative w-full md:w-80">
@@ -327,18 +327,17 @@ export default function BookingPage() {
                     </div>
 
                     {/* Table Area */}
-                    <div className="flex-grow overflow-x-auto">
-                        <table className="w-full text-left border-collapse table-fixed min-w-[1400px]">
+                    <div className="flex-grow overflow-hidden">
+                        <table className="w-full text-left border-collapse table-fixed">
                             <thead>
                                 <tr className="bg-gray-50/50 border-b border-gray-100">
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[220px]">Customer / Type</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[150px]">Schedule</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[150px]">Contact Info</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[180px]">Company Details</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[180px]">Site Details</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[200px]">Additional Info</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[120px]">Status</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[200px]">Actions</th>
+                                    <th className="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest w-[220px]">Customer / Type</th>
+                                    <th className="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest w-[150px]">Schedule</th>
+                                    <th className="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest w-[150px]">Contact</th>
+                                    <th className="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest w-[220px]">Company + Site</th>
+                                    <th className="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest w-[200px]">Additional</th>
+                                    <th className="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest w-[110px]">Status</th>
+                                    <th className="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest w-[200px]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -374,7 +373,7 @@ export default function BookingPage() {
 
                                         return (
                                             <tr key={booking.id} className="hover:bg-gray-50/80 transition-colors group">
-                                                <td className="px-6 py-4 overflow-hidden">
+                                                <td className="px-4 py-3 overflow-hidden">
                                                     <div className="flex flex-col">
                                                         <span className="text-sm font-bold text-gray-900 truncate">{booking.user_name || 'Guest User'}</span>
                                                         <span className="text-[11px] font-semibold text-orange-600 mt-0.5">{booking.service_type}</span>
@@ -384,7 +383,7 @@ export default function BookingPage() {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                <td className="px-4 py-3 whitespace-nowrap">
                                                     <div className="flex flex-col text-sm text-gray-600">
                                                         <div className="flex items-center">
                                                             <Calendar className="w-3.5 h-3.5 mr-2 text-gray-400" />
@@ -396,36 +395,34 @@ export default function BookingPage() {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4">
+                                                <td className="px-4 py-3">
                                                     <div className="flex items-center text-sm text-gray-700">
                                                         <Phone className="w-3.5 h-3.5 mr-2 text-gray-400" />
                                                         {booking.contact_phone}
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex flex-col text-xs text-gray-600">
+                                                <td className="px-4 py-3">
+                                                    <div className="flex flex-col text-[11px] text-gray-600">
                                                         {companyName && (
-                                                            <div className="font-bold text-gray-800 mb-0.5">{companyName}</div>
+                                                            <div className="font-bold text-gray-800 truncate">{companyName}</div>
                                                         )}
                                                         {jobTitle && (
-                                                            <div className="text-gray-500">{jobTitle}</div>
+                                                            <div className="text-gray-500 truncate">{jobTitle}</div>
                                                         )}
-                                                        {!companyName && !jobTitle && <span className="text-gray-300">-</span>}
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex flex-col text-xs text-gray-600 max-w-[200px]">
                                                         {booking.location && (
-                                                            <div className="flex items-start">
-                                                                <MapPin className="w-3.5 h-3.5 mr-2 text-gray-400 flex-shrink-0 mt-0.5" />
-                                                                <span className="line-clamp-2" title={booking.location}>{booking.location}</span>
+                                                            <div className="flex items-start mt-1 text-gray-500">
+                                                                <MapPin className="w-3 h-3 mr-1.5 text-gray-400 flex-shrink-0 mt-0.5" />
+                                                                <span className="line-clamp-1" title={booking.location}>{booking.location}</span>
                                                             </div>
                                                         )}
                                                         {booking.system_size && (
                                                             <div className="flex items-center mt-1 text-gray-400">
-                                                                <Zap className="w-3.5 h-3.5 mr-2" />
+                                                                <Zap className="w-3 h-3 mr-1.5" />
                                                                 {booking.system_size}
                                                             </div>
+                                                        )}
+                                                        {!companyName && !jobTitle && !booking.location && !booking.system_size && (
+                                                            <span className="text-gray-300">-</span>
                                                         )}
                                                     </div>
                                                 </td>
@@ -487,10 +484,10 @@ export default function BookingPage() {
                                                         </button>
                                                         <button
                                                             onClick={() => handleDelete(booking.id)}
-                                                            className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-all"
+                                                            className="px-3 py-1.5 text-[10px] font-bold text-rose-600 hover:text-white hover:bg-rose-500 rounded-lg transition-all border border-rose-100 bg-rose-50"
                                                             title="Delete entry"
                                                         >
-                                                            <Trash2 className="w-4 h-4" />
+                                                            DELETE
                                                         </button>
                                                     </div>
                                                 </td>

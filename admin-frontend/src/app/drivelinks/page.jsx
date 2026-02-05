@@ -1,774 +1,3 @@
-// 'use client';
-
-// import { useState, useEffect } from 'react';
-// import {
-//   ExternalLink,
-//   Copy,
-//   Calendar,
-//   RefreshCw,
-//   Loader2,
-//   Link as LinkIcon,
-//   User,
-//   Clock,
-//   FileText,
-//   X,
-//   Mail,
-//   Users,
-//   Hash,
-//   Folder,
-//   LogIn,
-//   AlertCircle,
-//   Upload
-// } from 'lucide-react';
-// import { useRouter } from 'next/navigation';
-
-// export default function HomePage() {
-//   const [links, setLinks] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState('');
-//   const [copiedLink, setCopiedLink] = useState('');
-//   const [selectedUser, setSelectedUser] = useState('all');
-//   const [isAdmin, setIsAdmin] = useState(false);
-//   const [adminInfo, setAdminInfo] = useState(null);
-
-//   // PDF Upload states
-//   const [uploadingPdf, setUploadingPdf] = useState(false);
-//   const [selectedItemForUpload, setSelectedItemForUpload] = useState(null);
-//   const [uploadProgress, setUploadProgress] = useState(0);
-
-//   const router = useRouter();
-//   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
-//   // Check authentication on component mount
-//   useEffect(() => {
-//     checkAdminAuth();
-//     fetchLinks();
-//   }, []);
-
-//   // Simple admin authentication check
-//   const checkAdminAuth = () => {
-//     const isAdminLoggedIn = localStorage.getItem('is_admin') === 'true';
-//     if (isAdminLoggedIn) {
-//       setIsAdmin(true);
-//       setAdminInfo({
-//         name: localStorage.getItem('admin_name') || 'Admin',
-//         loginTime: localStorage.getItem('admin_login_time')
-//       });
-//     } else {
-//       setIsAdmin(false);
-//       setAdminInfo(null);
-//     }
-//   };
-
-//   // Fetch links - NO AUTHENTICATION HEADER NEEDED!
-//   const fetchLinks = async () => {
-//     try {
-//       setLoading(true);
-
-//       // No Authorization header needed - backend should allow public access for GET
-//       const response = await fetch(`${API_URL}/drive-links/`);
-
-//       if (!response.ok) {
-//         throw new Error('Failed to fetch links');
-//       }
-
-//       const data = await response.json();
-//       setLinks(data);
-//       setError('');
-
-//     } catch (err) {
-//       setError('Error loading links. Please try again.');
-//       console.error('Error fetching links:', err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   // Copy link to clipboard
-//   const copyToClipboard = async (text) => {
-//     try {
-//       await navigator.clipboard.writeText(text);
-//       setCopiedLink(text);
-//       setTimeout(() => setCopiedLink(''), 2000);
-//     } catch (err) {
-//       console.error('Failed to copy:', err);
-//     }
-//   };
-
-//   // Format date
-//   const formatDate = (dateString) => {
-//     if (!dateString) return 'N/A';
-//     const date = new Date(dateString);
-//     return date.toLocaleDateString('en-US', {
-//       year: 'numeric',
-//       month: 'short',
-//       day: 'numeric',
-//       hour: '2-digit',
-//       minute: '2-digit'
-//     });
-//   };
-
-//   // Get user initials for avatar
-//   const getUserInitials = (userName) => {
-//     if (!userName || userName === 'Anonymous User') return 'AU';
-//     const names = userName.split(' ');
-//     if (names.length >= 2) {
-//       return `${names[0][0]}${names[1][0]}`.toUpperCase();
-//     }
-//     return userName[0]?.toUpperCase() || 'U';
-//   };
-
-//   // Get unique users for filter dropdown
-//   const uniqueUsers = [
-//     { id: 'all', name: 'All Users', email: '' },
-//     ...Array.from(new Map(links.map(link => [
-//       link.user_id,
-//       { id: link.user_id, name: link.user_name || `User ${link.user_id?.slice(-4) || 'unknown'}`, email: link.user_email }
-//     ])).values())
-//   ];
-
-//   // Filter links by selected user
-//   const filteredLinks = selectedUser === 'all'
-//     ? links
-//     : links.filter(link => link.user_id === selectedUser);
-
-//   // Calculate statistics
-//   const totalLinks = links.length;
-//   const totalUsers = new Set(links.map(link => link.user_id).filter(id => id && id !== 'anonymous')).size;
-
-//   // FIXED: Handle PDF upload WITHOUT JWT token issues
-//   const handlePdfUpload = async (event, item) => {
-//     const file = event.target.files[0];
-
-//     if (!file) return;
-
-//     // Check if file is PDF
-//     if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
-//       setError('Please select a PDF file (.pdf extension required)');
-//       return;
-//     }
-
-//     // Check file size (limit to 10MB)
-//     if (file.size > 10 * 1024 * 1024) {
-//       setError('PDF file size should be less than 10MB');
-//       return;
-//     }
-
-//     // Check if admin is logged in
-//     if (!isAdmin) {
-//       setError('Please login as admin to upload PDF files');
-//       if (confirm('Admin login required. Go to login page?')) {
-//         router.push('/login');
-//       }
-//       return;
-//     }
-
-//     try {
-//       setUploadingPdf(true);
-//       setSelectedItemForUpload(item);
-//       setUploadProgress(0);
-//       setError('');
-
-//       // Simulate upload progress
-//       const progressInterval = setInterval(() => {
-//         setUploadProgress(prev => {
-//           if (prev >= 90) {
-//             clearInterval(progressInterval);
-//             return 90;
-//           }
-//           return prev + 10;
-//         });
-//       }, 100);
-
-//       // Create form data
-//       const formData = new FormData();
-//       formData.append('pdf', file);
-//       formData.append('link_id', item.id);
-//       formData.append('drive_link_1', item.drive_link_1);
-//       formData.append('drive_link_2', item.drive_link_2);
-
-//       // ✅ FIXED: Upload WITHOUT Authorization header
-//       // Backend should accept uploads without JWT for admin panel
-//       const response = await fetch(`${API_URL}/drive-links/upload-pdf`, {
-//         method: 'POST',
-//         body: formData,
-//       });
-
-//       clearInterval(progressInterval);
-//       setUploadProgress(100);
-
-//       if (!response.ok) {
-//         // If 401/403, it means backend still requires auth
-//         if (response.status === 401 || response.status === 403) {
-//           setError('Upload requires admin authentication. Please ensure backend is configured correctly.');
-//           console.warn('Backend still requires JWT auth. Update your FastAPI to accept uploads without tokens.');
-//         } else {
-//           const errorText = await response.text();
-//           throw new Error(errorText || 'Failed to upload PDF');
-//         }
-//         return;
-//       }
-
-//       const data = await response.json();
-
-//       // Show success message
-//       setError('');
-
-//       // Update the UI locally
-//       setLinks(prevLinks =>
-//         prevLinks.map(link =>
-//           link.id === item.id
-//             ? {
-//               ...link,
-//               has_pdf: true,
-//               pdf_id: data.pdf_id,
-//               pdf_filename: data.filename,
-//               pdf_uploaded_at: data.uploaded_at
-//             }
-//             : link
-//         )
-//       );
-
-//       // Show success alert
-//       alert(`✅ PDF uploaded successfully!\nFile: ${data.filename}`);
-
-//       // Reset after a short delay
-//       setTimeout(() => {
-//         setUploadingPdf(false);
-//         setSelectedItemForUpload(null);
-//         setUploadProgress(0);
-//       }, 1000);
-
-//     } catch (err) {
-//       console.error('Error uploading PDF:', err);
-//       setError(`Failed to upload PDF: ${err.message}`);
-//       setUploadingPdf(false);
-//       setSelectedItemForUpload(null);
-//       setUploadProgress(0);
-//     } finally {
-//       // Reset file input
-//       event.target.value = '';
-//     }
-//   };
-
-//   // Logout function
-//   const handleLogout = () => {
-//     localStorage.removeItem('is_admin');
-//     localStorage.removeItem('admin_name');
-//     localStorage.removeItem('admin_login_time');
-//     setIsAdmin(false);
-//     setAdminInfo(null);
-//     router.push('/login');
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gray-50">
-//       {/* Header */}
-//       <header className="bg-white shadow-sm">
-//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//           <div className="flex justify-between items-center py-4">
-//             <div className="flex items-center">
-//               <div className="flex items-center">
-//                 <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center mr-3">
-//                   <Folder className="w-6 h-6 text-white" />
-//                 </div>
-//                 <div>
-//                   <h1 className="text-2xl font-bold text-gray-900">Drive Links Manager</h1>
-//                   <p className="text-gray-600 text-sm">Admin Dashboard</p>
-//                 </div>
-//               </div>
-//             </div>
-
-//             <div className="flex items-center space-x-4">
-//               {/* Admin Status */}
-//               {isAdmin ? (
-//                 <div className="flex items-center space-x-3">
-//                   <div className="text-right">
-//                     <div className="text-sm font-medium text-gray-900">{adminInfo?.name || 'Admin'}</div>
-//                     <div className="text-xs text-gray-500">Administrator</div>
-//                   </div>
-//                   <button
-//                     onClick={handleLogout}
-//                     className="px-3 py-1.5 text-sm bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
-//                   >
-//                     Logout
-//                   </button>
-//                 </div>
-//               ) : (
-//                 <button
-//                   onClick={() => router.push('/login')}
-//                   className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-md text-sm font-medium flex items-center transition-all duration-200 shadow-sm"
-//                 >
-//                   <LogIn className="w-4 h-4 mr-2" />
-//                   Admin Login
-//                 </button>
-//               )}
-
-//               <button
-//                 onClick={fetchLinks}
-//                 disabled={loading}
-//                 className="px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-md text-sm font-medium flex items-center transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-//               >
-//                 {loading ? (
-//                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-//                 ) : (
-//                   <RefreshCw className="w-4 h-4 mr-2" />
-//                 )}
-//                 Refresh
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       </header>
-
-//       {/* Error Banner */}
-//       {error && (
-//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-//           <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between">
-//             <div className="flex items-center">
-//               <AlertCircle className="w-5 h-5 text-red-500 mr-3" />
-//               <span className="text-red-700 font-medium">{error}</span>
-//             </div>
-//             <button
-//               onClick={() => setError('')}
-//               className="text-red-500 hover:text-red-700"
-//             >
-//               <X className="w-4 h-4" />
-//             </button>
-//           </div>
-//         </div>
-//       )}
-
-//       {/* Dashboard Content */}
-//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-//         {/* Statistics Cards */}
-//         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-//           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
-//             <div className="flex items-center">
-//               <div className="flex-shrink-0">
-//                 <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl flex items-center justify-center">
-//                   <LinkIcon className="w-6 h-6 text-blue-600" />
-//                 </div>
-//               </div>
-//               <div className="ml-4">
-//                 <h3 className="text-2xl font-bold text-gray-900">{totalLinks}</h3>
-//                 <p className="text-gray-600 text-sm font-medium">Total Links</p>
-//               </div>
-//             </div>
-//           </div>
-
-//           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
-//             <div className="flex items-center">
-//               <div className="flex-shrink-0">
-//                 <div className="w-12 h-12 bg-gradient-to-br from-green-50 to-green-100 rounded-xl flex items-center justify-center">
-//                   <Users className="w-6 h-6 text-green-600" />
-//                 </div>
-//               </div>
-//               <div className="ml-4">
-//                 <h3 className="text-2xl font-bold text-gray-900">{totalUsers}</h3>
-//                 <p className="text-gray-600 text-sm font-medium">Active Users</p>
-//               </div>
-//             </div>
-//           </div>
-
-//           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
-//             <div className="flex items-center">
-//               <div className="flex-shrink-0">
-//                 <div className="w-12 h-12 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl flex items-center justify-center">
-//                   <Clock className="w-6 h-6 text-purple-600" />
-//                 </div>
-//               </div>
-//               <div className="ml-4">
-//                 <h3 className="text-2xl font-bold text-gray-900">
-//                   {links.length > 0 ? formatDate(links[0].created_at) : 'No data'}
-//                 </h3>
-//                 <p className="text-gray-600 text-sm font-medium">Latest Upload</p>
-//               </div>
-//             </div>
-//           </div>
-
-//           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
-//             <div className="flex items-center">
-//               <div className="flex-shrink-0">
-//                 <div className="w-12 h-12 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl flex items-center justify-center">
-//                   <Hash className="w-6 h-6 text-orange-600" />
-//                 </div>
-//               </div>
-//               <div className="ml-4">
-//                 <h3 className="text-2xl font-bold text-gray-900">{filteredLinks.length}</h3>
-//                 <p className="text-gray-600 text-sm font-medium">Filtered Links</p>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-
-//         {/* Main Content */}
-//         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-//           {/* Table Header */}
-//           <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-//             <div className="flex flex-col md:flex-row md:items-center justify-between">
-//               <div>
-//                 <h2 className="text-xl font-bold text-gray-900">Drive Links Repository</h2>
-//                 <p className="text-gray-600 text-sm mt-1">All uploaded Google Drive links</p>
-//               </div>
-
-//               <div className="mt-4 md:mt-0">
-//                 <div className="flex items-center space-x-4">
-//                   <div className="relative">
-//                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-//                     <select
-//                       value={selectedUser}
-//                       onChange={(e) => setSelectedUser(e.target.value)}
-//                       className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white w-full md:w-64"
-//                     >
-//                       {uniqueUsers.map(user => (
-//                         <option key={user.id} value={user.id}>
-//                           {user.id === 'all' ? '👥 All Users' : `👤 ${user.name}`}
-//                         </option>
-//                       ))}
-//                     </select>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-
-//           {/* Loading State */}
-//           {loading ? (
-//             <div className="flex flex-col justify-center items-center py-20">
-//               <div className="relative">
-//                 <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-//                 <div className="absolute inset-0 flex items-center justify-center">
-//                   <Loader2 className="w-8 h-8 text-blue-600" />
-//                 </div>
-//               </div>
-//               <span className="mt-6 text-gray-600 font-medium">Loading drive links...</span>
-//               <p className="text-gray-500 text-sm mt-2">Fetching data from the server</p>
-//             </div>
-//           ) : filteredLinks.length === 0 ? (
-//             <div className="text-center py-20">
-//               <div className="w-20 h-20 mx-auto bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-6">
-//                 <LinkIcon className="w-10 h-10 text-gray-400" />
-//               </div>
-//               <h3 className="text-xl font-semibold text-gray-900 mb-3">No Drive Links Found</h3>
-//               <p className="text-gray-600 max-w-md mx-auto mb-8">
-//                 {selectedUser === 'all'
-//                   ? 'No Google Drive links have been uploaded yet.'
-//                   : `No drive links found for the selected user. Try selecting "All Users" to see all links.`}
-//               </p>
-//               <button
-//                 onClick={fetchLinks}
-//                 className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium"
-//               >
-//                 Refresh Data
-//               </button>
-//             </div>
-//           ) : (
-//             <div className="overflow-x-auto">
-//               <table className="min-w-full divide-y divide-gray-200">
-//                 <thead>
-//                   <tr className="bg-gray-50">
-//                     <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-//                       User
-//                     </th>
-//                     <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-//                       Drive Links
-//                     </th>
-//                     <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-//                       Upload Date
-//                     </th>
-//                     <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-//                       Actions
-//                     </th>
-//                   </tr>
-//                 </thead>
-//                 <tbody className="bg-white divide-y divide-gray-100">
-//                   {filteredLinks.map((item) => (
-//                     <tr key={item.id} className="hover:bg-gray-50/50 transition-colors duration-150">
-//                       {/* User Column */}
-//                       <td className="px-6 py-5">
-//                         <div className="flex items-center">
-//                           <div className="flex-shrink-0">
-//                             <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-sm ${item.user_name && item.user_name !== 'Anonymous User'
-//                                 ? 'bg-gradient-to-br from-blue-500 to-blue-600'
-//                                 : 'bg-gradient-to-br from-gray-400 to-gray-500'
-//                               }`}>
-//                               <span className="text-white font-semibold text-sm">
-//                                 {getUserInitials(item.user_name)}
-//                               </span>
-//                             </div>
-//                           </div>
-//                           <div className="ml-4">
-//                             <div className="flex items-center">
-//                               <div className="text-sm font-semibold text-gray-900">
-//                                 {item.user_name || 'Anonymous User'}
-//                               </div>
-//                             </div>
-//                             <div className="flex items-center text-xs text-gray-600 mt-1">
-//                               <Mail className="w-3 h-3 mr-1.5 flex-shrink-0" />
-//                               <span className="truncate max-w-[180px]" title={item.user_email}>
-//                                 {item.user_email || 'anonymous@example.com'}
-//                               </span>
-//                             </div>
-//                           </div>
-//                         </div>
-//                       </td>
-
-//                       {/* Links Column */}
-//                       <td className="px-6 py-5">
-//                         <div className="space-y-4">
-//                           {/* Drive Link 1 */}
-//                           <div>
-//                             <div className="flex items-center justify-between mb-2">
-//                               <div className="flex items-center">
-//                                 <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-blue-50 rounded-md flex items-center justify-center mr-2">
-//                                   <span className="text-xs font-bold text-blue-600">1</span>
-//                                 </div>
-//                                 <span className="text-xs font-semibold text-gray-700">Drive Link 1</span>
-//                               </div>
-//                             </div>
-//                             <div className="flex items-center space-x-2">
-//                               <div className="flex-1 bg-gradient-to-r from-gray-50 to-white rounded-lg border border-gray-200 px-4 py-3 hover:border-blue-300 transition-colors">
-//                                 <a
-//                                   href={item.drive_link_1}
-//                                   target="_blank"
-//                                   rel="noopener noreferrer"
-//                                   className="text-blue-600 hover:text-blue-800 text-sm font-medium truncate block group"
-//                                   title={item.drive_link_1}
-//                                 >
-//                                   <span className="group-hover:underline">{item.drive_link_1}</span>
-//                                   <ExternalLink className="w-3.5 h-3.5 inline ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-//                                 </a>
-//                               </div>
-//                               <div className="flex space-x-1.5">
-//                                 <button
-//                                   onClick={() => copyToClipboard(item.drive_link_1)}
-//                                   className={`p-2 rounded-lg transition-all duration-200 ${copiedLink === item.drive_link_1
-//                                       ? 'bg-gradient-to-br from-green-100 to-green-50 text-green-600 shadow-sm'
-//                                       : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-//                                     }`}
-//                                   title="Copy link"
-//                                 >
-//                                   <Copy className="w-4 h-4" />
-//                                 </button>
-//                                 <a
-//                                   href={item.drive_link_1}
-//                                   target="_blank"
-//                                   rel="noopener noreferrer"
-//                                   className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-//                                   title="Open link"
-//                                 >
-//                                   <ExternalLink className="w-4 h-4" />
-//                                 </a>
-//                               </div>
-//                             </div>
-//                           </div>
-
-//                           {/* Drive Link 2 */}
-//                           <div>
-//                             <div className="flex items-center justify-between mb-2">
-//                               <div className="flex items-center">
-//                                 <div className="w-6 h-6 bg-gradient-to-br from-green-100 to-green-50 rounded-md flex items-center justify-center mr-2">
-//                                   <span className="text-xs font-bold text-green-600">2</span>
-//                                 </div>
-//                                 <span className="text-xs font-semibold text-gray-700">Drive Link 2</span>
-//                               </div>
-//                             </div>
-//                             <div className="flex items-center space-x-2">
-//                               <div className="flex-1 bg-gradient-to-r from-gray-50 to-white rounded-lg border border-gray-200 px-4 py-3 hover:border-green-300 transition-colors">
-//                                 <a
-//                                   href={item.drive_link_2}
-//                                   target="_blank"
-//                                   rel="noopener noreferrer"
-//                                   className="text-green-600 hover:text-green-800 text-sm font-medium truncate block group"
-//                                   title={item.drive_link_2}
-//                                 >
-//                                   <span className="group-hover:underline">{item.drive_link_2}</span>
-//                                   <ExternalLink className="w-3.5 h-3.5 inline ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-//                                 </a>
-//                               </div>
-//                               <div className="flex space-x-1.5">
-//                                 <button
-//                                   onClick={() => copyToClipboard(item.drive_link_2)}
-//                                   className={`p-2 rounded-lg transition-all duration-200 ${copiedLink === item.drive_link_2
-//                                       ? 'bg-gradient-to-br from-green-100 to-green-50 text-green-600 shadow-sm'
-//                                       : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-//                                     }`}
-//                                   title="Copy link"
-//                                 >
-//                                   <Copy className="w-4 h-4" />
-//                                 </button>
-//                                 <a
-//                                   href={item.drive_link_2}
-//                                   target="_blank"
-//                                   rel="noopener noreferrer"
-//                                   className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-//                                   title="Open link"
-//                                 >
-//                                   <ExternalLink className="w-4 h-4" />
-//                                 </a>
-//                               </div>
-//                             </div>
-//                           </div>
-//                         </div>
-//                       </td>
-
-//                       {/* Date Column */}
-//                       <td className="px-6 py-5 whitespace-nowrap">
-//                         <div className="flex items-center text-sm text-gray-900 font-medium">
-//                           <Calendar className="w-4 h-4 mr-2.5 text-gray-400 flex-shrink-0" />
-//                           {formatDate(item.created_at)}
-//                         </div>
-//                         {item.has_pdf && (
-//                           <div className="mt-3">
-//                             <div className="text-xs text-gray-600 font-medium mb-1 flex items-center">
-//                               <FileText className="w-3 h-3 mr-1" />
-//                               PDF Uploaded
-//                             </div>
-//                             {item.pdf_filename && (
-//                               <div className="text-xs text-gray-500 truncate" title={item.pdf_filename}>
-//                                 {item.pdf_filename}
-//                               </div>
-//                             )}
-//                           </div>
-//                         )}
-//                       </td>
-
-//                       {/* Actions Column */}
-//                       <td className="px-6 py-5 whitespace-nowrap">
-//                         <div className="flex flex-col space-y-3">
-//                           <div className="flex space-x-2">
-//                             {/* Upload PDF Button with hidden file input */}
-//                             <div className="relative">
-//                               <input
-//                                 type="file"
-//                                 id={`pdf-upload-${item.id}`}
-//                                 className="hidden"
-//                                 accept=".pdf,application/pdf"
-//                                 onChange={(e) => handlePdfUpload(e, item)}
-//                                 disabled={uploadingPdf && selectedItemForUpload?.id === item.id}
-//                               />
-//                               <label
-//                                 htmlFor={`pdf-upload-${item.id}`}
-//                                 className={`inline-flex items-center justify-center px-4 py-2 border rounded-lg text-sm font-medium transition-all duration-200 shadow-sm cursor-pointer ${uploadingPdf && selectedItemForUpload?.id === item.id
-//                                     ? 'border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed'
-//                                     : isAdmin && item.has_pdf
-//                                       ? 'border-green-600 text-green-700 bg-gradient-to-r from-green-50 to-green-25 hover:from-green-100 hover:to-green-50'
-//                                       : isAdmin
-//                                         ? 'border-blue-600 text-blue-700 bg-gradient-to-r from-blue-50 to-blue-25 hover:from-blue-100 hover:to-blue-50 hover:border-blue-700'
-//                                         : 'border-gray-400 text-gray-500 bg-gradient-to-r from-gray-50 to-gray-25 cursor-not-allowed'
-//                                   }`}
-//                                 title={isAdmin
-//                                   ? item.has_pdf ? "Add another PDF" : "Upload PDF file"
-//                                   : "Admin login required to upload PDF"
-//                                 }
-//                               >
-//                                 {uploadingPdf && selectedItemForUpload?.id === item.id ? (
-//                                   <>
-//                                     <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-//                                     Uploading...
-//                                   </>
-//                                 ) : !isAdmin ? (
-//                                   <>
-//                                     <LogIn className="w-3.5 h-3.5 mr-1.5" />
-//                                     Login to Upload
-//                                   </>
-//                                 ) : item.has_pdf ? (
-//                                   <>
-//                                     <Upload className="w-3.5 h-3.5 mr-1.5" />
-//                                     Add PDF
-//                                   </>
-//                                 ) : (
-//                                   <>
-//                                     <Upload className="w-3.5 h-3.5 mr-1.5" />
-//                                     Upload PDF
-//                                   </>
-//                                 )}
-//                               </label>
-
-//                               {/* Upload Progress Indicator */}
-//                               {uploadingPdf && selectedItemForUpload?.id === item.id && uploadProgress > 0 && (
-//                                 <div className="absolute -bottom-6 left-0 right-0">
-//                                   <div className="text-xs text-gray-500 text-center mb-1">
-//                                     {uploadProgress}%
-//                                   </div>
-//                                   <div className="w-full bg-gray-200 rounded-full h-1.5">
-//                                     <div
-//                                       className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
-//                                       style={{ width: `${uploadProgress}%` }}
-//                                     ></div>
-//                                   </div>
-//                                 </div>
-//                               )}
-//                             </div>
-
-//                             {/* Copy All Button */}
-//                             <button
-//                               onClick={() => {
-//                                 const combinedLinks = `Drive Link 1:\n${item.drive_link_1}\n\nDrive Link 2:\n${item.drive_link_2}`;
-//                                 copyToClipboard(combinedLinks);
-//                               }}
-//                               disabled={uploadingPdf && selectedItemForUpload?.id === item.id}
-//                               className={`inline-flex items-center justify-center px-4 py-2 border rounded-lg text-sm font-medium transition-colors shadow-sm ${uploadingPdf && selectedItemForUpload?.id === item.id
-//                                   ? 'border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed'
-//                                   : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
-//                                 }`}
-//                             >
-//                               <Copy className="w-3.5 h-3.5 mr-1.5" />
-//                               Copy All
-//                             </button>
-//                           </div>
-//                         </div>
-//                       </td>
-//                     </tr>
-//                   ))}
-//                 </tbody>
-//               </table>
-//             </div>
-//           )}
-//         </div>
-
-//         {/* Footer Stats */}
-//         {!loading && filteredLinks.length > 0 && (
-//           <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-//             <div className="flex flex-col md:flex-row md:items-center justify-between">
-//               <div className="flex flex-wrap items-center gap-4">
-//                 <div className="flex items-center">
-//                   <div className="w-8 h-8 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center mr-2.5">
-//                     <LinkIcon className="w-4 h-4 text-blue-600" />
-//                   </div>
-//                   <div>
-//                     <div className="text-sm font-medium text-gray-900">{filteredLinks.length} link sets</div>
-//                     <div className="text-xs text-gray-500">Currently showing</div>
-//                   </div>
-//                 </div>
-//                 <div className="flex items-center">
-//                   <div className="w-8 h-8 bg-gradient-to-br from-green-50 to-green-100 rounded-lg flex items-center justify-center mr-2.5">
-//                     <User className="w-4 h-4 text-green-600" />
-//                   </div>
-//                   <div>
-//                     <div className="text-sm font-medium text-gray-900">
-//                       {selectedUser === 'all'
-//                         ? `${totalUsers} active users`
-//                         : `Filtered by: ${uniqueUsers.find(u => u.id === selectedUser)?.name}`}
-//                     </div>
-//                     <div className="text-xs text-gray-500">User filter applied</div>
-//                   </div>
-//                 </div>
-//               </div>
-//               <div className="mt-4 md:mt-0">
-//                 <div className="text-xs text-gray-500 bg-gray-50 px-3 py-1.5 rounded-lg border">
-//                   <span className="font-medium">Live Data</span> • Last updated: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -787,18 +16,17 @@ import {
   Users,
   Hash,
   Folder,
-  LogIn,
   AlertCircle,
   Upload,
   Trash2,
-  Eye,
   Download,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Search
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export default function HomePage() {
+export default function DriveLinksPage() {
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -808,6 +36,8 @@ export default function HomePage() {
   const [adminInfo, setAdminInfo] = useState(null);
   const [expandedRows, setExpandedRows] = useState({});
   const [linkPDFs, setLinkPDFs] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [expandedUserGroups, setExpandedUserGroups] = useState({}); // Track which user groups are expanded
 
   // PDF Upload states
   const [uploadingPdf, setUploadingPdf] = useState(false);
@@ -832,8 +62,13 @@ export default function HomePage() {
 
   const checkAdminAuth = () => {
     setIsAdmin(true);
+    let name = localStorage.getItem('admin_name');
+    if (!name || name === 'Admin User' || name === 'System Admin') {
+      name = 'Princilla Savier';
+      localStorage.setItem('admin_name', name);
+    }
     setAdminInfo({
-      name: localStorage.getItem('admin_name') || 'Admin User',
+      name: name,
       loginTime: localStorage.getItem('admin_login_time') || Date.now()
     });
   };
@@ -841,15 +76,37 @@ export default function HomePage() {
   const fetchLinks = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/drive-links/`);
+      const response = await fetch(`${API_URL}/drive-links`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch links');
       }
 
       const data = await response.json();
-      setLinks(data);
+      const sortedData = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      setLinks(sortedData);
       setError('');
+
+      // Fetch PDFs for all links to show status immediately
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+      for (const link of sortedData) {
+        try {
+          const pdfResponse = await fetch(`${API_URL}/drive-links/${link.id}/pdfs`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (pdfResponse.ok) {
+            const pdfData = await pdfResponse.json();
+            setLinkPDFs(prev => ({ ...prev, [link.id]: pdfData }));
+          }
+        } catch (err) {
+          console.error(`Error fetching PDFs for link ${link.id}:`, err);
+          // Continue fetching other PDFs even if one fails
+        }
+      }
 
     } catch (err) {
       setError('Error loading links. Please try again.');
@@ -859,7 +116,6 @@ export default function HomePage() {
     }
   };
 
-  // DELETE FUNCTION: Delete a drive link
   const deleteDriveLink = async (linkId) => {
     try {
       setDeletingLink(linkId);
@@ -881,11 +137,7 @@ export default function HomePage() {
       }
 
       const result = await response.json();
-
-      // Remove the deleted link from state
       setLinks(prevLinks => prevLinks.filter(link => link.id !== linkId));
-
-      // Show success message
       alert(`✅ ${result.message || 'Link deleted successfully!'}`);
 
     } catch (err) {
@@ -898,7 +150,6 @@ export default function HomePage() {
     }
   };
 
-  // Fetch PDFs for a specific link
   const fetchLinkPDFs = async (linkId) => {
     try {
       setLoadingPDFs(prev => ({ ...prev, [linkId]: true }));
@@ -932,15 +183,17 @@ export default function HomePage() {
     }
   };
 
-  // Toggle expanded row
   const toggleRow = async (linkId) => {
     const isExpanded = expandedRows[linkId];
     setExpandedRows(prev => ({ ...prev, [linkId]: !isExpanded }));
 
-    // If expanding and haven't loaded PDFs yet, fetch them
     if (!isExpanded && !linkPDFs[linkId]) {
       await fetchLinkPDFs(linkId);
     }
+  };
+
+  const toggleUserGroup = (userId) => {
+    setExpandedUserGroups(prev => ({ ...prev, [userId]: !prev[userId] }));
   };
 
   const confirmDelete = (link) => {
@@ -965,7 +218,15 @@ export default function HomePage() {
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    const date = new Date(dateString);
+
+    let dateToParse = dateString;
+    if (typeof dateString === 'string' && !dateString.endsWith('Z') && !dateString.includes('+')) {
+      dateToParse = `${dateString}Z`;
+    }
+
+    const date = new Date(dateToParse);
+    if (isNaN(date.getTime())) return 'Invalid Date';
+
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -1000,12 +261,38 @@ export default function HomePage() {
     ])).values())
   ];
 
-  const filteredLinks = selectedUser === 'all'
-    ? links
-    : links.filter(link => link.user_id === selectedUser);
+  const filteredLinks = links.filter(link => {
+    const matchesUser = selectedUser === 'all' || link.user_id === selectedUser;
+    const matchesSearch = !searchTerm ||
+      link.user_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      link.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      link.drive_link_1?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      link.drive_link_2?.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesUser && matchesSearch;
+  });
 
   const totalLinks = links.length;
   const totalUsers = new Set(links.map(link => link.user_id).filter(id => id && id !== 'anonymous')).size;
+  const totalPDFs = links.reduce((sum, link) => sum + (linkPDFs[link.id]?.length || 0), 0);
+
+  // Group links by user for grouped view
+  const groupedLinks = filteredLinks.reduce((acc, link) => {
+    const userId = link.user_id || 'anonymous';
+    if (!acc[userId]) {
+      acc[userId] = {
+        user_id: userId,
+        user_name: link.user_name,
+        user_email: link.user_email,
+        links: []
+      };
+    }
+    acc[userId].links.push(link);
+    return acc;
+  }, {});
+
+  const groupedLinksArray = Object.values(groupedLinks).sort((a, b) =>
+    b.links.length - a.links.length // Sort by number of links descending
+  );
 
   const handlePdfUpload = async (event, item) => {
     const file = event.target.files[0];
@@ -1020,11 +307,6 @@ export default function HomePage() {
     if (file.size > 10 * 1024 * 1024) {
       setError('PDF file size should be less than 10MB');
       return;
-    }
-
-    if (!isAdmin) {
-      // In bypass mode this shouldn't happen, but good to keep the check
-      setIsAdmin(true);
     }
 
     try {
@@ -1070,7 +352,6 @@ export default function HomePage() {
       const data = await response.json();
       setError('');
 
-      // Update the link
       setLinks(prevLinks =>
         prevLinks.map(link =>
           link.id === item.id
@@ -1085,7 +366,6 @@ export default function HomePage() {
         )
       );
 
-      // Refresh PDFs for this link
       if (expandedRows[item.id]) {
         await fetchLinkPDFs(item.id);
       }
@@ -1107,11 +387,6 @@ export default function HomePage() {
     } finally {
       event.target.value = '';
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.clear();
-    router.push('/');
   };
 
   const downloadPDF = async (pdfId, filename) => {
@@ -1145,34 +420,29 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center mr-3">
-                  <Folder className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Drive Links Manager</h1>
-                  <p className="text-gray-600 text-sm">Admin Dashboard</p>
-                </div>
+    <div className="min-h-screen bg-[#f8fafc]">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-orange-50 rounded-lg">
+                <Folder className="w-5 h-5 text-orange-600" />
+              </div>
+              <div>
+                <h1 className="text-sm font-semibold text-gray-900">Drive Links Repository</h1>
+                <p className="text-[11px] text-gray-400 font-medium">Manage all portfolio links</p>
               </div>
             </div>
 
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="text-right">
-                  <div className="text-sm font-medium text-gray-900">{adminInfo?.name || 'Admin'}</div>
-                  <div className="text-xs text-gray-500">Administrator</div>
-                </div>
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                {adminInfo?.name || 'Admin'}
               </div>
-
               <button
                 onClick={fetchLinks}
                 disabled={loading}
-                className="px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-md text-sm font-medium flex items-center transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                className="px-4 py-2 bg-orange-600 text-white rounded-lg text-xs font-semibold hover:bg-orange-700 transition-colors disabled:opacity-50 flex items-center"
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -1186,12 +456,13 @@ export default function HomePage() {
         </div>
       </header>
 
+      {/* Error Banner */}
       {error && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-6">
           <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between">
             <div className="flex items-center">
               <AlertCircle className="w-5 h-5 text-red-500 mr-3" />
-              <span className="text-red-700 font-medium">{error}</span>
+              <span className="text-red-700 font-medium text-sm">{error}</span>
             </div>
             <button
               onClick={() => setError('')}
@@ -1203,12 +474,13 @@ export default function HomePage() {
         </div>
       )}
 
+      {/* Delete Confirmation Modal */}
       {showDeleteConfirm && linkToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-lg max-w-md w-full">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-900">Confirm Delete</h3>
+                <h3 className="text-lg font-bold text-gray-900">Confirm Deletion</h3>
                 <button
                   onClick={() => {
                     setShowDeleteConfirm(false);
@@ -1220,12 +492,11 @@ export default function HomePage() {
                 </button>
               </div>
 
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 mb-6 text-sm">
                 Are you sure you want to delete this drive link?
                 <br />
-                <span className="font-medium">{linkToDelete.drive_link_1?.substring(0, 50)}...</span>
-                <br />
-                <span className="text-sm text-red-600 mt-2 block">
+                <span className="font-medium block mt-2 text-xs text-gray-800 truncate">{linkToDelete.drive_link_1?.substring(0, 50)}...</span>
+                <span className="text-xs text-red-600 mt-2 block">
                   ⚠️ This will also delete all associated PDF files!
                 </span>
               </p>
@@ -1236,14 +507,14 @@ export default function HomePage() {
                     setShowDeleteConfirm(false);
                     setLinkToDelete(null);
                   }}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => deleteDriveLink(linkToDelete.id)}
                   disabled={deletingLink === linkToDelete.id}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-sm font-semibold"
                 >
                   {deletingLink === linkToDelete.id ? (
                     <>
@@ -1263,502 +534,388 @@ export default function HomePage() {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl flex items-center justify-center">
-                  <LinkIcon className="w-6 h-6 text-blue-600" />
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {[
+            { label: 'Total Links', count: totalLinks, color: 'text-blue-600', bg: 'bg-white', icon: <LinkIcon className="w-5 h-5" /> },
+            { label: 'Active Users', count: totalUsers, color: 'text-green-600', bg: 'bg-white', icon: <Users className="w-5 h-5" /> },
+            { label: 'Uploaded PDFs', count: totalPDFs, color: 'text-purple-600', bg: 'bg-white', icon: <FileText className="w-5 h-5" /> },
+            { label: 'Filtered Results', count: filteredLinks.length, color: 'text-orange-600', bg: 'bg-white', icon: <Hash className="w-5 h-5" /> },
+          ].map((stat, i) => (
+            <div key={i} className={`${stat.bg} p-5 rounded-xl border border-gray-200 shadow-sm transition-all hover:shadow-md`}>
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{stat.label}</p>
+                  <p className={`text-2xl font-bold mt-1 ${stat.color}`}>{stat.count}</p>
+                </div>
+                <div className={`p-3 rounded-lg ${stat.color.replace('text-', 'bg-')}/10`}>
+                  <div className={stat.color}>{stat.icon}</div>
                 </div>
               </div>
-              <div className="ml-4">
-                <h3 className="text-2xl font-bold text-gray-900">{totalLinks}</h3>
-                <p className="text-gray-600 text-sm font-medium">Total Links</p>
-              </div>
             </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-50 to-green-100 rounded-xl flex items-center justify-center">
-                  <Users className="w-6 h-6 text-green-600" />
-                </div>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-2xl font-bold text-gray-900">{totalUsers}</h3>
-                <p className="text-gray-600 text-sm font-medium">Active Users</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl flex items-center justify-center">
-                  <Clock className="w-6 h-6 text-purple-600" />
-                </div>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-2xl font-bold text-gray-900">
-                  {links.length > 0 ? formatDate(links[0].created_at) : 'No data'}
-                </h3>
-                <p className="text-gray-600 text-sm font-medium">Latest Upload</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl flex items-center justify-center">
-                  <Hash className="w-6 h-6 text-orange-600" />
-                </div>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-2xl font-bold text-gray-900">{filteredLinks.length}</h3>
-                <p className="text-gray-600 text-sm font-medium">Filtered Links</p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-            <div className="flex flex-col md:flex-row md:items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Drive Links Repository</h2>
-                <p className="text-gray-600 text-sm mt-1">Click on any row to view uploaded PDFs</p>
-              </div>
+        {/* Main Table Card */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col min-h-[600px]">
+          {/* Table Toolbar */}
+          <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-white">
+            <div className="relative w-full md:w-80">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search by user, email, or link..."
+                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
 
-              <div className="mt-4 md:mt-0">
-                <div className="flex items-center space-x-4">
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <select
-                      value={selectedUser}
-                      onChange={(e) => setSelectedUser(e.target.value)}
-                      className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white w-full md:w-64"
-                    >
-                      {uniqueUsers.map(user => (
-                        <option key={user.id} value={user.id}>
-                          {user.id === 'all' ? '👥 All Users' : `👤 ${user.name}`}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
+            <div className="relative w-full md:w-64">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <select
+                value={selectedUser}
+                onChange={(e) => setSelectedUser(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all appearance-none"
+              >
+                {uniqueUsers.map(user => (
+                  <option key={user.id} value={user.id}>
+                    {user.id === 'all' ? '👥 All Users' : `👤 ${user.name}`}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
-          {loading ? (
-            <div className="flex flex-col justify-center items-center py-20">
-              <div className="relative">
-                <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Loader2 className="w-8 h-8 text-blue-600" />
-                </div>
-              </div>
-              <span className="mt-6 text-gray-600 font-medium">Loading drive links...</span>
-              <p className="text-gray-500 text-sm mt-2">Fetching data from the server</p>
-            </div>
-          ) : filteredLinks.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="w-20 h-20 mx-auto bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-6">
-                <LinkIcon className="w-10 h-10 text-gray-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">No Drive Links Found</h3>
-              <p className="text-gray-600 max-w-md mx-auto mb-8">
-                {selectedUser === 'all'
-                  ? 'No Google Drive links have been uploaded yet.'
-                  : `No drive links found for the selected user. Try selecting "All Users" to see all links.`}
-              </p>
-              <button
-                onClick={fetchLinks}
-                className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium"
-              >
-                Refresh Data
-              </button>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead>
-                  <tr className="bg-gray-50">
-                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      User
-                    </th>
-                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Drive Links
-                    </th>
-                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Upload Date
-                    </th>
-                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Actions
-                    </th>
+          {/* Table Area */}
+          <div className="flex-grow overflow-x-auto">
+            <table className="w-full text-left border-collapse table-fixed min-w-[1400px]">
+              <thead>
+                <tr className="bg-gray-50/50 border-b border-gray-100">
+                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[220px]">User Info</th>
+                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[400px]">Drive Links</th>
+                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[180px]">Upload Date</th>
+                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[180px]">PDF Status</th>
+                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[250px]">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {loading ? (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-20 text-center">
+                      <div className="flex flex-col items-center">
+                        <Loader2 className="w-8 h-8 text-orange-500 animate-spin mb-3" />
+                        <span className="text-sm font-medium text-gray-500">Loading drive links...</span>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-100">
-                  {filteredLinks.map((item) => (
+                ) : groupedLinksArray.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-20 text-center">
+                      <div className="flex flex-col items-center">
+                        <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                          <LinkIcon className="w-6 h-6 text-gray-300" />
+                        </div>
+                        <h3 className="text-sm font-bold text-gray-900">No drive links found</h3>
+                        <p className="text-xs text-gray-400 mt-1">Try adjusting your filters or search terms.</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  groupedLinksArray.map((group) => (
                     <>
+                      {/* User Group Header */}
                       <tr
-                        key={item.id}
-                        className="hover:bg-gray-50/50 transition-colors duration-150 cursor-pointer"
-                        onClick={() => toggleRow(item.id)}
+                        key={`group-header-${group.user_id}`}
+                        className="bg-blue-50/40 border-t-2 border-blue-200 hover:bg-blue-50/60 cursor-pointer transition-colors"
+                        onClick={() => toggleUserGroup(group.user_id)}
                       >
-                        <td className="px-6 py-5">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0">
-                              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-sm ${item.user_name && item.user_name !== 'Anonymous User'
+                        <td colSpan="5" className="px-6 py-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center">
+                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm ${group.user_name && group.user_name !== 'Anonymous User'
                                 ? 'bg-gradient-to-br from-blue-500 to-blue-600'
                                 : 'bg-gradient-to-br from-gray-400 to-gray-500'
                                 }`}>
                                 <span className="text-white font-semibold text-sm">
-                                  {getUserInitials(item.user_name)}
+                                  {getUserInitials(group.user_name)}
                                 </span>
                               </div>
-                            </div>
-                            <div className="ml-4">
-                              <div className="flex items-center">
-                                <div className="text-sm font-semibold text-gray-900">
-                                  {item.user_name || 'Anonymous User'}
+                              <div className="ml-3">
+                                <div className="text-sm font-bold text-gray-900">
+                                  {group.user_name || 'Anonymous User'}
                                 </div>
-                              </div>
-                              <div className="flex items-center text-xs text-gray-600 mt-1">
-                                <Mail className="w-3 h-3 mr-1.5 flex-shrink-0" />
-                                <span className="truncate max-w-[180px]" title={item.user_email}>
-                                  {item.user_email || 'anonymous@example.com'}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-
-                        <td className="px-6 py-5">
-                          <div className="space-y-4">
-                            <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center">
-                                  <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-blue-50 rounded-md flex items-center justify-center mr-2">
-                                    <span className="text-xs font-bold text-blue-600">1</span>
-                                  </div>
-                                  <span className="text-xs font-semibold text-gray-700">Drive Link 1</span>
-                                </div>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <div className="flex-1 bg-gradient-to-r from-gray-50 to-white rounded-lg border border-gray-200 px-4 py-3 hover:border-blue-300 transition-colors">
-                                  <a
-                                    href={item.drive_link_1}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:text-blue-800 text-sm font-medium truncate block group"
-                                    title={item.drive_link_1}
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <span className="group-hover:underline">{item.drive_link_1}</span>
-                                    <ExternalLink className="w-3.5 h-3.5 inline ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                  </a>
-                                </div>
-                                <div className="flex space-x-1.5" onClick={(e) => e.stopPropagation()}>
-                                  <button
-                                    onClick={() => copyToClipboard(item.drive_link_1)}
-                                    className={`p-2 rounded-lg transition-all duration-200 ${copiedLink === item.drive_link_1
-                                      ? 'bg-gradient-to-br from-green-100 to-green-50 text-green-600 shadow-sm'
-                                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                                      }`}
-                                    title="Copy link"
-                                  >
-                                    <Copy className="w-4 h-4" />
-                                  </button>
-                                  <a
-                                    href={item.drive_link_1}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                    title="Open link"
-                                  >
-                                    <ExternalLink className="w-4 h-4" />
-                                  </a>
+                                <div className="flex items-center text-xs text-gray-500 mt-0.5">
+                                  <Mail className="w-3 h-3 mr-1" />
+                                  <span>{group.user_email || 'anonymous@example.com'}</span>
                                 </div>
                               </div>
                             </div>
-
-                            <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center">
-                                  <div className="w-6 h-6 bg-gradient-to-br from-green-100 to-green-50 rounded-md flex items-center justify-center mr-2">
-                                    <span className="text-xs font-bold text-green-600">2</span>
-                                  </div>
-                                  <span className="text-xs font-semibold text-gray-700">Drive Link 2</span>
-                                </div>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <div className="flex-1 bg-gradient-to-r from-gray-50 to-white rounded-lg border border-gray-200 px-4 py-3 hover:border-green-300 transition-colors">
-                                  <a
-                                    href={item.drive_link_2}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-green-600 hover:text-green-800 text-sm font-medium truncate block group"
-                                    title={item.drive_link_2}
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <span className="group-hover:underline">{item.drive_link_2}</span>
-                                    <ExternalLink className="w-3.5 h-3.5 inline ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                  </a>
-                                </div>
-                                <div className="flex space-x-1.5" onClick={(e) => e.stopPropagation()}>
-                                  <button
-                                    onClick={() => copyToClipboard(item.drive_link_2)}
-                                    className={`p-2 rounded-lg transition-all duration-200 ${copiedLink === item.drive_link_2
-                                      ? 'bg-gradient-to-br from-green-100 to-green-50 text-green-600 shadow-sm'
-                                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                                      }`}
-                                    title="Copy link"
-                                  >
-                                    <Copy className="w-4 h-4" />
-                                  </button>
-                                  <a
-                                    href={item.drive_link_2}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                                    title="Open link"
-                                  >
-                                    <ExternalLink className="w-4 h-4" />
-                                  </a>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-
-                        <td className="px-6 py-5 whitespace-nowrap">
-                          <div className="flex items-center text-sm text-gray-900 font-medium">
-                            <Calendar className="w-4 h-4 mr-2.5 text-gray-400 flex-shrink-0" />
-                            {formatDate(item.created_at)}
-                          </div>
-                          {item.has_pdf && (
-                            <div className="mt-3">
-                              <div className="text-xs text-gray-600 font-medium mb-1 flex items-center">
-                                <FileText className="w-3 h-3 mr-1" />
-                                {linkPDFs[item.id]?.length || 0} PDF(s)
-                              </div>
-                              {item.pdf_filename && (
-                                <div className="text-xs text-gray-500 truncate" title={item.pdf_filename}>
-                                  Latest: {item.pdf_filename}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </td>
-
-                        <td className="px-6 py-5 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex flex-col space-y-3">
-                            <div className="flex space-x-2">
-                              <div className="relative">
-                                <input
-                                  type="file"
-                                  id={`pdf-upload-${item.id}`}
-                                  className="hidden"
-                                  accept=".pdf,application/pdf"
-                                  onChange={(e) => handlePdfUpload(e, item)}
-                                  disabled={uploadingPdf && selectedItemForUpload?.id === item.id}
-                                />
-                                <label
-                                  htmlFor={`pdf-upload-${item.id}`}
-                                  className={`inline-flex items-center justify-center px-4 py-2 border rounded-lg text-sm font-medium transition-all duration-200 shadow-sm cursor-pointer ${uploadingPdf && selectedItemForUpload?.id === item.id
-                                    ? 'border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed'
-                                    : isAdmin && item.has_pdf
-                                      ? 'border-green-600 text-green-700 bg-gradient-to-r from-green-50 to-green-25 hover:from-green-100 hover:to-green-50'
-                                      : isAdmin
-                                        ? 'border-blue-600 text-blue-700 bg-gradient-to-r from-blue-50 to-blue-25 hover:from-blue-100 hover:to-blue-50 hover:border-blue-700'
-                                        : 'border-gray-400 text-gray-500 bg-gradient-to-r from-gray-50 to-gray-25 cursor-not-allowed'
-                                    }`}
-                                  title={isAdmin
-                                    ? item.has_pdf ? "Add another PDF" : "Upload PDF file"
-                                    : "Admin login required to upload PDF"
-                                  }
-                                >
-                                  {uploadingPdf && selectedItemForUpload?.id === item.id ? (
-                                    <>
-                                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                                      Uploading...
-                                    </>
-                                  ) : !isAdmin ? (
-                                    <>
-                                      <LogIn className="w-3.5 h-3.5 mr-1.5" />
-                                      Login to Upload
-                                    </>
-                                  ) : item.has_pdf ? (
-                                    <>
-                                      <Upload className="w-3.5 h-3.5 mr-1.5" />
-                                      Add PDF
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Upload className="w-3.5 h-3.5 mr-1.5" />
-                                      Upload PDF
-                                    </>
-                                  )}
-                                </label>
-                              </div>
-
-                              <button
-                                onClick={() => confirmDelete(item)}
-                                disabled={!isAdmin || deletingLink === item.id}
-                                className="inline-flex items-center justify-center px-4 py-2 border border-red-300 text-red-700 bg-red-50 hover:bg-red-100 rounded-lg text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                                title="Delete this link"
-                              >
-                                {deletingLink === item.id ? (
-                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                ) : (
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                )}
-                              </button>
-                            </div>
-
-                            <button
-                              onClick={() => toggleRow(item.id)}
-                              className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors"
-                            >
-                              {expandedRows[item.id] ? (
-                                <>
-                                  <ChevronUp className="w-3.5 h-3.5 mr-1.5" />
-                                  Hide PDFs
-                                </>
+                            <div className="flex items-center gap-3">
+                              <span className="px-3 py-1.5 bg-orange-100 text-orange-700 rounded-full text-xs font-bold border border-orange-200">
+                                {group.links.length} {group.links.length === 1 ? 'Submission' : 'Submissions'}
+                              </span>
+                              {expandedUserGroups[group.user_id] ? (
+                                <ChevronUp className="w-5 h-5 text-gray-500" />
                               ) : (
-                                <>
-                                  <Eye className="w-3.5 h-3.5 mr-1.5" />
-                                  View PDFs ({item.has_pdf ? linkPDFs[item.id]?.length || '?' : 0})
-                                </>
+                                <ChevronDown className="w-5 h-5 text-gray-500" />
                               )}
-                            </button>
+                            </div>
                           </div>
                         </td>
                       </tr>
 
-                      {/* Expanded Row - PDFs List */}
-                      {expandedRows[item.id] && (
-                        <tr className="bg-blue-50">
-                          <td colSpan={4} className="px-6 py-6">
-                            <div className="bg-white rounded-lg border border-gray-200 p-4">
-                              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                <FileText className="w-5 h-5 mr-2 text-blue-600" />
-                                Uploaded PDFs for this Link
-                              </h4>
+                      {/* Individual Links for this User - Only show when expanded */}
+                      {expandedUserGroups[group.user_id] && group.links.map((item, linkIndex) => (
+                        <>
+                          {/* Main Row - Individual Link */}
+                          <tr
+                            key={`link-${item.id}`}
+                            className="hover:bg-gray-50/80 transition-colors group cursor-pointer bg-white"
+                            onClick={() => toggleRow(item.id)}
+                          >
+                            {/* Number Column (instead of user) */}
+                            <td className="px-6 py-4">
+                              <div className="pl-6 flex items-center">
+                                <span className="text-xs font-bold text-gray-400">#{linkIndex + 1}</span>
+                              </div>
+                            </td>
 
-                              {loadingPDFs[item.id] ? (
-                                <div className="flex justify-center py-8">
-                                  <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
-                                  <span className="ml-3 text-gray-600">Loading PDFs...</span>
-                                </div>
-                              ) : linkPDFs[item.id]?.length > 0 ? (
-                                <div className="space-y-3">
-                                  {linkPDFs[item.id].map((pdf, index) => (
-                                    <div key={pdf.pdf_id || index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                      <div className="flex items-center space-x-4">
-                                        <div className="w-10 h-12 bg-red-100 rounded flex items-center justify-center">
-                                          <FileText className="w-5 h-5 text-red-600" />
-                                        </div>
-                                        <div>
-                                          <h5 className="font-medium text-gray-900">{pdf.filename}</h5>
-                                          <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
-                                            <span className="flex items-center">
-                                              <Calendar className="w-3 h-3 mr-1" />
-                                              {formatDate(pdf.uploaded_at)}
-                                            </span>
-                                            <span className="flex items-center">
-                                              <FileText className="w-3 h-3 mr-1" />
-                                              {formatFileSize(pdf.file_size)}
-                                            </span>
-                                            <span className="flex items-center">
-                                              <User className="w-3 h-3 mr-1" />
-                                              {pdf.uploaded_by?.user_name || 'Unknown'}
-                                            </span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div className="flex space-x-2">
-                                        <button
-                                          onClick={() => downloadPDF(pdf.pdf_id, pdf.filename)}
-                                          className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-                                        >
-                                          <Download className="w-3.5 h-3.5 mr-1.5" />
-                                          Download
-                                        </button>
-                                        <a
-                                          href={`${API_URL}/drive-links/pdf/view/${pdf.pdf_id}`}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="px-3 py-1.5 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-colors flex items-center"
-                                        >
-                                          <Eye className="w-3.5 h-3.5 mr-1.5" />
-                                          View
-                                        </a>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              ) : (
-                                <div className="text-center py-8">
-                                  <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                                    <FileText className="w-8 h-8 text-gray-400" />
+                            {/* Links Column */}
+                            <td className="px-6 py-4">
+                              <div className="space-y-2">
+                                {/* Link 1 */}
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-5 h-5 bg-blue-100 rounded flex items-center justify-center flex-shrink-0">
+                                    <span className="text-[10px] font-bold text-blue-600">1</span>
                                   </div>
-                                  <p className="text-gray-600 font-medium">No PDFs uploaded yet</p>
-                                  <p className="text-gray-500 text-sm mt-1">Upload a PDF using the "Upload PDF" button above</p>
+                                  <a
+                                    href={item.drive_link_1}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:text-blue-800 text-xs font-medium truncate max-w-[250px] hover:underline"
+                                    titleTitle={item.drive_link_1}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {item.drive_link_1}
+                                  </a>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      copyToClipboard(item.drive_link_1);
+                                    }}
+                                    className={`p-1 rounded transition-all ${copiedLink === item.drive_link_1
+                                      ? 'bg-green-100 text-green-600'
+                                      : 'text-gray-400 hover:text-blue-600 hover:bg-blue-50'
+                                      }`}
+                                    title="Copy"
+                                  >
+                                    <Copy className="w-3 h-3" />
+                                  </button>
                                 </div>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      )}
+                                {/* Link 2 */}
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-5 h-5 bg-green-100 rounded flex items-center justify-center flex-shrink-0">
+                                    <span className="text-[10px] font-bold text-green-600">2</span>
+                                  </div>
+                                  <a
+                                    href={item.drive_link_2}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-green-600 hover:text-green-800 text-xs font-medium truncate max-w-[250px] hover:underline"
+                                    title={item.drive_link_2}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {item.drive_link_2}
+                                  </a>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      copyToClipboard(item.drive_link_2);
+                                    }}
+                                    className={`p-1 rounded transition-all ${copiedLink === item.drive_link_2
+                                      ? 'bg-green-100 text-green-600'
+                                      : 'text-gray-400 hover:text-green-600 hover:bg-green-50'
+                                      }`}
+                                    title="Copy"
+                                  >
+                                    <Copy className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Date Column */}
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center text-sm text-gray-600">
+                                <Calendar className="w-3.5 h-3.5 mr-2 text-gray-400" />
+                                <span className="text-xs">{formatDate(item.created_at)}</span>
+                              </div>
+                            </td>
+
+                            {/* PDF Status */}
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center text-xs">
+                                {linkPDFs[item.id]?.length > 0 ? (
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700 border border-green-200 uppercase tracking-wider">
+                                    <FileText className="w-3 h-3 mr-1" />
+                                    {linkPDFs[item.id].length} PDF(s)
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200 uppercase tracking-wider">
+                                    No PDFs
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+
+                            {/* Actions Column */}
+                            <td className="px-6 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center gap-2">
+                                {/* Upload PDF */}
+                                <div className="relative">
+                                  <input
+                                    type="file"
+                                    id={`pdf-upload-${item.id}`}
+                                    className="hidden"
+                                    accept=".pdf,application/pdf"
+                                    onChange={(e) => handlePdfUpload(e, item)}
+                                    disabled={uploadingPdf && selectedItemForUpload?.id === item.id}
+                                  />
+                                  <label
+                                    htmlFor={`pdf-upload-${item.id}`}
+                                    className={`inline-flex items-center px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${uploadingPdf && selectedItemForUpload?.id === item.id
+                                      ? 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                                      : 'bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-500 hover:text-white'
+                                      }`}
+                                    title="Upload PDF"
+                                  >
+                                    {uploadingPdf && selectedItemForUpload?.id === item.id ? (
+                                      <>
+                                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                        {uploadProgress}%
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Upload className="w-3 h-3 mr-1" />
+                                        ADD PDF
+                                      </>
+                                    )}
+                                  </label>
+                                </div>
+
+                                {/* View PDFs */}
+                                <button
+                                  onClick={() => toggleRow(item.id)}
+                                  className="inline-flex items-center px-3 py-1.5 rounded-lg text-[10px] font-bold bg-purple-50 text-purple-600 border border-purple-100 hover:bg-purple-500 hover:text-white transition-all"
+                                  title="View PDFs"
+                                >
+                                  {expandedRows[item.id] ? (
+                                    <>
+                                      <ChevronUp className="w-3 h-3 mr-1" />
+                                      HIDE
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ChevronDown className="w-3 h-3 mr-1" />
+                                      VIEW
+                                    </>
+                                  )}
+                                </button>
+
+                                {/* Delete */}
+                                <button
+                                  onClick={() => confirmDelete(item)}
+                                  className="inline-flex items-center px-3 py-1.5 rounded-lg text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-500 hover:text-white transition-all"
+                                  title="Delete Link"
+                                >
+                                  <Trash2 className="w-3 h-3 mr-1" />
+                                  DELETE
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+
+                          {/* Expanded Row - PDFs */}
+                          {expandedRows[item.id] && (
+                            <tr className="bg-gray-50">
+                              <td colSpan="5" className="px-6 py-4">
+                                <div className="bg-white rounded-lg border border-gray-200 p-4 ml-12">
+                                  <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-3 flex items-center">
+                                    <FileText className="w-4 h-4 mr-2 text-purple-600" />
+                                    Attached PDF Files
+                                  </h4>
+
+                                  {loadingPDFs[item.id] ? (
+                                    <div className="flex items-center justify-center py-8">
+                                      <Loader2 className="w-5 h-5 text-gray-400 animate-spin mr-2" />
+                                      <span className="text-xs text-gray-500">Loading PDFs...</span>
+                                    </div>
+                                  ) : linkPDFs[item.id]?.length > 0 ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                      {linkPDFs[item.id].map((pdf) => (
+                                        <div
+                                          key={pdf.id}
+                                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-purple-300 hover:bg-purple-50/50 transition-all group"
+                                        >
+                                          <div className="flex items-center min-w-0 flex-1">
+                                            <div className="w-8 h-8 bg-red-100 rounded flex items-center justify-center flex-shrink-0">
+                                              <FileText className="w-4 h-4 text-red-600" />
+                                            </div>
+                                            <div className="ml-3 min-w-0 flex-1">
+                                              <p className="text-xs font-semibold text-gray-900 truncate" title={pdf.filename}>
+                                                {pdf.filename}
+                                              </p>
+                                              <p className="text-[10px] text-gray-500">
+                                                {formatFileSize(pdf.file_size)} • {formatDate(pdf.uploaded_at)}
+                                              </p>
+                                            </div>
+                                          </div>
+                                          <button
+                                            onClick={() => downloadPDF(pdf.pdf_id, pdf.filename)}
+                                            className="ml-2 p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-100 rounded transition-all flex-shrink-0"
+                                            title="Download PDF"
+                                          >
+                                            <Download className="w-4 h-4" />
+                                          </button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <div className="text-center py-8">
+                                      <FileText className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                                      <p className="text-xs text-gray-500">No PDFs uploaded yet</p>
+                                      <p className="text-[10px] text-gray-400 mt-1">Use the "ADD PDF" button to upload files</p>
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </>
+                      ))}
                     </>
-                  ))}
-                </tbody>
-              </table>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Footer */}
+          {!loading && filteredLinks.length > 0 && (
+            <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between mt-auto">
+              <div className="flex items-center text-xs text-gray-500 font-medium">
+                Showing <span className="mx-1 text-gray-900 font-bold">{filteredLinks.length}</span> of
+                <span className="mx-1 text-gray-900 font-bold">{totalLinks}</span> total links
+              </div>
+              <div className="text-xs text-gray-500 bg-white px-3 py-1.5 rounded-lg border border-gray-200">
+                <span className="font-medium">Live Data</span> • Last updated: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
             </div>
           )}
         </div>
-
-        {!loading && filteredLinks.length > 0 && (
-          <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-            <div className="flex flex-col md:flex-row md:items-center justify-between">
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center mr-2.5">
-                    <LinkIcon className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-gray-900">{filteredLinks.length} link sets</div>
-                    <div className="text-xs text-gray-500">Currently showing</div>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-green-50 to-green-100 rounded-lg flex items-center justify-center mr-2.5">
-                    <User className="w-4 h-4 text-green-600" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-gray-900">
-                      {selectedUser === 'all'
-                        ? `${totalUsers} active users`
-                        : `Filtered by: ${uniqueUsers.find(u => u.id === selectedUser)?.name}`}
-                    </div>
-                    <div className="text-xs text-gray-500">User filter applied</div>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-4 md:mt-0">
-                <div className="text-xs text-gray-500 bg-gray-50 px-3 py-1.5 rounded-lg border">
-                  <span className="font-medium">Live Data</span> • Last updated: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      </main>
     </div>
   );
 }
