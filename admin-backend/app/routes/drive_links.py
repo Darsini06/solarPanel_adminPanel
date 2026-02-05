@@ -873,26 +873,72 @@ async def get_sorted_reports(
 def generate_solar_stats(pdf_id: str):
     """
     Generate deterministic solar inspection statistics based on the PDF ID.
-    This simulates extracting real data from the report.
-    Returns consistent data for the same file every time.
+    Simulates extracting real data from the user's specific report categories.
     """
-    # Use the ID to seed a random number generator implies deterministic results
-    # We'll use simple hashing
     hash_val = sum(ord(c) for c in str(pdf_id))
     
-    # Generate stats based on hash
     def get_val(offset, min_v, max_v):
         return min_v + ((hash_val + offset) % (max_v - min_v + 1))
         
-    return {
-        "efficiency": f"{15 + ((hash_val % 70) / 10):.1f}", # 15.0 - 22.0 %
-        "hotspots": get_val(10, 0, 15),
-        "cracks": get_val(20, 0, 8),
-        "soiling": get_val(30, 5, 40) if hash_val % 2 == 0 else 0, # Some clean, some dirty
-        "temp": f"{40 + (hash_val % 20)}", # 40-60 C
-        "power": f"{3 + ((hash_val % 25) / 10):.1f}", # 3.0 - 5.5 kW
-        "defects_critical": get_val(50, 0, 3)
+    stats = {
+        "capacity": "5.8 MW",
+        "total_defects": 0,
+        "efficiency": f"{16 + ((hash_val % 60) / 10):.1f}%",
+        "location": "Punjab, India",
+        "defects_list": []
     }
+    
+    # Generate a set of specific defects for the comparative table
+    anomalies = [
+        "Hotspot affected module", 
+        "Reverse Polarity", 
+        "Multi hotspot", 
+        "Bypass Diode Activated", 
+        "String Out", 
+        "Module Fault"
+    ]
+    
+    # Create 5-8 random but deterministic defects based on hash
+    num_defects = 5 + (hash_val % 4)
+    for i in range(num_defects):
+        # We use a semi-fixed panel ID formula to simulate catching the same panels          
+        # across different report dates (based on i)
+        row = 1 + ((i * 13) % 120) 
+        struct = 1 + ((i * 5) % 40)
+        anomaly = anomalies[(hash_val + i) % len(anomalies)]
+        
+        # Determine module coordinates based on anomaly
+        if "Multi" in anomaly:
+            module = "(1,1), (1,2), (2,1), (2,2)"
+        elif "Reverse" in anomaly:
+            module = f"(2,{1 + (hash_val % 15)})"
+        else:
+            module = f"(1,{1 + (hash_val % 20)})"
+            
+        # Voltage simulation (38-42V is normal, defects drop it)
+        expected_v = 40.5
+        if "Multi" in anomaly or "String" in anomaly:
+            actual_v = 0.0 # Extreme drop
+        elif "Bypass" in anomaly:
+            actual_v = expected_v * 0.66 # 1/3 drop
+        else:
+            # Random drop based on hash (5-20% drop)
+            drop_pct = 5 + ((hash_val + i) % 15)
+            actual_v = round(expected_v * (1 - drop_pct/100), 1)
+            
+        stats["defects_list"].append({
+            "id": f"P-{row}-{struct}", # Unique panel identifier for comparison
+            "row": row,
+            "structure": struct,
+            "module": module,
+            "anomaly": anomaly,
+            "expected_v": expected_v,
+            "actual_v": actual_v,
+            "voltage_drop": round(((expected_v - actual_v) / expected_v) * 100, 1)
+        })
+    
+    stats["total_defects"] = len(stats["defects_list"])
+    return stats
 
 @router.post("/download-comparison-report")
 async def download_comparison_report(

@@ -5,7 +5,8 @@ import React, { useState, useEffect } from "react";
 import {
   ArrowRight, Zap, Shield, Globe, Sun, FileUp, Database,
   HardDrive, CheckCircle, User, Mail, Phone, MapPin,
-  Settings, MessageSquare, Send, CloudUpload, Activity, Loader2, ShieldCheck, Star
+  Settings, MessageSquare, Send, CloudUpload, Activity, Loader2, ShieldCheck, Star, ChevronDown,
+  Thermometer, ClipboardList, TrendingUp, Eye, Brain, FileText
 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -39,6 +40,108 @@ export default function HomePage() {
     referralSource: "",
     additionalInfo: ""
   });
+
+  const allServices = [
+    {
+      name: "Thermography",
+      href: "/solutions/operation/thermography",
+      icon: Thermometer,
+      color: "orange",
+      category: "Operation",
+      image: "/operation_phase.png",
+      desc: "Advanced thermal imaging to pinpoint cellular-level defects and hotspot anomalies."
+    },
+    {
+      name: "Work Management",
+      href: "/solutions/operation/work-management",
+      icon: ClipboardList,
+      color: "blue",
+      category: "Operation",
+      image: "/ensure_lasting_quality.png",
+      desc: "Digitize site operations with real-time field reporting and automated task assignments."
+    },
+    {
+      name: "Asset Management",
+      href: "/solutions/operation/asset-management",
+      icon: Database,
+      color: "emerald",
+      category: "Operation",
+      image: "/prevent_revenue_loss.png",
+      desc: "Comprehensive lifecycle tracking for every PV module and inverter across your portfolio."
+    },
+    {
+      name: "Progress Tracking",
+      href: "/solutions/construction/progress-tracking",
+      icon: TrendingUp,
+      color: "orange",
+      category: "Construction",
+      image: "/construction_phase.png",
+      desc: "High-precision aerial surveys to monitor as-built progress against design milestones."
+    },
+    {
+      name: "Quality Control",
+      href: "/solutions/construction/quality-control",
+      icon: CheckCircle,
+      color: "blue",
+      category: "Construction",
+      image: "/ensure_lasting_quality.png",
+      desc: "Automated QC workflows ensuring compliance with engineering specifications and standards."
+    },
+    {
+      name: "Commissioning",
+      href: "/solutions/construction/commissioning",
+      icon: Zap,
+      color: "emerald",
+      category: "Construction",
+      image: "/construction_phase.png",
+      desc: "Streamlined inspection protocols for rapid and secure site handovers to O&M teams."
+    },
+    {
+      name: "Site Assessment",
+      href: "/solutions/planning/site-assessment",
+      icon: Globe,
+      color: "orange",
+      category: "Planning",
+      image: "/planning_phase.png",
+      desc: "High-resolution topography and shading analysis for optimized plant layout design."
+    },
+    {
+      name: "Drones & Robotics",
+      href: "/platform/drones",
+      icon: Eye,
+      color: "blue",
+      category: "Platform",
+      image: "/centralized_oversight.png",
+      desc: "Integrated fleet management for autonomous aerial and ground-based inspection robotics."
+    },
+    {
+      name: "AI & Analytics",
+      href: "/platform/ai-analytics",
+      icon: Brain,
+      color: "emerald",
+      category: "Platform",
+      image: "/prevent_revenue_loss.png",
+      desc: "ML-driven classification of defects to quantify power loss and prioritize maintenance."
+    },
+    {
+      name: "Forms & Ticketing",
+      href: "/platform/forms",
+      icon: FileText,
+      color: "orange",
+      category: "Platform",
+      image: "/ensure_lasting_quality.png",
+      desc: "Smart mobile forms for consistent structured data collection across all field personnel."
+    },
+    {
+      name: "Integrations",
+      href: "/platform/integrations",
+      icon: Settings,
+      color: "blue",
+      category: "Platform",
+      image: "/centralized_oversight.png",
+      desc: "Seamless data synchronization with existing ERP, SCADA, and CMMS platforms."
+    },
+  ];
 
   const companyTypes = [
     "Asset Owner",
@@ -579,49 +682,117 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Features Section */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Our Inspection Excellence</h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto italic font-medium">
-              Precision auditing to maximize your solar asset's lifespan and output.
+      {/* Solutions & Platforms Grid Section */}
+      <section className="py-32 bg-slate-50 relative overflow-hidden">
+        {/* Background Decorative Elements */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+          <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-orange-100/30 rounded-full blur-[120px]"></div>
+          <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-blue-100/30 rounded-full blur-[120px]"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-24">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 shadow-sm mb-6"
+            >
+              <div className="w-2 h-2 rounded-full bg-orange-600 animate-pulse"></div>
+              <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Advanced Ecosystem</span>
+            </motion.div>
+            <h2 className="text-5xl md:text-7xl font-black text-slate-900 mb-8 uppercase tracking-tighter">
+              The <span className="text-orange-600 italic">Future</span> of Solar
+            </h2>
+            <p className="text-slate-500 font-medium text-lg max-w-2xl mx-auto leading-relaxed">
+              Explore our full suite of digital twins, automated diagnostics, and infrastructure management tools designed for peak asset performance.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: <Zap className="text-orange-500" />,
-                title: "Thermographic Analysis",
-                desc: "Identify micro-cracks and hot spots within cells that are invisible to the naked eye using high-res thermal imaging.",
-              },
-              {
-                icon: <Shield className="text-blue-500" />,
-                title: "Drone-Based Surveys",
-                desc: "Rapid, safe, and cost-effective aerial inspections for large-scale solar farms and hard-to-reach rooftop installations.",
-              },
-              {
-                icon: <Globe className="text-emerald-500" />,
-                title: "Performance Audits",
-                desc: "Comprehensive diagnostic reports that provide actionable insights to improve overall system efficiency.",
-              },
-            ].map((feature, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {allServices.map((service, idx) => (
               <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
+                key={service.name}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="p-8 rounded-3xl border border-slate-100 bg-slate-50 hover:bg-white hover:shadow-2xl hover:shadow-orange-100 hover:-translate-y-2 transition-all duration-300"
+                transition={{
+                  delay: idx * 0.05,
+                  type: "spring",
+                  stiffness: 80
+                }}
+                onClick={() => {
+                  if (!user) {
+                    router.push('/login');
+                  } else {
+                    router.push(service.href);
+                  }
+                }}
+                className="group relative h-[320px] rounded-[2.5rem] overflow-hidden cursor-pointer shadow-xl shadow-slate-200 hover:shadow-orange-200/50 transition-all duration-700"
               >
-                <div className="w-14 h-14 rounded-2xl bg-white shadow-md flex items-center justify-center mb-6">
-                  {feature.icon}
+                {/* Image Layer */}
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
+                  style={{ backgroundImage: `url(${service.image})` }}
+                ></div>
+
+                {/* Glassmorphism Overlays */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent group-hover:via-slate-900/60 transition-all duration-500"></div>
+
+                {/* Content Overlay */}
+                <div className="absolute inset-0 p-6 flex flex-col justify-end text-white">
+                  <div className="mb-auto">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center backdrop-blur-xl border border-white/20 shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${service.color === 'orange' ? 'bg-orange-600/60' :
+                      service.color === 'blue' ? 'bg-blue-600/60' :
+                        'bg-emerald-600/60'
+                      }`}>
+                      <service.icon size={20} />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-[8px] font-black uppercase tracking-[0.2em]">
+                        {service.category}
+                      </span>
+                    </div>
+
+                    <h3 className="text-xl font-black uppercase tracking-tight leading-tight group-hover:text-orange-400 transition-colors">
+                      {service.name}
+                    </h3>
+
+                    <p className="text-[11px] text-slate-300 font-medium opacity-0 group-hover:opacity-100 transition-all duration-700 line-clamp-2">
+                      {service.desc}
+                    </p>
+
+                    <div className="flex items-center gap-2 pt-1 text-orange-400 font-black text-[10px] uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-all duration-700">
+                      Explore <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-4">{feature.title}</h3>
-                <p className="text-slate-600 leading-relaxed italic">{feature.desc}</p>
+
+                {/* Perspective Glow Effect */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-700 bg-[radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),#ffffff_0%,transparent_100%)]"></div>
               </motion.div>
             ))}
+          </div>
+
+          <div className="mt-24 pt-12 border-t border-slate-200 flex flex-col items-center gap-8">
+            <div className="flex items-center gap-4">
+              <div className="h-[1px] w-12 bg-slate-300"></div>
+              <span className="text-slate-400 font-black text-[10px] uppercase tracking-[0.4em]">Enterprise Grade Infrastructure</span>
+              <div className="h-[1px] w-12 bg-slate-300"></div>
+            </div>
+            {!user && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => router.push('/login')}
+                className="px-12 py-5 bg-slate-900 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-slate-300 hover:bg-orange-600 transition-all"
+              >
+                Sign In to access Full Ecosystem
+              </motion.button>
+            )}
           </div>
         </div>
       </section>

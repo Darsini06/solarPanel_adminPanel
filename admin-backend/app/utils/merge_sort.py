@@ -99,6 +99,10 @@ def get_comparable_value(item: Dict[str, Any], key: str) -> Any:
         else:
             return None
     
+    # If value is None, return a safe default based on expected sorting
+    if value is None:
+        return 0 if key in ['row', 'structure', 'file_size', 'actual_v', 'voltage_drop'] else " "
+        
     # Convert datetime strings to datetime objects for proper comparison
     if isinstance(value, str):
         try:
@@ -106,9 +110,9 @@ def get_comparable_value(item: Dict[str, Any], key: str) -> Any:
             return datetime.fromisoformat(value.replace('Z', '+00:00'))
         except:
             # If not a datetime, return as is (for string comparison)
-            return value.lower() if isinstance(value, str) else value
+            return value.lower()
     
-    return value if value is not None else ""
+    return value
 
 
 def merge_sort_multiple_keys(arr: List[Dict[str, Any]], keys: List[tuple]) -> List[Dict[str, Any]]:

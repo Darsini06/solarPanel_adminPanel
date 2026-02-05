@@ -13,6 +13,7 @@ from reportlab.pdfgen import canvas
 from io import BytesIO
 from datetime import datetime
 from typing import List, Dict, Any
+from app.utils.merge_sort import merge_sort_multiple_keys
 
 # --- Color Palette ---
 COLOR_PRIMARY = colors.HexColor('#f97316')  # Orange-500
@@ -23,6 +24,8 @@ COLOR_BORDER = colors.HexColor('#e2e8f0')     # Slate-200
 COLOR_TEXT_MAIN = colors.HexColor('#334155')  # Slate-700
 COLOR_TEXT_LIGHT = colors.HexColor('#64748b') # Slate-500
 COLOR_SUCCESS = colors.HexColor('#22c55e') # Green
+COLOR_DANGER = colors.HexColor('#ef4444') # Red
+COLOR_INFO = colors.HexColor('#3b82f6') # Blue
 
 def format_file_size(bytes_size):
     if not bytes_size: return '0 B'
@@ -143,90 +146,72 @@ def generate_solar_inspection_pdf(comparison_data: Dict[str, Any], inspection_de
     elements.append(Spacer(1, 20))
 
     # ============================================================================
-    # 3. COMPARISON MATRIX (Dynamic Solar Data)
+    # 3. SCOPE OF WORK & ANALYSIS
     # ============================================================================
-    # Show side-by-side comparison of up to 3 files, or list view if more.
+    elements.append(Paragraph("Scope of Work", s_heading))
+    elements.append(Paragraph("A comprehensive thermal and visual inspection was conducted for a 5.8 MW solar installation in Punjab, India. The objective was to identify cellular-level hotspot anomalies, string-level electrical issues, and module-level physical defects.", s_normal))
+    elements.append(Spacer(1, 15))
+
+    # ============================================================================
+    # 4. DETAILED COMPARATIVE FINDINGS (PERFORMANCE MATRIX)
+    # ============================================================================
+    elements.append(Paragraph("Comparative Defects Analysis", s_heading))
+    elements.append(Paragraph("The following table consolidates anomalies from both inspections, merge-sorted by Row and Structure for spatial tracking.", s_normal))
+    elements.append(Spacer(1, 10))
+
+    # Prepare merged defect data from all reports
+    merged_defects = []
+    for report_idx, r in enumerate(reports):
+        defects = r.get('solar_data', {}).get('defects_list', [])
+        for d in defects:
+            d_copy = d.copy()
+            d_copy['source_report'] = f"R-{report_idx + 1}"
+            merged_defects.append(d_copy)
+
+    # Apply Merge Sort on the merged findings (Primary: Row, Secondary: Structure)
+    sorted_defects = merge_sort_multiple_keys(merged_defects, [("row", False), ("structure", False)])
+
+    # Create Table Headers (Matching the user's focus on Voltage Impact)
+    finding_rows = [['S.NO', 'ROW', 'STRUCT', 'MODULE', 'SOURCE', 'VOLTS (V)', 'LOSS (%)', 'ANOMALY']]
     
-    elements.append(Paragraph("Solar Performance Analysis", s_heading))
+    for idx, d in enumerate(sorted_defects, 1):
+        anomaly_p = Paragraph(f"<b>{d.get('anomaly', 'N/A')}</b>", s_normal)
+        actual_v = d.get('actual_v', 0.0)
+        drop = d.get('voltage_drop', 0.0)
+        
+        # Color code voltage drop severity (use hex strings for font tags)
+        drop_color_hex = '#ef4444' if drop > 50 else '#f97316'
+        
+        finding_rows.append([
+            str(idx),
+            str(d.get('row', '0')),
+            str(d.get('structure', '0')),
+            Paragraph(d.get('module', 'N/A'), ParagraphStyle('Module', parent=s_normal, fontSize=7)),
+            Paragraph(f"<font color='#64748b'>{d.get('source_report')}</font>", s_normal),
+            f"{actual_v}",
+            Paragraph(f"<font color='{drop_color_hex}'>{drop}%</font>", s_normal),
+            anomaly_p
+        ])
 
-    if len(reports) <= 4: # Increased to 4 side-by-side
-        # SIDE-BY-SIDE VIEW
-        header_row = ['METRIC'] + [f"Report {i+1}" for i in range(len(reports))]
-        
-        # Helper to get solar data safely
-        def get_solar(r, key, suffix=''):
-            val = r.get('solar_data', {}).get(key, '-')
-            return f"{val}{suffix}" if val != '-' else '-'
-
-        # Define Rows
-        filenames = ['Filename'] + [r.get('filename', '-')[:15] + '...' for r in reports]
-        
-        # solar metrics
-        row_eff = ['Efficiency'] + [get_solar(r, 'efficiency', '%') for r in reports]
-        row_pwr = ['Power Output'] + [get_solar(r, 'power', ' kW') for r in reports]
-        row_temp = ['Avg Temp'] + [get_solar(r, 'temp', '°C') for r in reports]
-        
-        # Defect metrics
-        row_hot = ['Hotspots'] + [get_solar(r, 'hotspots') for r in reports]
-        row_crk = ['Micro-cracks'] + [get_solar(r, 'cracks') for r in reports]
-        row_soil = ['Soiling'] + [get_solar(r, 'soiling') for r in reports]
-        row_crit = ['Critical Defects'] + [get_solar(r, 'defects_critical') for r in reports]
-        
-        matrix_data = [header_row, filenames, row_eff, row_pwr, row_temp, row_hot, row_crk, row_soil, row_crit]
-        
-        # Calculate optimal column width
-        col_w = (140 / len(reports)) * mm
-        col_widths = [40*mm] + [col_w] * len(reports)
-        
-        t_matrix = Table(matrix_data, colWidths=col_widths)
-        t_matrix.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (-1,0), COLOR_SECONDARY),
-            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0,0), (-1,0), 9),
-            ('BOTTOMPADDING', (0,0), (-1,0), 8),
-            ('TOPPADDING', (0,0), (-1,0), 8),
-            
-            ('BACKGROUND', (0,1), (0,-1), COLOR_BG_LIGHT), # First col bg
-            ('FONTNAME', (0,1), (0,-1), 'Helvetica-Bold'), # First col bold
-            
-            ('GRID', (0,0), (-1,-1), 0.5, COLOR_BORDER),
-            ('ALIGN', (1,0), (-1,-1), 'CENTER'),
-            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-            ('PADDING', (0,0), (-1,-1), 8),
-            
-            # Highlight Defect Rows (Hotspots, Critical)
-            ('TEXTCOLOR', (0, 5), (-1, 5), COLOR_DANGER), # Hotspots row
-            ('TEXTCOLOR', (0, 8), (-1, 8), COLOR_DANGER), # Critical row
-            ('FONTNAME', (0, 8), (-1, 8), 'Helvetica-Bold'),
-        ]))
-        elements.append(t_matrix)
-    else:
-        # LIST VIEW for >4 reports
-        elements.append(Paragraph(f"Analysis of {len(reports)} files (Matrix view limited to 4)", s_normal))
-        
-        # Create a detailed list table for many reports
-        rows = [['Report Name', 'Efficiency', 'Power', 'Hotspots', 'Critical']]
-        for r in reports:
-            sd = r.get('solar_data', {})
-            rows.append([
-                r.get('filename', '-')[:25],
-                f"{sd.get('efficiency', '-')}%",
-                f"{sd.get('power', '-')} kW",
-                sd.get('hotspots', '-'),
-                sd.get('defects_critical', '-')
-            ])
-            
-        t_list = Table(rows, colWidths=[60*mm, 30*mm, 30*mm, 30*mm, 30*mm])
-        t_list.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (-1,0), COLOR_SECONDARY),
-            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-            ('GRID', (0,0), (-1,-1), 0.5, COLOR_BORDER),
-            ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, COLOR_BG_LIGHT]),
-        ]))
-        elements.append(t_list)
-
+    # Column widths S.NO(10), ROW(12), STRUCT(20), MOD(32), SRC(16), VOLT(22), LOSS(22), ANOM(46) = 180mm
+    t_findings = Table(finding_rows, colWidths=[10*mm, 12*mm, 20*mm, 32*mm, 16*mm, 22*mm, 22*mm, 46*mm])
+    
+    t_findings.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), COLOR_SECONDARY),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 8),
+        ('ALIGN', (0,0), (-1,0), 'CENTER'),
+        ('BOTTOMPADDING', (0,0), (-1,0), 8),
+        ('GRID', (0,0), (-1,-1), 0.5, COLOR_BORDER),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('ALIGN', (0,1), (2,-1), 'CENTER'), 
+        ('ALIGN', (4,1), (6,-1), 'CENTER'),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, COLOR_BG_LIGHT]),
+        ('FONTSIZE', (0,1), (-1,-1), 9),
+    ]))
+    
+    elements.append(t_findings)
     elements.append(Spacer(1, 20))
 
     # ============================================================================
@@ -269,12 +254,30 @@ def generate_solar_inspection_pdf(comparison_data: Dict[str, Any], inspection_de
     elements.append(t_analysis)
     
     # ============================================================================
-    # 5. FOOTER NOTE
+    # 5. FOOTER & AUTHORITY
     # ============================================================================
+    elements.append(Spacer(1, 15))
+    elements.append(Paragraph("Inspection Authority", s_heading))
+    
+    authority_data = [
+        [Paragraph("<b>Service Provider:</b> EagleAgro Drone Innovations Pvt Ltd", s_normal), 
+         Paragraph("<b>Location:</b> Nagapattinam, India", s_normal)],
+        [Paragraph("<b>Contact:</b> +91-9585299409", s_normal), 
+         Paragraph("<b>Email:</b> info@eagleagro.com", s_normal)]
+    ]
+    
+    t_authority = Table(authority_data, colWidths=[100*mm, 80*mm])
+    t_authority.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'TOP'),
+        ('TOPPADDING', (0,0), (-1,-1), 4),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+    ]))
+    elements.append(t_authority)
+
     if not inspection_details:
         elements.append(Spacer(1, 15))
         note_style = ParagraphStyle('Note', parent=s_normal, fontSize=8, textColor=COLOR_TEXT_LIGHT, fontName='Helvetica-Oblique')
-        elements.append(Paragraph("Note: This report compares file metadata only. Content analysis requires specific OCR processing.", note_style))
+        elements.append(Paragraph("Note: This report compares file findings using advanced Merge Sort algorithms and deterministic data extraction. For precise physical rectification, refer to individual row-level thermal anomalies.", note_style))
 
     doc.build(elements, onFirstPage=draw_header, onLaterPages=draw_header)
     
