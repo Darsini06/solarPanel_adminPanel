@@ -388,7 +388,7 @@ export const authAPI = {
     logout: () => api.post('/api/logout'),
 
     // Drive Links endpoints
-    saveLinks: (data) => api.post('/drive-links/', data),
+    saveLinks: (data) => api.post('/drive-links', data),
     getMyLinks: () => api.get('/drive-links/my-links'),
     getMyLinksWithPDFs: () => api.get('/drive-links/my-links-with-pdfs'),
     getAllLinks: () => api.get('/drive-links/'),

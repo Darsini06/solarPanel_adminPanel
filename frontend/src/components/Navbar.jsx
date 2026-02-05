@@ -18,7 +18,7 @@ export default function Navbar() {
     const [openDropdown, setOpenDropdown] = useState(null);
 
     // Some pages might not have a dark hero, we should check
-    const isDarkHeroPage = ["/", "/solutions/operation/thermography", "/solutions/operation/work-management", "/solutions/operation/asset-management", "/solutions/construction/progress-tracking", "/solutions/construction/quality-control", "/solutions/construction/commissioning", "/solutions/planning/site-assessment", "/platform/drones", "/platform/ai-analytics", "/platform/forms", "/platform/integrations"].includes(pathname);
+    const isDarkHeroPage = ["/solutions/operation/thermography", "/solutions/operation/work-management", "/solutions/operation/asset-management", "/solutions/construction/progress-tracking", "/solutions/construction/quality-control", "/solutions/construction/commissioning", "/solutions/planning/site-assessment", "/platform/drones", "/platform/ai-analytics", "/platform/forms", "/platform/integrations"].includes(pathname);
 
     useEffect(() => {
         const handleScroll = () => {

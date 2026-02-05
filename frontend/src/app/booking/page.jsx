@@ -329,35 +329,31 @@ export default function BookingPage() {
                                 {/* Company Type */}
                                 <div className="space-y-2 group">
                                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
-                                        Organization Type*
+                                        Which of the following best describes your company?*
                                     </label>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                        {companyTypes.map((type) => (
-                                            <label
-                                                key={type}
-                                                className={`cursor-pointer px-4 py-3 rounded-xl border flex items-center justify-center text-sm font-bold transition-all ${formData.companyType === type
-                                                        ? 'bg-orange-600 text-white border-orange-600 shadow-md transform scale-[1.02]'
-                                                        : 'bg-white border-slate-200 text-slate-600 hover:border-orange-300 hover:bg-orange-50'
-                                                    }`}
-                                            >
-                                                <input
-                                                    type="radio"
-                                                    name="companyType"
-                                                    value={type}
-                                                    checked={formData.companyType === type}
-                                                    onChange={handleChange}
-                                                    className="hidden"
-                                                />
-                                                {type}
-                                            </label>
-                                        ))}
+                                    <div className="relative">
+                                        <select
+                                            name="companyType"
+                                            required
+                                            value={formData.companyType}
+                                            onChange={handleChange}
+                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm appearance-none font-medium text-slate-700 group-hover:bg-white"
+                                        >
+                                            <option value="">Please Select</option>
+                                            {companyTypes.map((type) => (
+                                                <option key={type} value={type}>{type}</option>
+                                            ))}
+                                        </select>
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                                        </div>
                                     </div>
                                 </div>
 
                                 {/* Solar Capacity */}
                                 <div className="space-y-2 group">
                                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
-                                        Asset Portfolio Size*
+                                        How much solar do you have today and/or in your pipeline?*
                                     </label>
                                     <div className="relative">
                                         <select
@@ -367,7 +363,7 @@ export default function BookingPage() {
                                             onChange={handleChange}
                                             className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm appearance-none font-medium text-slate-700 group-hover:bg-white"
                                         >
-                                            <option value="">Please Select Capacity</option>
+                                            <option value="">Please Select</option>
                                             {solarCapacities.map((capacity) => (
                                                 <option key={capacity} value={capacity}>{capacity}</option>
                                             ))}
@@ -381,7 +377,7 @@ export default function BookingPage() {
                                 {/* Referral Source */}
                                 <div className="space-y-2 group">
                                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
-                                        Where did you hear about us?*
+                                        Where did you last hear about us?*
                                     </label>
                                     <div className="relative">
                                         <select
@@ -391,7 +387,7 @@ export default function BookingPage() {
                                             onChange={handleChange}
                                             className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm appearance-none font-medium text-slate-700 group-hover:bg-white"
                                         >
-                                            <option value="">Please Select Source</option>
+                                            <option value="">Please Select</option>
                                             {referralSources.map((source) => (
                                                 <option key={source} value={source}>{source}</option>
                                             ))}
@@ -405,12 +401,12 @@ export default function BookingPage() {
                                 {/* Additional Information */}
                                 <div className="space-y-2 group">
                                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
-                                        Additional Context
+                                        Additional Information you want to share with us
                                     </label>
                                     <textarea
                                         name="additionalInfo"
                                         rows="5"
-                                        placeholder="Tell us about your specific requirements, challenges, or timeline..."
+                                        placeholder=""
                                         value={formData.additionalInfo}
                                         onChange={handleChange}
                                         className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none resize-none shadow-sm font-medium text-slate-900 placeholder:text-slate-400 group-hover:bg-white"

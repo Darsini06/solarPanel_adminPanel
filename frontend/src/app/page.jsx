@@ -115,11 +115,10 @@ export default function HomePage() {
     setUploadStatus({ type: "info", message: "Saving your drive links..." });
 
     try {
-      const userId = localStorage.getItem('user_id');
+      // Backend extracts user_id from the auth token
       const payload = {
         drive_link_1: driveLink1,
-        drive_link_2: driveLink2,
-        user_id: userId // Explicitly pass user_id if backend requires it in body
+        drive_link_2: driveLink2 || "" // Ensure it's a string even if empty
       };
 
       const response = await authAPI.saveLinks(payload);
@@ -140,9 +139,14 @@ export default function HomePage() {
 
     } catch (err) {
       console.error("Save error:", err);
+      // Detailed error logging
+      if (err.response) {
+        console.error("Response data:", err.response.data);
+        console.error("Response status:", err.response.status);
+      }
       setUploadStatus({
         type: "error",
-        message: err.response?.data?.detail || "Failed to save links. Please try again."
+        message: err.response?.data?.detail || `Failed to save links. Status: ${err.response?.status || 'Unknown'}`
       });
     } finally {
       setUploading(false);

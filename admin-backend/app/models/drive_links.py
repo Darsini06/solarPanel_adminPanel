@@ -14,6 +14,9 @@ class DriveLinkResponse(BaseModel):
     user_email: str
     user_name: str
     created_at: datetime
+    has_pdf: bool = False
+    pdf_id: Optional[str] = None
+    pdf_filename: Optional[str] = None
 
 class ReportGenerateRequest(BaseModel):
     link_id: str
