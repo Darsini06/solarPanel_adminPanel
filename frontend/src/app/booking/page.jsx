@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Send, Loader2, Star } from "lucide-react";
+import { Send, Loader2, Star, CheckCircle, ShieldCheck, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function BookingPage() {
@@ -135,155 +135,241 @@ export default function BookingPage() {
     ];
 
     return (
-        <div className="pt-24 pb-24 bg-white min-h-screen">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Header Section */}
-                <div className="text-center mb-16 pt-8">
+        <div className="min-h-screen bg-white">
+            {/* Header Section */}
+            <section className="pt-32 pb-24 bg-slate-950 text-white relative overflow-hidden">
+                <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/9875415/pexels-photo-9875415.jpeg?auto=compress&cs=tinysrgb&w=1200')] bg-cover bg-center opacity-20 mix-blend-overlay"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent"></div>
+
+                <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 border border-orange-100 rounded-lg text-xs font-bold text-orange-700 mb-6 uppercase tracking-widest"
+                        className="inline-flex items-center gap-2 px-3 py-1 bg-orange-500/10 border border-orange-500/20 rounded-full text-xs font-bold text-orange-400 mb-6 uppercase tracking-widest backdrop-blur-md"
                     >
-                        <Star size={14} className="fill-orange-600 text-orange-600" />
-                        Professional Industry Rating
+                        <Zap size={12} className="fill-orange-400" />
+                        Priority Access
                     </motion.div>
 
                     <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="text-5xl md:text-7xl font-bold text-slate-900 mb-8 tracking-tight"
+                        className="text-5xl md:text-7xl font-bold mb-8 tracking-tight"
                     >
-                        Book Your <span className="text-orange-600">Inspection</span>
+                        Schedule Your <br /><span className="text-orange-500">Inspection Today</span>
                     </motion.h1>
 
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-6 font-medium"
+                        className="text-xl text-slate-400 leading-relaxed font-medium max-w-2xl mx-auto"
                     >
-                        Our solar inspection solutions empower Asset Owners and O&M teams throughout the full lifecycle of their solar installations.
+                        Join the hundreds of asset owners maximizing their yield with our AI-powered inspection platform.
                     </motion.p>
                 </div>
+            </section>
 
-                {/* Form Section */}
-                <motion.div
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                    className="max-w-3xl mx-auto"
-                >
-                    <div className="bg-slate-50 rounded-[2.5rem] p-8 md:p-16 border border-slate-200 shadow-2xl shadow-slate-200/40">
-                        <p className="text-slate-500 mb-12 text-center font-bold uppercase tracking-widest text-xs">
-                            Please complete the form below
-                        </p>
+            {/* Form Section */}
+            <section className="py-20 bg-slate-50 relative -mt-20 z-20 rounded-t-[3rem]">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <motion.div
+                        initial={{ opacity: 0, y: 40 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="max-w-4xl mx-auto"
+                    >
+                        <div className="bg-white rounded-[2rem] p-8 md:p-16 border border-slate-200 shadow-2xl shadow-slate-200/50">
 
-                        {status.message && (
-                            <div className={`mb-10 p-6 rounded-xl text-center shadow-sm ${status.type === 'success'
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
-                                : 'bg-red-50 text-red-700 border border-red-100'
-                                }`}>
-                                <p className="font-bold text-sm tracking-tight">{status.message}</p>
-                            </div>
-                        )}
-
-                        <form onSubmit={handleSubmit} className="space-y-10">
-                            {/* First Name & Last Name */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-bold text-slate-800 ml-1">
-                                        First Name*
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="firstName"
-                                        required
-                                        placeholder="Jane"
-                                        value={formData.firstName}
-                                        onChange={handleChange}
-                                        className="w-full px-6 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all outline-none shadow-sm font-medium"
-                                    />
+                            <div className="flex items-center justify-between mb-12 pb-8 border-b border-slate-100">
+                                <div>
+                                    <h3 className="text-2xl font-bold text-slate-900">Project Details</h3>
+                                    <p className="text-slate-500 text-sm mt-1">Tell us about your needs</p>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-bold text-slate-800 ml-1">
-                                        Last Name*
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="lastName"
-                                        required
-                                        placeholder="Doe"
-                                        value={formData.lastName}
-                                        onChange={handleChange}
-                                        className="w-full px-6 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all outline-none shadow-sm font-medium"
-                                    />
+                                <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold uppercase tracking-wide">
+                                    <ShieldCheck size={14} />
+                                    Secure SSL Form
                                 </div>
                             </div>
 
-                            {/* Work Email & Job Title */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-bold text-slate-800 ml-1">
-                                        Work Email*
-                                    </label>
-                                    <input
-                                        type="email"
-                                        name="workEmail"
-                                        required
-                                        placeholder="jane@company.com"
-                                        value={formData.workEmail}
-                                        onChange={handleChange}
-                                        className="w-full px-6 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all outline-none shadow-sm font-medium"
-                                    />
+                            {status.message && (
+                                <div className={`mb-10 p-6 rounded-xl text-center shadow-sm ${status.type === 'success'
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                                    : 'bg-red-50 text-red-700 border border-red-100'
+                                    }`}>
+                                    <p className="font-bold text-sm tracking-tight flex items-center justify-center gap-2">
+                                        {status.type === 'success' && <CheckCircle size={18} />}
+                                        {status.message}
+                                    </p>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-bold text-slate-800 ml-1">
-                                        Job Title*
+                            )}
+
+                            <form onSubmit={handleSubmit} className="space-y-10">
+                                {/* First Name & Last Name */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-2 group">
+                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                                            First Name*
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="firstName"
+                                            required
+                                            placeholder="Jane"
+                                            value={formData.firstName}
+                                            onChange={handleChange}
+                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm font-medium text-slate-900 placeholder:text-slate-400 group-hover:bg-white"
+                                        />
+                                    </div>
+                                    <div className="space-y-2 group">
+                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                                            Last Name*
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="lastName"
+                                            required
+                                            placeholder="Doe"
+                                            value={formData.lastName}
+                                            onChange={handleChange}
+                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm font-medium text-slate-900 placeholder:text-slate-400 group-hover:bg-white"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Work Email & Job Title */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-2 group">
+                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                                            Work Email*
+                                        </label>
+                                        <input
+                                            type="email"
+                                            name="workEmail"
+                                            required
+                                            placeholder="jane@company.com"
+                                            value={formData.workEmail}
+                                            onChange={handleChange}
+                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm font-medium text-slate-900 placeholder:text-slate-400 group-hover:bg-white"
+                                        />
+                                    </div>
+                                    <div className="space-y-2 group">
+                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                                            Job Title*
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="jobTitle"
+                                            required
+                                            placeholder="Operations Manager"
+                                            value={formData.jobTitle}
+                                            onChange={handleChange}
+                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm font-medium text-slate-900 placeholder:text-slate-400 group-hover:bg-white"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Phone Number & Country */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-2 group">
+                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                                            Phone Number*
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            name="phone"
+                                            required
+                                            placeholder="+1 (555) 000-0000"
+                                            value={formData.phone}
+                                            onChange={handleChange}
+                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm font-medium text-slate-900 placeholder:text-slate-400 group-hover:bg-white"
+                                        />
+                                    </div>
+                                    <div className="space-y-2 group">
+                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                                            Country*
+                                        </label>
+                                        <div className="relative">
+                                            <select
+                                                name="country"
+                                                required
+                                                value={formData.country}
+                                                onChange={handleChange}
+                                                className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm appearance-none font-medium text-slate-700 group-hover:bg-white"
+                                            >
+                                                <option value="">Please Select</option>
+                                                {countries.map((country) => (
+                                                    <option key={country} value={country}>{country}</option>
+                                                ))}
+                                            </select>
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Company Name */}
+                                <div className="space-y-2 group">
+                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                                        Company Name*
                                     </label>
                                     <input
                                         type="text"
-                                        name="jobTitle"
+                                        name="companyName"
                                         required
-                                        placeholder="Operations Manager"
-                                        value={formData.jobTitle}
+                                        placeholder="SolarMark Industries"
+                                        value={formData.companyName}
                                         onChange={handleChange}
-                                        className="w-full px-6 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all outline-none shadow-sm font-medium"
+                                        className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm font-medium text-slate-900 placeholder:text-slate-400 group-hover:bg-white"
                                     />
                                 </div>
-                            </div>
 
-                            {/* Phone Number & Country */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-bold text-slate-800 ml-1">
-                                        Phone Number*
+                                {/* Company Type */}
+                                <div className="space-y-2 group">
+                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                                        Organization Type*
                                     </label>
-                                    <input
-                                        type="tel"
-                                        name="phone"
-                                        required
-                                        placeholder="+1 (555) 000-0000"
-                                        value={formData.phone}
-                                        onChange={handleChange}
-                                        className="w-full px-6 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all outline-none shadow-sm font-medium"
-                                    />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                        {companyTypes.map((type) => (
+                                            <label
+                                                key={type}
+                                                className={`cursor-pointer px-4 py-3 rounded-xl border flex items-center justify-center text-sm font-bold transition-all ${formData.companyType === type
+                                                        ? 'bg-orange-600 text-white border-orange-600 shadow-md transform scale-[1.02]'
+                                                        : 'bg-white border-slate-200 text-slate-600 hover:border-orange-300 hover:bg-orange-50'
+                                                    }`}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name="companyType"
+                                                    value={type}
+                                                    checked={formData.companyType === type}
+                                                    onChange={handleChange}
+                                                    className="hidden"
+                                                />
+                                                {type}
+                                            </label>
+                                        ))}
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-bold text-slate-800 ml-1">
-                                        Country*
+
+                                {/* Solar Capacity */}
+                                <div className="space-y-2 group">
+                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                                        Asset Portfolio Size*
                                     </label>
                                     <div className="relative">
                                         <select
-                                            name="country"
+                                            name="solarCapacity"
                                             required
-                                            value={formData.country}
+                                            value={formData.solarCapacity}
                                             onChange={handleChange}
-                                            className="w-full px-6 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all outline-none shadow-sm appearance-none font-medium text-slate-700"
+                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm appearance-none font-medium text-slate-700 group-hover:bg-white"
                                         >
-                                            <option value="">Please Select</option>
-                                            {countries.map((country) => (
-                                                <option key={country} value={country}>{country}</option>
+                                            <option value="">Please Select Capacity</option>
+                                            {solarCapacities.map((capacity) => (
+                                                <option key={capacity} value={capacity}>{capacity}</option>
                                             ))}
                                         </select>
                                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
@@ -291,141 +377,79 @@ export default function BookingPage() {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Company Name */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-bold text-slate-800 ml-1">
-                                    Company Name*
-                                </label>
-                                <input
-                                    type="text"
-                                    name="companyName"
-                                    required
-                                    placeholder="SolarMark Industries"
-                                    value={formData.companyName}
-                                    onChange={handleChange}
-                                    className="w-full px-6 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all outline-none shadow-sm font-medium"
-                                />
-                            </div>
-
-                            {/* Company Type */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-bold text-slate-800 ml-1">
-                                    Which of the following best describes your company?*
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        name="companyType"
-                                        required
-                                        value={formData.companyType}
-                                        onChange={handleChange}
-                                        className="w-full px-6 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all outline-none shadow-sm appearance-none font-medium text-slate-700"
-                                    >
-                                        <option value="">Please Select</option>
-                                        {companyTypes.map((type) => (
-                                            <option key={type} value={type}>{type}</option>
-                                        ))}
-                                    </select>
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                                {/* Referral Source */}
+                                <div className="space-y-2 group">
+                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                                        Where did you hear about us?*
+                                    </label>
+                                    <div className="relative">
+                                        <select
+                                            name="referralSource"
+                                            required
+                                            value={formData.referralSource}
+                                            onChange={handleChange}
+                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm appearance-none font-medium text-slate-700 group-hover:bg-white"
+                                        >
+                                            <option value="">Please Select Source</option>
+                                            {referralSources.map((source) => (
+                                                <option key={source} value={source}>{source}</option>
+                                            ))}
+                                        </select>
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Solar Capacity */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-bold text-slate-800 ml-1">
-                                    How much solar do you have today and/or in your pipeline?*
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        name="solarCapacity"
-                                        required
-                                        value={formData.solarCapacity}
+                                {/* Additional Information */}
+                                <div className="space-y-2 group">
+                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                                        Additional Context
+                                    </label>
+                                    <textarea
+                                        name="additionalInfo"
+                                        rows="5"
+                                        placeholder="Tell us about your specific requirements, challenges, or timeline..."
+                                        value={formData.additionalInfo}
                                         onChange={handleChange}
-                                        className="w-full px-6 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all outline-none shadow-sm appearance-none font-medium text-slate-700"
-                                    >
-                                        <option value="">Please Select</option>
-                                        {solarCapacities.map((capacity) => (
-                                            <option key={capacity} value={capacity}>{capacity}</option>
-                                        ))}
-                                    </select>
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-                                    </div>
+                                        className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none resize-none shadow-sm font-medium text-slate-900 placeholder:text-slate-400 group-hover:bg-white"
+                                    ></textarea>
                                 </div>
-                            </div>
 
-                            {/* Referral Source */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-bold text-slate-800 ml-1">
-                                    Where did you last hear about us?*
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        name="referralSource"
-                                        required
-                                        value={formData.referralSource}
-                                        onChange={handleChange}
-                                        className="w-full px-6 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all outline-none shadow-sm appearance-none font-medium text-slate-700"
+                                <div className="pt-6">
+                                    {/* Submit Button */}
+                                    <button
+                                        type="submit"
+                                        disabled={submitting}
+                                        className="w-full py-5 bg-orange-600 text-white rounded-xl font-bold text-xl shadow-2xl shadow-orange-900/20 hover:bg-orange-700 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest hover:scale-[1.01] active:scale-[0.99]"
                                     >
-                                        <option value="">Please Select</option>
-                                        {referralSources.map((source) => (
-                                            <option key={source} value={source}>{source}</option>
-                                        ))}
-                                    </select>
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-                                    </div>
+                                        {submitting ? (
+                                            <>
+                                                <Loader2 className="animate-spin w-6 h-6" />
+                                                Processing Request...
+                                            </>
+                                        ) : (
+                                            <>
+                                                Submit Request
+                                                <Send size={24} />
+                                            </>
+                                        )}
+                                    </button>
                                 </div>
-                            </div>
+                            </form>
 
-                            {/* Additional Information */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-bold text-slate-800 ml-1">
-                                    Additional information you want to share with us
-                                </label>
-                                <textarea
-                                    name="additionalInfo"
-                                    rows="5"
-                                    placeholder="Tell us about your specific requirements..."
-                                    value={formData.additionalInfo}
-                                    onChange={handleChange}
-                                    className="w-full px-6 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all outline-none resize-none shadow-sm font-medium"
-                                ></textarea>
-                            </div>
-
-                            {/* Submit Button */}
-                            <button
-                                type="submit"
-                                disabled={submitting}
-                                className="w-full py-5 bg-orange-600 text-white rounded-xl font-bold text-xl shadow-2xl shadow-orange-900/10 hover:bg-orange-700 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest"
-                            >
-                                {submitting ? (
-                                    <>
-                                        <Loader2 className="animate-spin w-6 h-6" />
-                                        Submitting Request...
-                                    </>
-                                ) : (
-                                    <>
-                                        Submit Request
-                                        <Send size={24} />
-                                    </>
-                                )}
-                            </button>
-                        </form>
-
-                        {/* Privacy Note */}
-                        <p className="text-xs text-slate-400 text-center mt-12 font-medium">
-                            By submitting this form, you agree to our{" "}
-                            <a href="/privacy" className="text-orange-600 hover:underline font-bold">Privacy Policy</a>
-                            {" "}and{" "}
-                            <a href="/terms" className="text-orange-600 hover:underline font-bold">Terms of Service</a>
-                        </p>
-                    </div>
-                </motion.div>
-            </div>
+                            {/* Privacy Note */}
+                            <p className="text-xs text-slate-400 text-center mt-8 font-medium">
+                                By submitting this form, you agree to our{" "}
+                                <a href="/privacy" className="text-orange-600 hover:underline font-bold">Privacy Policy</a>
+                                {" "}and{" "}
+                                <a href="/terms" className="text-orange-600 hover:underline font-bold">Terms of Service</a>
+                            </p>
+                        </div>
+                    </motion.div>
+                </div>
+            </section>
         </div>
     );
 }
