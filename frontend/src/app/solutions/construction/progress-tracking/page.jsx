@@ -36,24 +36,7 @@ export default function ProgressTrackingPage() {
                         </div>
                     </motion.div>
 
-                    <div className="relative max-w-6xl mx-auto">
-                        <div className="aspect-video rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 bg-slate-900">
-                            <Image
-                                src="https://images.pexels.com/photos/2850347/pexels-photo-2850347.jpeg?auto=compress&cs=tinysrgb&w=1200"
-                                alt="Construction Dashboard"
-                                fill
-                                className="object-cover opacity-80"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <motion.button
-                                    whileHover={{ scale: 1.1 }}
-                                    className="w-24 h-24 bg-orange-600 text-white rounded-full flex items-center justify-center shadow-2xl backdrop-blur-md"
-                                >
-                                    <Play fill="white" size={32} />
-                                </motion.button>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </section>
 
@@ -103,7 +86,7 @@ export default function ProgressTrackingPage() {
                             </div>
                         </div>
                         <div className="relative">
-                            <div className="aspect-square rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-white/5 relative bg-slate-900">
+                            <div className="aspect-video rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white/5 relative bg-slate-900">
                                 <Image
                                     src="https://images.pexels.com/photos/159888/pexels-photo-159888.jpeg?auto=compress&cs=tinysrgb&w=800"
                                     alt="Site Logistics"

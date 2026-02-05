@@ -34,9 +34,7 @@ export default function WorkManagementPage() {
                                 <Link href="/booking" className="px-10 py-5 bg-orange-600 text-white rounded-xl font-bold text-lg hover:bg-orange-700 transition-all shadow-xl shadow-orange-900/20">
                                     Start Optimizing Today
                                 </Link>
-                                <Link href="#dashboard" className="px-10 py-5 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-xl font-bold text-lg hover:bg-white/20 transition-all">
-                                    Watch Demo
-                                </Link>
+                               
                             </div>
                         </motion.div>
                     </div>

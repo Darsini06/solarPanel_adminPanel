@@ -34,9 +34,6 @@ export default function SiteAssessmentPage() {
                                 <Link href="/booking" className="px-12 py-6 bg-orange-600 text-white rounded-xl font-bold text-lg hover:bg-orange-700 transition-all shadow-xl shadow-orange-900/40">
                                     Request a Site Survey
                                 </Link>
-                                <Link href="#" className="px-12 py-6 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-xl font-bold text-lg hover:bg-white/20 transition-all">
-                                    View Sample Report
-                                </Link>
                             </div>
                         </motion.div>
                     </div>

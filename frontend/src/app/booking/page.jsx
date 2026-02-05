@@ -1,10 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Send, Loader2, Star, CheckCircle, ShieldCheck, Zap } from "lucide-react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function BookingPage() {
+    const router = useRouter();
+
+    useEffect(() => {
+        const token = localStorage.getItem("auth_token");
+        if (!token) {
+            router.push("/login");
+        }
+    }, [router]);
+
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",

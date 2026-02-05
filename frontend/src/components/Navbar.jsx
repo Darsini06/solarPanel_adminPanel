@@ -187,6 +187,7 @@ export default function Navbar() {
 
                         <Link href="/about" className={`px-4 py-2 text-sm font-bold transition-all duration-300 ${pathname === "/about" ? "text-orange-600" : `${textColor} ${hoverTextColor}`}`}>About</Link>
                         <Link href="/offers" className={`px-4 py-2 text-sm font-bold transition-all duration-300 ${pathname === "/offers" ? "text-orange-600" : `${textColor} ${hoverTextColor}`}`}>Offers</Link>
+                        <Link href="/booking" className={`px-4 py-2 text-sm font-bold transition-all duration-300 ${pathname === "/booking" ? "text-orange-600" : `${textColor} ${hoverTextColor}`}`}>Bookings</Link>
                         <Link href="/contact" className={`px-4 py-2 text-sm font-bold transition-all duration-300 ${pathname === "/contact" ? "text-orange-600" : `${textColor} ${hoverTextColor}`}`}>Contact</Link>
                     </div>
 
@@ -217,10 +218,10 @@ export default function Navbar() {
                                     Log In
                                 </Link>
                                 <Link
-                                    href="/booking"
+                                    href="/register"
                                     className={`px-8 py-3 text-sm font-bold rounded-xl transition-all duration-300 shadow-xl ${(isScrolled || !isDarkHeroPage) ? "bg-slate-900 text-white hover:bg-slate-800 shadow-slate-200" : "bg-orange-600 text-white hover:bg-orange-700 shadow-orange-900/20"}`}
                                 >
-                                    Book Demo
+                                    Register
                                 </Link>
                             </>
                         )}
@@ -282,6 +283,7 @@ export default function Navbar() {
                         )}
 
                         <Link href="/about" className="block px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl" onClick={() => setIsMenuOpen(false)}>About</Link>
+                        <Link href="/booking" className="block px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl" onClick={() => setIsMenuOpen(false)}>Bookings</Link>
                         <Link href="/contact" className="block px-4 py-3 text-base font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 rounded-xl" onClick={() => setIsMenuOpen(false)}>Contact</Link>
 
                         <div className="mt-8 px-4 space-y-3 border-t border-slate-50 pt-6">

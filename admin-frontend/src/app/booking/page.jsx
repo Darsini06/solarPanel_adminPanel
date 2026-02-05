@@ -36,6 +36,14 @@ export default function BookingPage() {
     const [filterStatus, setFilterStatus] = useState('all');
     const router = useRouter();
 
+    // Helper to extract fields from notes
+    const getValueFromNotes = (notes, field) => {
+        if (!notes) return '';
+        const regex = new RegExp(`${field}:\\s*(.*?)(\\n|$)`, 'i');
+        const match = notes.match(regex);
+        return match ? match[1].trim() : '';
+    };
+
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -320,21 +328,23 @@ export default function BookingPage() {
 
                     {/* Table Area */}
                     <div className="flex-grow overflow-x-auto">
-                        <table className="w-full text-left border-collapse table-fixed">
+                        <table className="w-full text-left border-collapse table-fixed min-w-[1400px]">
                             <thead>
                                 <tr className="bg-gray-50/50 border-b border-gray-100">
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[250px]">Customer / Service</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[180px]">Schedule</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[180px]">Contact Info</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[220px]">Site Details</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[140px]">Status</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[280px]">Actions</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[220px]">Customer / Type</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[150px]">Schedule</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[150px]">Contact Info</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[180px]">Company Details</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[180px]">Site Details</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[200px]">Additional Info</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[120px]">Status</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest w-[200px]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan="6" className="px-6 py-20 text-center">
+                                        <td colSpan="8" className="px-6 py-20 text-center">
                                             <div className="flex flex-col items-center">
                                                 <Loader2 className="w-8 h-8 text-orange-500 animate-spin mb-3" />
                                                 <span className="text-sm font-medium text-gray-500">Retrieving data...</span>
@@ -343,7 +353,7 @@ export default function BookingPage() {
                                     </tr>
                                 ) : paginatedBookings.length === 0 ? (
                                     <tr>
-                                        <td colSpan="6" className="px-6 py-20 text-center">
+                                        <td colSpan="8" className="px-6 py-20 text-center">
                                             <div className="flex flex-col items-center">
                                                 <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-4">
                                                     <Calendar className="w-6 h-6 text-gray-300" />
@@ -354,105 +364,139 @@ export default function BookingPage() {
                                         </td>
                                     </tr>
                                 ) : (
-                                    paginatedBookings.map((booking) => (
-                                        <tr key={booking.id} className="hover:bg-gray-50/80 transition-colors group">
-                                            <td className="px-6 py-4 overflow-hidden">
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-bold text-gray-900 truncate">{booking.user_name || 'Guest User'}</span>
-                                                    <span className="text-[11px] font-semibold text-orange-600 mt-0.5">{booking.service_type}</span>
-                                                    <div className="flex items-center text-[10px] text-gray-400 mt-1 truncate">
-                                                        <Mail className="w-3 h-3 mr-1" />
-                                                        {booking.user_email}
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex flex-col text-sm text-gray-600">
-                                                    <div className="flex items-center">
-                                                        <Calendar className="w-3.5 h-3.5 mr-2 text-gray-400" />
-                                                        {booking.date}
-                                                    </div>
-                                                    <div className="flex items-center mt-1 text-xs text-gray-400">
-                                                        <Clock className="w-3.5 h-3.5 mr-2" />
-                                                        {booking.time}
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center text-sm text-gray-700">
-                                                    <Phone className="w-3.5 h-3.5 mr-2 text-gray-400" />
-                                                    {booking.contact_phone}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex flex-col text-xs text-gray-600 max-w-[200px]">
-                                                    {booking.location && (
-                                                        <div className="flex items-start">
-                                                            <MapPin className="w-3.5 h-3.5 mr-2 text-gray-400 flex-shrink-0 mt-0.5" />
-                                                            <span className="line-clamp-2" title={booking.location}>{booking.location}</span>
-                                                        </div>
-                                                    )}
-                                                    {booking.system_size && (
-                                                        <div className="flex items-center mt-1 text-gray-400">
-                                                            <Zap className="w-3.5 h-3.5 mr-2" />
-                                                            {booking.system_size}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusStyles(booking.status)}`}>
-                                                    {booking.status}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex items-center gap-1.5">
-                                                    {/* Workflow Actions */}
-                                                    <button
-                                                        onClick={() => handleStatusUpdate(booking.id, 'confirmed')}
-                                                        disabled={booking.status === 'confirmed'}
-                                                        className="h-8 px-3 text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-lg hover:bg-emerald-500 hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-emerald-50 disabled:hover:text-emerald-600"
-                                                        title="Accept Booking"
-                                                    >
-                                                        ACCEPT
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleStatusUpdate(booking.id, 'cancelled')}
-                                                        disabled={booking.status === 'cancelled'}
-                                                        className="h-8 px-3 text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100 rounded-lg hover:bg-rose-500 hover:text-white transition-all disabled:opacity-30"
-                                                        title="Reject Booking"
-                                                    >
-                                                        REJECT
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleStatusUpdate(booking.id, 'pending')}
-                                                        disabled={booking.status === 'pending'}
-                                                        className="h-8 px-3 text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100 rounded-lg hover:bg-amber-500 hover:text-white transition-all disabled:opacity-30"
-                                                        title="Move to Pending"
-                                                    >
-                                                        PENDING
-                                                    </button>
+                                    paginatedBookings.map((booking) => {
+                                        const companyName = getValueFromNotes(booking.notes, 'Company');
+                                        const jobTitle = getValueFromNotes(booking.notes, 'Job Title');
+                                        const referralSource = getValueFromNotes(booking.notes, 'Referral Source');
+                                        // Simple extraction for Additional Info if it's at the end
+                                        const additionalInfoMatch = booking.notes?.match(/Additional Info:([\s\S]*)/);
+                                        const additionalInfo = additionalInfoMatch ? additionalInfoMatch[1].trim() : '';
 
-                                                    {/* Control Actions */}
-                                                    <div className="ml-2 h-6 w-px bg-gray-100"></div>
-                                                    <button
-                                                        onClick={() => openEditModal(booking)}
-                                                        className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all"
-                                                        title="Edit details"
-                                                    >
-                                                        <Edit className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(booking.id)}
-                                                        className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-all"
-                                                        title="Delete entry"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
+                                        return (
+                                            <tr key={booking.id} className="hover:bg-gray-50/80 transition-colors group">
+                                                <td className="px-6 py-4 overflow-hidden">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-bold text-gray-900 truncate">{booking.user_name || 'Guest User'}</span>
+                                                        <span className="text-[11px] font-semibold text-orange-600 mt-0.5">{booking.service_type}</span>
+                                                        <div className="flex items-center text-[10px] text-gray-400 mt-1 truncate">
+                                                            <Mail className="w-3 h-3 mr-1" />
+                                                            {booking.user_email}
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="flex flex-col text-sm text-gray-600">
+                                                        <div className="flex items-center">
+                                                            <Calendar className="w-3.5 h-3.5 mr-2 text-gray-400" />
+                                                            {booking.date}
+                                                        </div>
+                                                        <div className="flex items-center mt-1 text-xs text-gray-400">
+                                                            <Clock className="w-3.5 h-3.5 mr-2" />
+                                                            {booking.time}
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center text-sm text-gray-700">
+                                                        <Phone className="w-3.5 h-3.5 mr-2 text-gray-400" />
+                                                        {booking.contact_phone}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex flex-col text-xs text-gray-600">
+                                                        {companyName && (
+                                                            <div className="font-bold text-gray-800 mb-0.5">{companyName}</div>
+                                                        )}
+                                                        {jobTitle && (
+                                                            <div className="text-gray-500">{jobTitle}</div>
+                                                        )}
+                                                        {!companyName && !jobTitle && <span className="text-gray-300">-</span>}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex flex-col text-xs text-gray-600 max-w-[200px]">
+                                                        {booking.location && (
+                                                            <div className="flex items-start">
+                                                                <MapPin className="w-3.5 h-3.5 mr-2 text-gray-400 flex-shrink-0 mt-0.5" />
+                                                                <span className="line-clamp-2" title={booking.location}>{booking.location}</span>
+                                                            </div>
+                                                        )}
+                                                        {booking.system_size && (
+                                                            <div className="flex items-center mt-1 text-gray-400">
+                                                                <Zap className="w-3.5 h-3.5 mr-2" />
+                                                                {booking.system_size}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex flex-col text-xs text-gray-500 max-w-[200px]">
+                                                        {referralSource && (
+                                                            <div className="mb-1">
+                                                                <span className="font-semibold text-gray-400">Ref:</span> {referralSource}
+                                                            </div>
+                                                        )}
+                                                        {additionalInfo && (
+                                                            <div className="line-clamp-2 italic" title={additionalInfo}>
+                                                                "{additionalInfo}"
+                                                            </div>
+                                                        )}
+                                                        {!referralSource && !additionalInfo && <span className="text-gray-300">-</span>}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusStyles(booking.status)}`}>
+                                                        {booking.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="flex items-center gap-1.5">
+                                                        {/* Workflow Actions */}
+                                                        <button
+                                                            onClick={() => handleStatusUpdate(booking.id, 'confirmed')}
+                                                            disabled={booking.status === 'confirmed'}
+                                                            className="h-8 px-3 text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-lg hover:bg-emerald-500 hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-emerald-50 disabled:hover:text-emerald-600"
+                                                            title="Accept Booking"
+                                                        >
+                                                            ACCEPT
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleStatusUpdate(booking.id, 'cancelled')}
+                                                            disabled={booking.status === 'cancelled'}
+                                                            className="h-8 px-3 text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100 rounded-lg hover:bg-rose-500 hover:text-white transition-all disabled:opacity-30"
+                                                            title="Reject Booking"
+                                                        >
+                                                            REJECT
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleStatusUpdate(booking.id, 'pending')}
+                                                            disabled={booking.status === 'pending'}
+                                                            className="h-8 px-3 text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100 rounded-lg hover:bg-amber-500 hover:text-white transition-all disabled:opacity-30"
+                                                            title="Move to Pending"
+                                                        >
+                                                            PENDING
+                                                        </button>
+                                                        {/* Control Actions */}
+                                                        <div className="ml-2 h-6 w-px bg-gray-100"></div>
+                                                        <button
+                                                            onClick={() => openEditModal(booking)}
+                                                            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all"
+                                                            title="Edit details"
+                                                        >
+                                                            <Edit className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(booking.id)}
+                                                            className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-all"
+                                                            title="Delete entry"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
                                 )}
                             </tbody>
                         </table>

@@ -67,7 +67,7 @@ export default function OffersPage() {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-5xl md:text-7xl font-bold text-slate-900 mb-8 leading-tight tracking-tight"
                     >
-                        Our Service <span className="text-orange-600">Portfolio</span>
+                        What we <span className="text-orange-600">offers</span>
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
@@ -155,10 +155,6 @@ export default function OffersPage() {
                             </div>
 
                             <div className="mt-16">
-                                <button className="px-10 py-5 bg-slate-900 text-white rounded-xl font-bold text-lg flex items-center gap-3 hover:bg-slate-800 transition-all shadow-2xl">
-                                    <FileUp size={24} />
-                                    Download Sample Report
-                                </button>
                             </div>
                         </motion.div>
 

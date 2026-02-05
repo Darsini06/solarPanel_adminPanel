@@ -5,15 +5,17 @@ import React, { useState, useEffect } from "react";
 import {
   ArrowRight, Zap, Shield, Globe, Sun, FileUp, Database,
   HardDrive, CheckCircle, User, Mail, Phone, MapPin,
-  Settings, MessageSquare, Send, CloudUpload, Activity
+  Settings, MessageSquare, Send, CloudUpload, Activity, Loader2, ShieldCheck, Star
 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { authAPI } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function HomePage() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [driveLink1, setDriveLink1] = useState("");
   const [driveLink2, setDriveLink2] = useState("");
@@ -21,15 +23,62 @@ export default function HomePage() {
   const [uploadStatus, setUploadStatus] = useState({ type: "", message: "" });
   const [pdfs, setPdfs] = useState([]);
   const [loadingPdfs, setLoadingPdfs] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState({ type: '', message: '' });
+
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
+    firstName: "",
+    lastName: "",
+    workEmail: "",
+    jobTitle: "",
     phone: "",
-    location: "",
-    systemSize: "",
-    type: "",
-    message: ""
+    country: "",
+    companyName: "",
+    companyType: "",
+    solarCapacity: "",
+    referralSource: "",
+    additionalInfo: ""
   });
+
+  const companyTypes = [
+    "Asset Owner",
+    "EPC Contractor",
+    "O&M Team",
+    "Drone Service Provider",
+    "Developer",
+    "Other"
+  ];
+
+  const solarCapacities = [
+    "Less than 1 MW",
+    "1-10 MW",
+    "10-50 MW",
+    "50-100 MW",
+    "100-500 MW",
+    "500+ MW"
+  ];
+
+  const referralSources = [
+    "Google Search",
+    "LinkedIn",
+    "Industry Event",
+    "Referral",
+    "Social Media",
+    "Other"
+  ];
+
+  const countries = [
+    "United States",
+    "Canada",
+    "United Kingdom",
+    "Germany",
+    "France",
+    "Spain",
+    "Italy",
+    "Australia",
+    "India",
+    "Other"
+  ];
 
   useEffect(() => {
     const name = localStorage.getItem("user_name");
@@ -38,6 +87,7 @@ export default function HomePage() {
       setUser({ name, token });
     }
   }, []);
+
   const fetchPDFsForLink = async (linkId) => {
     try {
       setLoadingPdfs(true);
@@ -89,6 +139,7 @@ export default function HomePage() {
       alert('Failed to download PDF');
     }
   };
+
   const handleDriveLinkSubmit = async (e) => {
     e.preventDefault();
 
@@ -157,10 +208,73 @@ export default function HomePage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    alert("Thank you! Your inspection request has been received.");
+
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    setSubmitting(true);
+    setStatus({ type: '', message: '' });
+
+    try {
+      // Combine first and last name for the API
+      const payload = {
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.workEmail,
+        contact_phone: formData.phone,
+        location: formData.country,
+        service_type: formData.companyType,
+        system_size: formData.solarCapacity,
+        notes: `Job Title: ${formData.jobTitle}\nCompany: ${formData.companyName}\nReferral Source: ${formData.referralSource}\n\nAdditional Info: ${formData.additionalInfo}`,
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toLocaleTimeString('en-US', { hour12: false })
+      };
+
+      const response = await fetch(`${API_URL}/bookings/guest`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to submit booking');
+      }
+
+      setStatus({
+        type: 'success',
+        message: 'Thank you! Your request has been received. Someone from our team will be in touch with you shortly.'
+      });
+
+      // Reset form
+      setFormData({
+        firstName: "",
+        lastName: "",
+        workEmail: "",
+        jobTitle: "",
+        phone: "",
+        country: "",
+        companyName: "",
+        companyType: "",
+        solarCapacity: "",
+        referralSource: "",
+        additionalInfo: ""
+      });
+
+    } catch (error) {
+      console.error("Error submitting booking:", error);
+      setStatus({
+        type: 'error',
+        message: error.message || 'Something went wrong. Please try again later.'
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -513,10 +627,10 @@ export default function HomePage() {
       </section>
 
       {/* Inspection Form Section */}
-      <section id="inspection-form" className="py-24 bg-slate-50 relative overflow-hidden">
+      <section id="inspection-form" className="py-16 bg-slate-50 relative overflow-hidden">
         <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-orange-200/20 rounded-full blur-[100px]" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
             <motion.div
               initial={{ opacity: 0, x: -40 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -549,101 +663,249 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-white p-8 md:p-10 rounded-[3rem] shadow-2xl shadow-orange-100 border border-slate-100"
+              className="bg-white p-6 md:p-8 rounded-[2rem] shadow-2xl shadow-orange-100 border border-slate-100"
             >
-              <form onSubmit={handleFormSubmit} className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+              {status.message && (
+                <div className={`mb-6 p-4 rounded-xl text-center shadow-sm ${status.type === 'success'
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                  : 'bg-red-50 text-red-700 border border-red-100'
+                  }`}>
+                  <p className="font-bold text-sm tracking-tight flex items-center justify-center gap-2">
+                    {status.type === 'success' && <CheckCircle size={18} />}
+                    {status.message}
+                  </p>
+                </div>
+              )}
+
+              <form onSubmit={handleFormSubmit} className="space-y-4">
+                {/* First Name & Last Name */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2 group">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                      First Name*
+                    </label>
                     <input
                       type="text"
-                      name="name"
-                      placeholder="Full Name"
+                      name="firstName"
                       required
+                      placeholder="Jane"
+                      value={formData.firstName}
                       onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm font-medium text-slate-900 placeholder:text-slate-400 group-hover:bg-white"
                     />
                   </div>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                  <div className="space-y-2 group">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                      Last Name*
+                    </label>
                     <input
-                      type="email"
-                      name="email"
-                      placeholder="Email Address"
+                      type="text"
+                      name="lastName"
                       required
+                      placeholder="Doe"
+                      value={formData.lastName}
                       onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm font-medium text-slate-900 placeholder:text-slate-400 group-hover:bg-white"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                {/* Work Email & Job Title */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2 group">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                      Work Email*
+                    </label>
+                    <input
+                      type="email"
+                      name="workEmail"
+                      required
+                      placeholder="jane@company.com"
+                      value={formData.workEmail}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm font-medium text-slate-900 placeholder:text-slate-400 group-hover:bg-white"
+                    />
+                  </div>
+                  <div className="space-y-2 group">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                      Job Title*
+                    </label>
+                    <input
+                      type="text"
+                      name="jobTitle"
+                      required
+                      placeholder="Operations Manager"
+                      value={formData.jobTitle}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm font-medium text-slate-900 placeholder:text-slate-400 group-hover:bg-white"
+                    />
+                  </div>
+                </div>
+
+                {/* Phone Number & Country */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2 group">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                      Phone Number*
+                    </label>
                     <input
                       type="tel"
                       name="phone"
-                      placeholder="Phone Number"
                       required
+                      placeholder="+1 (555) 000-0000"
+                      value={formData.phone}
                       onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm font-medium text-slate-900 placeholder:text-slate-400 group-hover:bg-white"
                     />
                   </div>
-                  <div className="relative">
-                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-                    <input
-                      type="text"
-                      name="location"
-                      placeholder="Site Location / Address"
-                      required
-                      onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none"
-                    />
+                  <div className="space-y-2 group">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                      Country*
+                    </label>
+                    <div className="relative">
+                      <select
+                        name="country"
+                        required
+                        value={formData.country}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm appearance-none font-medium text-slate-700 group-hover:bg-white"
+                      >
+                        <option value="">Please Select</option>
+                        {countries.map((country) => (
+                          <option key={country} value={country}>{country}</option>
+                        ))}
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="relative">
-                    <Settings className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-                    <select
-                      name="type"
-                      onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none appearance-none"
-                    >
-                      <option>Residential</option>
-                      <option>Commercial</option>
-                      <option>Industrial solar farm</option>
-                    </select>
-                  </div>
-                  <div className="relative">
-                    <Zap className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                {/* Company Name & Company Type */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2 group">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                      Company Name*
+                    </label>
                     <input
                       type="text"
-                      name="systemSize"
-                      placeholder="System Size (e.g. 10kW)"
+                      name="companyName"
+                      required
+                      placeholder="SolarMark"
+                      value={formData.companyName}
                       onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm font-medium text-slate-900 placeholder:text-slate-400 group-hover:bg-white"
                     />
+                  </div>
+
+                  <div className="space-y-2 group">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                      Company Type*
+                    </label>
+                    <div className="relative">
+                      <select
+                        name="companyType"
+                        required
+                        value={formData.companyType}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm appearance-none font-medium text-slate-700 group-hover:bg-white"
+                      >
+                        <option value="">Please Select</option>
+                        {companyTypes.map((type) => (
+                          <option key={type} value={type}>{type}</option>
+                        ))}
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="relative">
-                  <MessageSquare className="absolute left-4 top-4 text-slate-400 w-5 h-5" />
+                {/* Solar Capacity & Referral Source */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2 group">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                      Solar Capacity*
+                    </label>
+                    <div className="relative">
+                      <select
+                        name="solarCapacity"
+                        required
+                        value={formData.solarCapacity}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm appearance-none font-medium text-slate-700 group-hover:bg-white"
+                      >
+                        <option value="">Please Select</option>
+                        {solarCapacities.map((capacity) => (
+                          <option key={capacity} value={capacity}>{capacity}</option>
+                        ))}
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 group">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                      Referral Source*
+                    </label>
+                    <div className="relative">
+                      <select
+                        name="referralSource"
+                        required
+                        value={formData.referralSource}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none shadow-sm appearance-none font-medium text-slate-700 group-hover:bg-white"
+                      >
+                        <option value="">Please Select</option>
+                        {referralSources.map((source) => (
+                          <option key={source} value={source}>{source}</option>
+                        ))}
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Additional Information */}
+                <div className="space-y-2 group">
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-orange-600 transition-colors">
+                    Additional Information you want to share with us
+                  </label>
                   <textarea
-                    name="message"
+                    name="additionalInfo"
                     rows="4"
-                    placeholder="Tell us about your requirements..."
+                    placeholder=""
+                    value={formData.additionalInfo}
                     onChange={handleChange}
-                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none resize-none"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none resize-none shadow-sm font-medium text-slate-900 placeholder:text-slate-400 group-hover:bg-white"
                   ></textarea>
                 </div>
 
-                <button
-                  type="submit"
-                  className="w-full py-5 bg-orange-600 text-white rounded-2xl font-bold text-lg shadow-xl shadow-orange-200 hover:bg-orange-700 hover:-translate-y-1 transition-all flex items-center justify-center group uppercase tracking-widest"
-                >
-                  Submit Inspection Request <Send className="ml-3 w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                </button>
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full py-5 bg-orange-600 text-white rounded-2xl font-bold text-lg shadow-xl shadow-orange-200 hover:bg-orange-700 hover:-translate-y-1 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="animate-spin w-6 h-6" />
+                        Processing Request...
+                      </>
+                    ) : (
+                      <>
+                        Submit Inspection Request
+                        <Send size={24} />
+                      </>
+                    )}
+                  </button>
+                </div>
               </form>
             </motion.div>
           </div>

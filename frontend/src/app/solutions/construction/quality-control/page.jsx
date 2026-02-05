@@ -71,7 +71,7 @@ export default function QualityControlPage() {
                         <div className="relative">
                             <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border border-slate-100 bg-slate-100">
                                 <Image
-                                    src="https://images.pexels.com/photos/8853517/pexels-photo-8853517.jpeg?auto=compress&cs=tinysrgb&w=800"
+                                    src="https://images.pexels.com/photos/4320478/pexels-photo-4320478.jpeg?auto=compress&cs=tinysrgb&w=1200"
                                     alt="Technical Inspection"
                                     fill
                                     className="object-cover"

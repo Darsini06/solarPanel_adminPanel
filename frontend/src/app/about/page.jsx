@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import {
     ShieldCheck, Zap, BarChart3, Users, Target, Globe, Award, Rocket,
     Camera, Thermometer, AlertTriangle, CheckCircle2, TrendingUp,
@@ -530,14 +531,14 @@ export default function AboutPage() {
                         </div>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                            <button className="px-12 py-6 bg-orange-600 text-white rounded-xl font-bold text-xl transition-all hover:bg-orange-700 shadow-2xl shadow-orange-900/40 uppercase tracking-wide flex items-center gap-3">
+                            <Link href="/booking" className="px-12 py-6 bg-orange-600 text-white rounded-xl font-bold text-xl transition-all hover:bg-orange-700 shadow-2xl shadow-orange-900/40 uppercase tracking-wide flex items-center gap-3">
                                 <Camera size={24} />
                                 Book Inspection
-                            </button>
-                            <button className="px-12 py-6 border-2 border-slate-700 text-white rounded-xl font-bold text-xl transition-all hover:bg-slate-800 uppercase tracking-wide flex items-center gap-3">
+                            </Link>
+                            <Link href="/contact" className="px-12 py-6 border-2 border-slate-700 text-white rounded-xl font-bold text-xl transition-all hover:bg-slate-800 uppercase tracking-wide flex items-center gap-3">
                                 <Users size={24} />
                                 Contact Sales
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </motion.div>
