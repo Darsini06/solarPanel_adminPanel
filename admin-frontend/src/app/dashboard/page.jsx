@@ -17,12 +17,11 @@ import {
   Link as LinkIcon
 } from 'lucide-react';
 
-export default function Dashboard() {
-  const router = useRouter();
+export default function Dashboard() {       
   const [loading, setLoading] = useState(true);
   const [adminName, setAdminName] = useState('');
   const [driveLinks, setDriveLinks] = useState([]);
-  const [bookings, setBookings] = useState([]);
+  const [bookings, setBookings] = useState([]);       
   const [contacts, setContacts] = useState([]);
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState([]);
@@ -31,7 +30,7 @@ export default function Dashboard() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
   const formatRelativeTime = (date) => {
-    const now = new Date();
+    const now = new Date();   
     const diffInSeconds = Math.floor((now - date) / 1000);
 
     if (diffInSeconds < 60) return 'just now';
@@ -404,7 +403,7 @@ export default function Dashboard() {
                   Use the "Add Drive Link" button to quickly share important documents with your team.
                   All links are securely stored and accessible.
                 </p>
-              </div>
+              </div>    
             </div>
           </div>
         </div>

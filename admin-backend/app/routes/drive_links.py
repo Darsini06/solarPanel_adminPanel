@@ -998,7 +998,7 @@ async def download_comparison_report(
             # Verify user has access to this report
             if pdf_meta.get("user_email") != user_email:
                 raise HTTPException(
-                    status_code=403,
+                    status_code=403,         
                     detail=f"You don't have access to report {pdf_id}"
                 )
 
