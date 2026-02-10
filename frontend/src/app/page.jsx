@@ -5,8 +5,8 @@ import React, { useState, useEffect } from "react";
 import {
   ArrowRight, Zap, Shield, Globe, Sun, FileUp, Database,
   HardDrive, CheckCircle, User, Mail, Phone, MapPin,
-  Settings, MessageSquare, Send, CloudUpload, Activity, Loader2, ShieldCheck, Star, ChevronDown,
-  Thermometer, ClipboardList, TrendingUp, Eye, Brain, FileText
+  Settings, MessageSquare, Send, CloudUpload, Activity, Loader2, ShieldCheck, Star, ChevronDown, ChevronLeft, ChevronRight,
+  Thermometer, ClipboardList, TrendingUp, Eye, Brain, FileText, Calendar
 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -709,72 +709,109 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {allServices.map((service, idx) => (
-              <motion.div
-                key={service.name}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{
-                  delay: idx * 0.05,
-                  type: "spring",
-                  stiffness: 80
-                }}
+          <div className="relative group">
+            {/* Scroll Buttons */}
+            <div className="absolute top-1/2 -left-4 md:-left-8 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
                 onClick={() => {
-                  if (!user) {
-                    router.push('/login');
-                  } else {
-                    router.push(service.href);
-                  }
+                  const container = document.getElementById('solar-future-scroll');
+                  container.scrollBy({ left: -400, behavior: 'smooth' });
                 }}
-                className="group relative h-[320px] rounded-[2.5rem] overflow-hidden cursor-pointer shadow-xl shadow-slate-200 hover:shadow-orange-200/50 transition-all duration-700"
+                className="w-12 h-12 bg-white rounded-full shadow-xl flex items-center justify-center text-slate-900 hover:bg-orange-600 hover:text-white transition-all border border-slate-100"
               >
-                {/* Image Layer */}
-                <div
-                  className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
-                  style={{ backgroundImage: `url(${service.image})` }}
-                ></div>
+                <ChevronLeft size={24} />
+              </button>
+            </div>
 
-                {/* Glassmorphism Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent group-hover:via-slate-900/60 transition-all duration-500"></div>
+            <div className="absolute top-1/2 -right-4 md:-right-8 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={() => {
+                  const container = document.getElementById('solar-future-scroll');
+                  container.scrollBy({ left: 400, behavior: 'smooth' });
+                }}
+                className="w-12 h-12 bg-white rounded-full shadow-xl flex items-center justify-center text-slate-900 hover:bg-orange-600 hover:text-white transition-all border border-slate-100"
+              >
+                <ChevronRight size={24} />
+              </button>
+            </div>
 
-                {/* Content Overlay */}
-                <div className="absolute inset-0 p-6 flex flex-col justify-end text-white">
-                  <div className="mb-auto">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center backdrop-blur-xl border border-white/20 shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${service.color === 'orange' ? 'bg-orange-600/60' :
-                      service.color === 'blue' ? 'bg-blue-600/60' :
-                        'bg-emerald-600/60'
-                      }`}>
-                      <service.icon size={20} />
+            <div
+              id="solar-future-scroll"
+              className="flex overflow-x-auto gap-6 pb-12 pt-4 snap-x snap-mandatory scrollbar-hide px-4 -mx-4 scroll-smooth"
+            >
+              {allServices.map((service, idx) => (
+                <motion.div
+                  key={service.name}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{
+                    delay: idx * 0.1,
+                    type: "spring",
+                    stiffness: 80
+                  }}
+                  onClick={() => {
+                    if (!user) {
+                      router.push('/login');
+                    } else {
+                      router.push(service.href);
+                    }
+                  }}
+                  onMouseMove={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    e.currentTarget.style.setProperty("--mouse-x", `${x}px`);
+                    e.currentTarget.style.setProperty("--mouse-y", `${y}px`);
+                  }}
+                  className="group relative h-[400px] w-[300px] md:w-[380px] flex-shrink-0 rounded-[2.5rem] overflow-hidden cursor-pointer shadow-xl shadow-slate-200 hover:shadow-orange-200/50 transition-all duration-700 snap-center"
+                >
+                  {/* Image Layer */}
+                  <div
+                    className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
+                    style={{ backgroundImage: `url(${service.image})` }}
+                  ></div>
+
+                  {/* Glassmorphism Overlays */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent group-hover:via-slate-900/60 transition-all duration-500"></div>
+
+                  {/* Content Overlay */}
+                  <div className="absolute inset-0 p-8 flex flex-col justify-end text-white">
+                    <div className="mb-auto">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/20 shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${service.color === 'orange' ? 'bg-orange-600/60' :
+                        service.color === 'blue' ? 'bg-blue-600/60' :
+                          'bg-emerald-600/60'
+                        }`}>
+                        <service.icon size={24} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-4 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+                      <div className="flex items-center gap-3">
+                        <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-[10px] font-black uppercase tracking-[0.2em]">
+                          {service.category}
+                        </span>
+                      </div>
+
+                      <h3 className="text-2xl font-black uppercase tracking-tight leading-tight group-hover:text-orange-400 transition-colors">
+                        {service.name}
+                      </h3>
+
+                      <p className="text-sm text-slate-300 font-medium opacity-0 group-hover:opacity-100 transition-all duration-700 line-clamp-3">
+                        {service.desc}
+                      </p>
+
+                      <div className="flex items-center gap-2 pt-2 text-orange-400 font-black text-xs uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-all duration-700">
+                        Explore <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="space-y-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-[8px] font-black uppercase tracking-[0.2em]">
-                        {service.category}
-                      </span>
-                    </div>
-
-                    <h3 className="text-xl font-black uppercase tracking-tight leading-tight group-hover:text-orange-400 transition-colors">
-                      {service.name}
-                    </h3>
-
-                    <p className="text-[11px] text-slate-300 font-medium opacity-0 group-hover:opacity-100 transition-all duration-700 line-clamp-2">
-                      {service.desc}
-                    </p>
-
-                    <div className="flex items-center gap-2 pt-1 text-orange-400 font-black text-[10px] uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-all duration-700">
-                      Explore <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Perspective Glow Effect */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-700 bg-[radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),#ffffff_0%,transparent_100%)]"></div>
-              </motion.div>
-            ))}
+                  {/* Perspective Glow Effect */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-700 bg-[radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),#ffffff_0%,transparent_100%)]"></div>
+                </motion.div>
+              ))}
+            </div>
           </div>
 
           <div className="mt-24 pt-12 border-t border-slate-200 flex flex-col items-center gap-8">
