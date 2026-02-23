@@ -295,10 +295,10 @@ export default function UserManagementPage() {
                                             <div className="flex gap-2">
                                                 <button
                                                     onClick={() => handleDeleteUser(user._id || user.id)}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100"
+                                                    className="px-3 py-1.5 text-[10px] font-bold text-rose-600 hover:text-white hover:bg-rose-500 rounded-lg transition-all border border-rose-100 bg-rose-50"
                                                     title="Delete User"
                                                 >
-                                                    <Trash2 size={16} />
+                                                    DELETE
                                                 </button>
                                             </div>
                                         </td>

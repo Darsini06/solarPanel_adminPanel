@@ -221,6 +221,11 @@ async def download_pdf(pdf_id: str, current_user = Depends(get_current_user)):
         file_id = pdf_meta.get("file_id")
         if not file_id:
             raise HTTPException(status_code=404, detail="PDF file content not found")
+        if isinstance(file_id, str):
+            if ObjectId.is_valid(file_id):
+                file_id = ObjectId(file_id)
+            else:
+                raise HTTPException(status_code=404, detail="PDF file content not found")
         
         # Get file from GridFS
         grid_out = fs.get(file_id)
@@ -255,6 +260,11 @@ async def view_pdf(pdf_id: str):
         file_id = pdf_meta.get("file_id")
         if not file_id:
             raise HTTPException(status_code=404, detail="PDF file content not found")
+        if isinstance(file_id, str):
+            if ObjectId.is_valid(file_id):
+                file_id = ObjectId(file_id)
+            else:
+                raise HTTPException(status_code=404, detail="PDF file content not found")
         
         grid_out = fs.get(file_id)
         file_content = grid_out.read()

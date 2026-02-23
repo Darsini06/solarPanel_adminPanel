@@ -34,6 +34,28 @@ export default function ContactsAdminPage() {
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+    const parseContactDate = (dateString) => {
+        if (!dateString) return null;
+
+        let dateToParse = dateString;
+        if (typeof dateString === 'string' && !dateString.endsWith('Z') && !dateString.includes('+')) {
+            dateToParse = `${dateString}Z`;
+        }
+
+        const date = new Date(dateToParse);
+        return Number.isNaN(date.getTime()) ? null : date;
+    };
+
+    const formatContactDate = (dateString) => {
+        const date = parseContactDate(dateString);
+        return date ? date.toLocaleDateString() : 'N/A';
+    };
+
+    const formatContactTime = (dateString) => {
+        const date = parseContactDate(dateString);
+        return date ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+    };
+
     const fetchContacts = async () => {
         const token = localStorage.getItem('token');
 
@@ -239,10 +261,10 @@ export default function ContactsAdminPage() {
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center text-sm text-gray-600">
                                                     <Clock className="w-3.5 h-3.5 mr-2 text-gray-400" />
-                                                    {new Date(contact.created_at).toLocaleDateString()}
+                                                    {formatContactDate(contact.created_at)}
                                                 </div>
                                                 <div className="text-[10px] text-gray-400 mt-1">
-                                                    {new Date(contact.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    {formatContactTime(contact.created_at)}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
